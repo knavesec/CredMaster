@@ -48,15 +48,7 @@ def okta_authenticate(url, username, password, useragent):
 		'output' : ""
 	}
 
-	body = {
-		"username" : username,
-		"password" : password,
-		"options" : {
-			"warnBeforePasswordExpired" : True,
-			"multiOptionalFactorEnroll" : True
-		}
-	}
-
+	raw_body = "{\"username\":\"%s\",\"password\":\"%s\",\"options\":{\"warnBeforePasswordExpired\":true,\"multiOptionalFactorEnroll\":true}}" % (username, password)
 
 	spoofed_ip = generate_ip()
 	amazon_id = generate_id()
@@ -72,7 +64,7 @@ def okta_authenticate(url, username, password, useragent):
 
 
 	try:
-		resp = requests.post("{}/api/v1/authn/".format(url),data=body,headers=headers)
+		resp = requests.post("{}/api/v1/authn/".format(url),data=raw_body,headers=headers)
 
 		if resp.status_code == 200:
 			resp_json = json.loads(resp.text)
