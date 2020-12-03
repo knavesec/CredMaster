@@ -33,6 +33,7 @@ def main(args,pargs):
 
 	global start_time, end_time, time_lapse, apis, outfile, done
 
+	# assign variables
 	thread_count = args.threads
 	plugin = args.plugin
 	username_file = args.userfile
@@ -47,7 +48,17 @@ def main(args,pargs):
 	outfile = args.outfile
 	passwordsperdelay = args.passwordsperdelay
 	jitter = args.jitter
+	jitter_min = args.jitter_min
 
+	# catch input exception conditions
+	if jitter_min is not None and jitter is None:
+		log_entry("--jitter flag must be set with --jitter-min flag")
+		return
+	elif jitter_min is not None and jitter is not None and jitter_min >= jitter:
+		log_entry("--jitter flag must be greater than --jitter-min flag")
+		return
+
+	# TODO: Add exception conditions for access_key/etc
 
 	pluginargs = {}
 	if len(pargs) % 2 == 1:
@@ -94,7 +105,8 @@ def main(args,pargs):
 					api_key = api_key,
 					api_dict = apis[api_key],
 					plugin = plugin,
-					jitter = jitter
+					jitter = jitter,
+					jitter_min = jitter_min
 				)
 
 		count = count + 1
@@ -200,7 +212,7 @@ def destroy_apis(access_key, secret_access_key, profile_name, session_token):
 		fp.delete_api(args["api_id"])
 
 
-def spray_thread(api_key, api_dict, plugin, jitter=None):
+def spray_thread(api_key, api_dict, plugin, jitter=None, jitter_min=None):
 	global results
 	try:
 		plugin_authentiate = getattr(importlib.import_module('plugins.{}.{}'.format(plugin, plugin)), '{}_authenticate'.format(plugin))
@@ -215,7 +227,9 @@ def spray_thread(api_key, api_dict, plugin, jitter=None):
 			cred = q_spray.get_nowait()
 
 			if jitter is not None:
-				time.sleep(random.randint(0,jitter))
+				if jitter_min is None:
+					jitter_min = 0
+				time.sleep(random.randint(jitter_min,jitter))
 
 			response = plugin_authentiate(api_dict['proxy_url'], cred['username'], cred['password'], cred['useragent'])
 
@@ -284,6 +298,7 @@ if __name__ == '__main__':
 	parser.add_argument('-a', '--useragentfile', required=False, help='Useragent file')
 	parser.add_argument('-o', '--outfile', default=None, required=False, help='Output file to write contents')
 	parser.add_argument('-j', '--jitter', type=int, default=None, required=False, help='Jitter delay between requests in seconds (applies per-thread)')
+	parser.add_argument('-m', '--jitter_min', type=int, default=None, required=False, help='Minimum jitter time in seconds, defaults to 0')
 	parser.add_argument('-d', '--delay', type=int, required=False, help='Delay between unique passwords, in minutes')
 	parser.add_argument('--passwordsperdelay', type=int, default=1, required=False, help='Number of passwords to be tested per delay cycle')
 	parser.add_argument('--profile_name', type=str, default=None, help='AWS Profile Name to store/retrieve credentials')
@@ -291,12 +306,5 @@ if __name__ == '__main__':
 	parser.add_argument('--secret_access_key', type=str, default=None, help='AWS Secret Access Key')
 	parser.add_argument('--session_token', type=str, default=None, help='AWS Session Token')
 	args,pluginargs = parser.parse_known_args()
-
-
-	#if (not args.access_key or not args.secret_access_key):
-
-
-
-
 
 	main(args,pluginargs)

@@ -1,14 +1,6 @@
 import json, datetime, requests, random
 
 
-def check_throttle(response):
-
-	if response.status_code == 429:
-		return True
-	else:
-		return False
-
-
 def generate_ip():
 
     return ".".join(str(random.randint(0,255)) for _ in range(4))
@@ -65,6 +57,7 @@ def okta_authenticate(url, username, password, useragent):
 
 	try:
 		resp = requests.post("{}/api/v1/authn/".format(url),data=raw_body,headers=headers)
+
 
 		if resp.status_code == 200:
 			resp_json = json.loads(resp.text)
