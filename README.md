@@ -17,9 +17,9 @@
 
 ## Overview ##
 
-Launch a password spray via Amazon AWS passthrough proxies, shifting the requesting IP address for every authentication attempt.
+Launch a password spray via Amazon AWS passthrough proxies, shifting the requesting IP address for every authentication attempt. This dynamically creates FireProx APIs to create more evasive password sprays.  
 
-Shoutout to [@ustayready](https://github.com/ustayready) for his [CredKing](https://github.com/ustayready/CredKing) and [FireProx](https://github.com/ustayready/fireprox) tools, which form the base of this suite.
+Shoutout to [@ustayready](https://twitter.com/ustayready) for his [CredKing](https://github.com/ustayready/CredKing) and [FireProx](https://github.com/ustayready/fireprox) tools, which form the base of this suite.
 
 
 ### Benefits ###
@@ -84,7 +84,7 @@ usage: credmaster.py [-h] --plugin PLUGIN -u USERFILE -p PASSWORDFILE
 
 Example: `python3 credmaster.py --access_key <key> --secret_access_key <key> --plugin o365 -u userfile.txt -p passfile.txt -a useragents.txt -t 5 -o outputfile -j 20 -m 10 -d 360 --passwordsperdelay 3`
 
-This will run the `o365` module with 5 threads and a 10-20 second jitter. It will attempt 2 passwords every 6 hrs (360 min).
+This will run the `o365` module with 5 threads and a 10-20 second jitter. It will attempt 3 passwords every 6 hrs (360 min).
 
 
 ## Plugin Usage ##
@@ -193,18 +193,16 @@ A template is provided in the `plugins/template` directory. Instructions within 
 
 Plugin specific arguments can be specified with no modifications to credmaster.py, simply pass them as *--argumentname value*
 
-If your plugin requirements plugin-specific arguments, you can implement a validate function in the \_\_init\_\_.py file of your plugin directory that will be passed an dictionary of all optional arguments. An example of plugin argument validation used by the okta plugin can be found in any of the plugins provided.
+If your plugin requirements plugin-specific arguments, you can implement a validate function in the \_\_init\_\_.py file of your plugin directory that will be passed an dictionary of all optional arguments. An example of plugin argument validation can be found in any of the plugins provided.
 
 All validate functions _must_ return a `pluginargs['url']` value to be used for the API creation, which cannot include the URI. FireProx will not work properly if the URI is provided. The `httpbrute` and `o365` methods are good examples if you need clarification. Everything else will be passed to the authentication function to be used.
-
-**That's it, enjoy!**
 
 
 ### Credits ###
 
-- Mike Felch [ustayready](https://twitter.com/ustayready) - CredKing & FireProx
-- Beau Bolloc [dafthack](https://twitter.com/dafthack) - MSOLSpray tool
-- Martin Ingesen [mrtn9](https://twitter.com/Mrtn9) - MSOLSpray Python tool
-- Oliver Morton [grimhacker](https://twitter.com/grimhacker) - Office365UserEnum tool
+- Mike Felch ([ustayready](https://twitter.com/ustayready)) - CredKing & FireProx
+- Beau Bolloc ([dafthack](https://twitter.com/dafthack)) - MSOLSpray tool
+- Martin Ingesen ([mrtn9](https://twitter.com/Mrtn9)) - MSOLSpray Python tool
+- Oliver Morton ([grimhacker](https://twitter.com/grimhacker)) - Office365UserEnum tool
 - Erforschr - HTTP Bruteforce tool
 - My team at [RSM](https://rsmus.com/what-we-do/services/risk-advisory/cybersecurity-data-privacy/security-testing/network-penetration-testing.html) for help with testing and development
