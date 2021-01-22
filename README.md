@@ -73,7 +73,7 @@ usage: credmaster.py [-h] --plugin PLUGIN -u USERFILE -p PASSWORDFILE
 --clean               Clean up ALL AWS APIs from every region, warning irreversible
 ```
 
-- `outfile` - multithreaded file writes are hard so this is incomplete. Will write to `threads`+1 files. These can be put in order with a simple `cat outfilename-credmaster* | sort` since they are all timestamped
+- `outfile` - multithreaded file writes are hard so this is incomplete. Will write to `threads`+1 files. These can be put in order with a simple `sort outfilename-credmaster*` since they are all timestamped
 - `threads` - pretty straight forward, for quicker results. Each thread is a unique AWS region so there is less overlap
 - `jitter`, `jitter_min` - provide upper and lower limit settings for jittering requests
 - `delay` - provided a password list, it can be configured to move to the next password after `delay` minutes to help prevent lockouts. Helpful if you know the clients lockout reset counter, you can set the delay between passwords long enough to trigger the reset
