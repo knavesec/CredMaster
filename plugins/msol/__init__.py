@@ -1,2 +1,3 @@
 def validate(pluginargs, args):
-    return True, None, "https://login.microsoft.com"
+    pluginargs = {'url' : "https://login.microsoft.com"}
+    return True, None, pluginargs

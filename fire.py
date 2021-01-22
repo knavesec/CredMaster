@@ -333,8 +333,8 @@ class FireProx(object):
                 name = item['name']
                 proxy_url = self.get_integration(api_id).replace('{proxy}', '')
                 url = f'https://{api_id}.execute-api.{self.region}.amazonaws.com/fireprox/'
-                if not deleting: #not api_id == deleted_api_id:
-                    print(f'[{created_dt}] ({api_id}) {name}: {url} => {proxy_url}')
+                # if not deleting: #not api_id == deleted_api_id:
+                #     print(f'[{created_dt}] ({api_id}) {name}: {url} => {proxy_url}')
             except:
                 pass
 

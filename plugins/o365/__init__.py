@@ -1,2 +1,3 @@
 def validate(pluginargs, args):
-    return True, None, "https://outlook.office365.com"
+    pluginargs = {'url' : "https://outlook.office365.com"}
+    return True, None, pluginargs

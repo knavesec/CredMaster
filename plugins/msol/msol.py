@@ -18,8 +18,10 @@ def generate_trace_id():
     return str + first + "-" + second
 
 
-def msol_authenticate(url, username, password, useragent):
+def msol_authenticate(url, username, password, useragent, pluginargs):
+    
     ts = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+
     data_response = {
         'timestamp': ts,
         'username': username,

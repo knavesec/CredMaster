@@ -3,3 +3,4 @@ tldextract
 tzlocal
 bs4
 lxml
+datetime
