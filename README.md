@@ -41,23 +41,23 @@ usage: credmaster.py [-h] --plugin PLUGIN -u USERFILE -p PASSWORDFILE
 				[--session_token SESSION_TOKEN] [--config CONFIG] [--clean]
 
 ```
--h, --help            show this help message and exit
---plugin PLUGIN       Spray plugin
--u USERFILE, --userfile USERFILE									Username file
--p PASSWORDFILE, --passwordfile PASSWORDFILE			Password file
--a USERAGENTFILE, --useragentfile USERAGENTFILE		Useragent file
--o OUTFILE, --outfile OUTFILE 										Output file to write contents (omit extension)
--t THREADS, --threads THREADS											Thread count (default: 1)
--j JITTER, --jitter JITTER												Jitter delay between requests in seconds (applies per-thread)
--m JITTER_MIN, --jitter_min JITTER_MIN						Minimum jitter time in seconds, defaults to 0
--d DELAY, --delay DELAY														Delay between unique passwords, in minutes
---passwordsperdelay PASSWORDSPERDELAY							Number of passwords to be tested per delay cycle
---profile_name PROFILE_NAME												AWS Profile Name to store/retrieve credentials
---access_key ACCESS_KEY														AWS Access Key
---secret_access_key SECRET_ACCESS_KEY							AWS Secret Access Key
---session_token SESSION_TOKEN											AWS Session Token
---config CONFIG       														Authenticate to AWS using config file aws.config
---clean               														Clean up ALL AWS APIs from every region, warning irreversible
+-h, --help                                        show this help message and exit
+--plugin PLUGIN                                   Spray plugin
+-u USERFILE, --userfile USERFILE                  Username file
+-p PASSWORDFILE, --passwordfile PASSWORDFILE      Password file
+-a USERAGENTFILE, --useragentfile USERAGENTFILE   Useragent file
+-o OUTFILE, --outfile OUTFILE                     Output file to write contents (omit extension)
+-t THREADS, --threads THREADS                     Thread count (default: 1)
+-j JITTER, --jitter JITTER                        Jitter delay between requests in seconds (applies per-thread)
+-m JITTER_MIN, --jitter_min JITTER_MIN            Minimum jitter time in seconds, defaults to 0
+-d DELAY, --delay DELAY                           Delay between unique passwords, in minutes
+--passwordsperdelay PASSWORDSPERDELAY             Number of passwords to be tested per delay cycle
+--profile_name PROFILE_NAME                       AWS Profile Name to store/retrieve credentials
+--access_key ACCESS_KEY                           AWS Access Key
+--secret_access_key SECRET_ACCESS_KEY             AWS Secret Access Key
+--session_token SESSION_TOKEN                     AWS Session Token
+--config CONFIG                                   Authenticate to AWS using config file aws.config
+--clean                                           Clean up ALL AWS APIs from every region, warning irreversible
 ```
 
 - `outfile` - multithreaded file writes are hard so this is incomplete. Will write to `threads`+1 files. These can be put in order with a simple `sort outfilename-credmaster*` since they are all timestamped
