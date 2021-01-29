@@ -7,7 +7,7 @@ def validate(pluginargs, args):
     #
     if 'url' in pluginargs.keys():
         if args.threads == 1 or (args.threads > 1 and 'force' in pluginargs.keys()):
-            if "https://" not in pluginargs['url']:
+            if "https://" not in pluginargs['url'] and "http://" not in pluginargs['url']:
                 pluginargs['url'] = "https://" + pluginargs['url']
             return True, None, pluginargs
         else:
