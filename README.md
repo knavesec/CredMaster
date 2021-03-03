@@ -213,6 +213,7 @@ All validate functions _must_ return a `pluginargs['url']` value to be used for 
 CredMaster fixes a number of potential anonymity issues with password spraying and/or the fireprox tool
 
 * IP Rotation on every authentication request
+* UserAgent spoofing (optional)
 * Automatic Header spoofing, all of the following are spoofed for anonymity
 	* "X-Forwarded-For" leaks original IP addresses on each request
 	* "x-amzn-apigateway-api-id" leaks the API ID of the fireprox instance tied to your account
