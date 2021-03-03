@@ -19,7 +19,7 @@ def generate_trace_id():
 
 
 def msol_authenticate(url, username, password, useragent, pluginargs):
-    
+
     ts = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
 
     data_response = {
@@ -56,11 +56,13 @@ def msol_authenticate(url, username, password, useragent, pluginargs):
     trace_id = generate_trace_id()
 
     headers = {
-        'Accept': 'application/json',
-        'Content-Type': 'application/x-www-form-urlencoded',
         "X-My-X-Forwarded-For" : spoofed_ip,
         "x-amzn-apigateway-api-id" : amazon_id,
-        "X-My-X-Amzn-Trace-Id" : trace_id
+        "X-My-X-Amzn-Trace-Id" : trace_id,
+        "User-Agent" : useragent,
+
+        'Accept': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded'
     }
 
     try:

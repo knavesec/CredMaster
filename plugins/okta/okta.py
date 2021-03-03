@@ -48,11 +48,12 @@ def okta_authenticate(url, username, password, useragent, pluginargs):
 	trace_id = generate_trace_id()
 
 	headers = {
-		'Content-Type': 'application/json',
 		'User-Agent': useragent,
 		"X-My-X-Forwarded-For" : spoofed_ip,
 		"x-amzn-apigateway-api-id" : amazon_id,
 		"X-My-X-Amzn-Trace-Id" : trace_id,
+
+		'Content-Type': 'application/json'
 	}
 
 	try:
@@ -83,6 +84,10 @@ def okta_authenticate(url, username, password, useragent, pluginargs):
 			else:
 				data_response['success'] = False
 				data_response['output'] = "ALERT: 200 but doesn't indicate success {}:{}".format(username,password)
+		elif resp.status_code == 403:
+			data_response['success'] = False
+			data_response['code'] = resp.status_code
+			data_response['output'] = "FAILED THROTTLE INDICATED: {} => {}:{}".format(resp.status_code, username, password)
 		else:
 			data_response['success'] = False
 			data_response['code'] = resp.status_code

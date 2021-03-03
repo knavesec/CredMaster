@@ -63,11 +63,12 @@ def o365_authenticate(url, username, password, useragent, pluginargs):
 
 
     headers = {
-        "MS-ASProtocolVersion": "14.0",
         'User-Agent': useragent,
         "X-My-X-Forwarded-For" : spoofed_ip,
         "x-amzn-apigateway-api-id" : amazon_id,
         "X-My-X-Amzn-Trace-Id" : trace_id,
+
+        "MS-ASProtocolVersion": "14.0"
     }
 
     try:

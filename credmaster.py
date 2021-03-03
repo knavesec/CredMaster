@@ -2,13 +2,12 @@
 from concurrent.futures import ThreadPoolExecutor
 from zipfile import *
 from operator import itemgetter
-from threading import Lock, Thread
+import threading
 import json, sys, random, string, ntpath, time, os, datetime, queue, shutil
 import boto3, argparse, importlib
 from fire import FireProx
 
 credentials = { 'accounts':[] }
-apis = {}
 regions = [
 	'us-east-2', 'us-east-1','us-west-1','us-west-2','eu-west-3',
 	'ap-northeast-1','ap-northeast-2','ap-south-1',
@@ -16,12 +15,9 @@ regions = [
 	'eu-central-1','eu-west-1','eu-west-2','sa-east-1',
 ]
 
-lock = Lock()
+lock = threading.Lock()
 q_spray = queue.Queue()
-q_out = queue.Queue()
-done = False
 
-threads = []
 outfile = None
 
 start_time = None
@@ -31,7 +27,7 @@ results = []
 
 def main(args,pargs):
 
-	global start_time, end_time, time_lapse, apis, outfile, done
+	global start_time, end_time, time_lapse, outfile
 
 	# assign variables
 	thread_count = args.threads
@@ -50,6 +46,12 @@ def main(args,pargs):
 	jitter_min = args.jitter_min
 
 	# input exception handling
+	if outfile != None:
+		outfile = outfile + "-credmaster.txt"
+		if os.path.exists(outfile):
+			log_entry("File {} already exists, try again with a unique file name".format(outfile))
+			return
+
 	if args.config != None:
 		log_entry("Loading AWS configuration details from file: {}".format(args.config))
 		aws_dict = json.loads(open(args.config).read())
@@ -106,9 +108,7 @@ def main(args,pargs):
 		apis = load_apis(access_key, secret_access_key, profile_name, session_token, thread_count, url)
 
 		# Print stats
-		display_stats()
-
-	    #out_thread = threading.Thread(name="Thread-out", target=report, args=(out_q, output_file))
+		display_stats(apis)
 
 		log_entry("Starting Spray...")
 
@@ -119,18 +119,14 @@ def main(args,pargs):
 			load_credentials(username_file, password, useragent_file)
 
 			# Start Spray
-			with ThreadPoolExecutor(max_workers=len(apis)) as executor:
-				for api_key in apis:
-					#log_entry('Launching spray using {}...'.format())
-					executor.submit(
-						spray_thread,
-						api_key = api_key,
-						api_dict = apis[api_key],
-						plugin = plugin,
-						pluginargs = pluginargs,
-						jitter = jitter,
-						jitter_min = jitter_min
-					)
+			threads = []
+			for api_key in apis:
+				t = threading.Thread(target = spray_thread, args = (api_key, apis[api_key], plugin, pluginargs, jitter, jitter_min) )
+				threads.append(t)
+				t.start()
+
+			for t in threads:
+				t.join()
 
 			count = count + 1
 
@@ -148,25 +144,23 @@ def main(args,pargs):
 				count = 0
 				time.sleep(delay * 60)
 
-		done = True
-
 		# Capture duration
 		end_time = datetime.datetime.utcnow()
 		time_lapse = (end_time-start_time).total_seconds()
 
 		# Remove AWS resources
-		destroy_apis(access_key, secret_access_key, profile_name, session_token)
+		destroy_apis(apis, access_key, secret_access_key, profile_name, session_token)
 
 	except KeyboardInterrupt:
 		log_entry("KeyboardInterrupt detected, cleaning up APIs")
 		try:
-			destroy_apis(access_key, secret_access_key, profile_name, session_token)
+			destroy_apis(apis, access_key, secret_access_key, profile_name, session_token)
 		except KeyboardInterrupt:
-			log_entry("Second KeyboardInterrupt detected, unable to clean up APIs :(")
+			log_entry("Second KeyboardInterrupt detected, unable to clean up APIs :( try the --clean option")
 
 
 	# Print stats
-	display_stats(False)
+	display_stats(apis, False)
 
 
 def load_apis(access_key, secret_access_key, profile_name, session_token, thread_count, url):
@@ -213,7 +207,7 @@ def get_fireprox_args(access_key, secret_access_key, profile_name, session_token
 	return args, help_str
 
 
-def display_stats(start=True):
+def display_stats(apis, start=True):
 	if start:
 		api_count = 0
 		for lc, val in apis.items():
@@ -234,7 +228,7 @@ def display_stats(start=True):
 			log_entry('VALID - {}:{}'.format(cred['username'],cred['password']))
 
 
-def destroy_apis(access_key, secret_access_key, profile_name, session_token):
+def destroy_apis(apis, access_key, secret_access_key, profile_name, session_token):
 
 	for api_key in apis:
 
@@ -275,8 +269,8 @@ def spray_thread(api_key, api_dict, plugin, pluginargs, jitter=None, jitter_min=
 	try:
 		plugin_authentiate = getattr(importlib.import_module('plugins.{}.{}'.format(plugin, plugin)), '{}_authenticate'.format(plugin))
 	except Exception as ex:
-		log_entry("Error: Failed to import plugin with exception", thread_region=api_key)
-		log_entry("Error: {}".format(ex), thread_region=api_key)
+		log_entry("Error: Failed to import plugin with exception")
+		log_entry("Error: {}".format(ex))
 		exit()
 
 	while not q_spray.empty():
@@ -292,19 +286,20 @@ def spray_thread(api_key, api_dict, plugin, pluginargs, jitter=None, jitter_min=
 			response = plugin_authentiate(api_dict['proxy_url'], cred['username'], cred['password'], cred['useragent'], pluginargs)
 
 			if not response['error']:
-				log_entry("{}: {}".format(api_key,response['output']), thread_region=api_key)
+				log_entry("{}: {}".format(api_key,response['output']))
 			else:
-				log_entry("ERROR: {}: {} - {}".format(api_key,cred['username'],response['output']), thread_region=api_key)
+				log_entry("ERROR: {}: {} - {}".format(api_key,cred['username'],response['output']))
 
 			if response['success']:
 				results.append( {'username' : cred['username'], 'password' : cred['password']} )
 
 			q_spray.task_done()
 		except Exception as ex:
-			log_entry("ERROR: {}: {} - {}".format(api_key,cred['username'],ex), thread_region=api_key)
+			log_entry("ERROR: {}: {} - {}".format(api_key,cred['username'],ex))
 
 
 def load_credentials(user_file, password, useragent_file=None):
+
 	log_entry('Loading credentials from {} with password {}'.format(user_file, password))
 
 	users = load_file(user_file)
@@ -325,25 +320,27 @@ def load_credentials(user_file, password, useragent_file=None):
 
 
 def load_file(filename):
+
 	if filename:
 		return [line.strip() for line in open(filename, 'r')]
 
 
-def log_entry(entry, thread_region=None):
+def log_entry(entry):
+
+	global lock
+
+	lock.acquire()
+
 	ts = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
 	print('[{}] {}'.format(ts, entry))
 
 	if outfile is not None:
-		if thread_region == None:
-			with open(outfile + "-credmaster.txt", 'a+') as file:
-				file.write('[{}] {}'.format(ts, entry))
-				file.write('\n')
-				file.close()
-		else:
-			with open(outfile + "-credmaster-" + thread_region + '.txt', 'a+') as file:
-				file.write('[{}] {}'.format(ts, entry))
-				file.write('\n')
-				file.close()
+		with open(outfile, 'a+') as file:
+			file.write('[{}] {}'.format(ts, entry))
+			file.write('\n')
+			file.close()
+
+	lock.release()
 
 
 if __name__ == '__main__':
@@ -352,7 +349,7 @@ if __name__ == '__main__':
 	parser.add_argument('--plugin', help='Spray plugin', default=None, required=False)
 	parser.add_argument('-u', '--userfile', default=None, required=False, help='Username file')
 	parser.add_argument('-p', '--passwordfile', default=None, required=False, help='Password file')
-	parser.add_argument('-a', '--useragentfile', required=False, help='Useragent file')
+	parser.add_argument('-a', '--useragentfile', default=None, required=False, help='Useragent file')
 	parser.add_argument('-o', '--outfile', default=None, required=False, help='Output file to write contents (omit extension)')
 	parser.add_argument('-t', '--threads', type=int, default=1, help='Thread count (default 1, max 15)')
 	parser.add_argument('-j', '--jitter', type=int, default=None, required=False, help='Jitter delay between requests in seconds (applies per-thread)')

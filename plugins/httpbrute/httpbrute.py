@@ -68,7 +68,7 @@ def httpbrute_authenticate(url, username, password, useragent, pluginargs): # CH
 			auth = requests.auth.HTTPDigestAuth(username, password)
 			resp = requests.get(url=full_url, auth=auth, verify=False, timeout=30)
 
-		elif pluginargs['auth'] == 'ntlm':
+		else: # NTLM
 			auth = requests_ntlm.HttpNtlmAuth(username, password)
 			resp = requests.get(url=full_url, auth=auth, verify=False, timeout=30)
 
