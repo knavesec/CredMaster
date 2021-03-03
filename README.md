@@ -156,7 +156,14 @@ This depends on a per-application basis. Use your own discretion.
 
 ### TBD ###
 
-Since plugin creation is simple, I'm hoping others try their hand at creating these. Plugins from CredKing PRs include Gmail, Microsoft Live and CiscoVPN, I haven't had the time to port. If you have a plugin request, please include request details & response info for good/bad logins (info redacted of course).
+Since plugin creation is (reasonably) simple, I'm hoping others try their hand at creating these. On the docket:
+
+* OWA/EWS
+* Cisco VPN
+* Gmail
+* Microsoft Live
+
+If you have a plugin request, submit an issue with the desired application.
 
 
 ## Installation ##
@@ -201,12 +208,20 @@ If your plugin requirements plugin-specific arguments, you can implement a valid
 All validate functions _must_ return a `pluginargs['url']` value to be used for the API creation, which cannot include the URI. FireProx will not work properly if the URI is provided. The `httpbrute` and `o365` methods are good examples if you need clarification. Everything else will be passed to the authentication function to be used.
 
 
-## Anonymity Notes
+## Anonymity Notes ##
+
+CredMaster fixes a number of potential anonymity issues with password spraying and/or the fireprox tool
+
+* IP Rotation on every authentication request
+* Automatic Header spoofing, all of the following are spoofed for anonymity
+	* "X-Forwarded-For" leaks original IP addresses on each request
+	* "x-amzn-apigateway-api-id" leaks the API ID of the fireprox instance tied to your account
+	* "X-Amzn-Trace-Id" leaks some AWS data, unsure what it is, but still good to spoof
+
+Further data & screenshots will be in an upcoming blog post.
 
 
-
-
-### Credits ###
+## Credits ##
 
 - Mike Felch ([ustayready](https://twitter.com/ustayready)) - CredKing & FireProx
 - Beau Bolloc ([dafthack](https://twitter.com/dafthack)) - MSOLSpray tool
