@@ -26,13 +26,15 @@ Shoutout to [@ustayready](https://twitter.com/ustayready) for his [CredKing](htt
 
 ### Benefits ###
 
- * Fully supports all AWS Regions
- * Automatically generates APIs for proxy passthru
- * Spoofs API tracking numbers, forwarded-for IPs, and other proxy tracking headers
- * Multi-threaded processing
- * Generates user/password pairs
- * Easily add new plugins
- * Fully [anonymous](#anonymity-notes)
+* Fully supports all AWS Regions
+* Automatically generates APIs for proxy passthru
+* Spoofs API tracking numbers, forwarded-for IPs, and other proxy tracking headers
+* Multi-threaded processing
+* Password delay counters & configuration for lockout policy evasion
+* Easily add new plugins
+* Fully [anonymous](#anonymity-notes)
+
+![general](https://raw.githubusercontent.com/whynotsecurity/whynotsecurity.github.io/master/assests/images/credmaster-screenshots/credmaster-default.png)
 
 
 ## Basic Usage ##
@@ -225,7 +227,7 @@ Further data & screenshots will be in an upcoming blog post.
 ## Credits ##
 
 - Mike Felch ([ustayready](https://twitter.com/ustayready)) - CredKing & FireProx
-- Beau Bolloc ([dafthack](https://twitter.com/dafthack)) - MSOLSpray tool
+- Beau Bullock ([dafthack](https://twitter.com/dafthack)) - MSOLSpray tool
 - Martin Ingesen ([mrtn9](https://twitter.com/Mrtn9)) - MSOLSpray Python tool
 - Oliver Morton ([grimhacker](https://twitter.com/grimhacker)) - Office365UserEnum tool
 - Erforschr - HTTP Bruteforce tool
