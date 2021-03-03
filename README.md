@@ -7,11 +7,13 @@
 	- [Okta](#okta)
 	- [O365](#o365)
 	- [MSOL](#msol)
+	- [FortinetVPN](#fortinetvpn)
 	- [HTTPBrute](#httpbrute)
 	- [TBD](#tbd)
 - [Installation](#installation)
 - [Development](#development)
   - [Plugin specific arguments](#plugin-specific-arguments)
+- [Anonymity Notes](#anonymity-notes)
 - [Credits](#credits)
 
 
@@ -30,6 +32,7 @@ Shoutout to [@ustayready](https://twitter.com/ustayready) for his [CredKing](htt
  * Multi-threaded processing
  * Generates user/password pairs
  * Easily add new plugins
+ * Fully [anonymous](#anonymity-notes)
 
 
 ## Basic Usage ##
@@ -123,9 +126,22 @@ TBD, more research required (feel free to PR with notes)
 **Credits:** This module was based off DaftHack's [MSOLSpray](https://github.com/dafthack/MSOLSpray) tool, specifically the Python implementation of it [here](https://github.com/MartinIngesen/MSOLSpray).
 
 
+### FortinetVPN ###
+
+This module allows for authentication to the Fortinet VPN solution. It adds two new plugin args: `url` and `domain`. The `domain` flag is optional, to specify a realm to log in with.
+
+Note: This module has not been tested to the fullest yet
+
+usage: **credmaster.py** \<usual arguments\> **--url** https://example.com {**--domain** super_sweet_domain}
+
+#### Throttle Notes: ####
+
+This depends on a per-application basis. Use your own discretion.
+
+
 ### HTTPBrute ###
 
-This module allows for HTTP Basic, Digest and NTLM authentication brute forcing. It adds two new plugin args: `url` and `auth`. The HTTP `auth`
+This module allows for HTTP Basic, Digest and NTLM authentication brute forcing. It adds two new plugin args: `url` and `auth`. The HTTP `auth` flag sets the method of authentication `basic`, `digest` and `ntlm`.
 
 Note: This module has not been tested to the fullest yet
 
@@ -140,7 +156,7 @@ This depends on a per-application basis. Use your own discretion.
 
 ### TBD ###
 
-Since plugin creation is simple, I'm hoping others try their hand at creating these. Plugins from CredKing PRs include Gmail, Microsoft Live and CiscoVPN, I haven't had the time to port.
+Since plugin creation is simple, I'm hoping others try their hand at creating these. Plugins from CredKing PRs include Gmail, Microsoft Live and CiscoVPN, I haven't had the time to port. If you have a plugin request, please include request details & response info for good/bad logins (info redacted of course).
 
 
 ## Installation ##
@@ -183,6 +199,11 @@ Plugin specific arguments can be specified with no modifications to credmaster.p
 If your plugin requirements plugin-specific arguments, you can implement a validate function in the \_\_init\_\_.py file of your plugin directory that will be passed an dictionary of all optional arguments. An example of plugin argument validation can be found in any of the plugins provided.
 
 All validate functions _must_ return a `pluginargs['url']` value to be used for the API creation, which cannot include the URI. FireProx will not work properly if the URI is provided. The `httpbrute` and `o365` methods are good examples if you need clarification. Everything else will be passed to the authentication function to be used.
+
+
+## Anonymity Notes
+
+
 
 
 ### Credits ###
