@@ -1,3 +1,5 @@
+import requests
+
 def validate(pluginargs, args):
     #
     # Plugin Args
@@ -7,7 +9,7 @@ def validate(pluginargs, args):
     #
     if 'url' in pluginargs.keys():
         if args.threads == 1 or (args.threads > 1 and 'force' in pluginargs.keys()):
-            if "https://" not in pluginargs['url'] and "http://" not in pluginargs['url']:
+            if not pluginargs['url'].startswith("https://") and not pluginargs['url'].startswith("http://"):
                 pluginargs['url'] = "https://" + pluginargs['url']
             return True, None, pluginargs
         else:
@@ -16,3 +18,17 @@ def validate(pluginargs, args):
     else:
         error = "Missing url argument, specify as --url https://org.okta.com or --url org.okta.com"
         return False, error, None
+
+
+def testconnect(pluginargs, args, api_dict):
+
+    success = True
+    resp = requests.get(api_dict['proxy_url'])
+
+    if resp.status_code == 504:
+        output = "Testconnect: Connection failed, endpoint timed out, exiting"
+        success = False
+    else:
+        output = "Testconnect: Connection success, continuting"
+
+    return success, output, pluginargs

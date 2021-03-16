@@ -1,3 +1,5 @@
+import requests
+
 def validate(pluginargs, args):
     #
     # Plugin Args
@@ -13,3 +15,19 @@ def validate(pluginargs, args):
     else:
         error = "Missing url argument, specify as --url https://domain.com"
         return False, error, None
+
+
+def testconnect(pluginargs, args, api_dict):
+
+    success = True
+    resp = requests.get(api_dict['proxy_url'] + "/remote/login?lang=en")
+
+    if resp.status_code == 504:
+        output = "Testconnect: Connection failed, endpoint timed out, exiting"
+        success = False
+    elif "fortinet" in resp.text:
+        output = "Testconnect: Verified Fortinet instance, connected"
+    else:
+        output = "Testconnect: Warning, Fortinet client not indicated, continuting"
+
+    return success, output, pluginargs

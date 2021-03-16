@@ -1,3 +1,5 @@
+import requests
+
 def validate(pluginargs, args):
     #
     # Plugin Args
@@ -17,3 +19,17 @@ def validate(pluginargs, args):
     # Str/None - Error message, if there are any
     # Dict - Plugin args returned, 'url' arg required
     return True, None, pluginargs
+
+
+def testconnect(pluginargs, args, api_dict):
+
+    success = True
+    resp = requests.get(api_dict['proxy_url'])
+
+    if resp.status_code == 504:
+        output = "Testconnect: Connection failed, endpoint timed out, exiting"
+        success = False
+    else:
+        output = "Testconnect: Connection success, continuting"
+
+    return success, output, pluginargs

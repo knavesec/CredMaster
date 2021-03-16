@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
-from concurrent.futures import ThreadPoolExecutor
-from zipfile import *
-from operator import itemgetter
-import threading
-import json, sys, random, string, ntpath, time, os, datetime, queue, shutil
-import boto3, argparse, importlib
+# from zipfile import *
+import threading, queue, argparse, datetime, json, importlib, random, os, time
 from fire import FireProx
 
 credentials = { 'accounts':[] }
@@ -106,6 +102,13 @@ def main(args,pargs):
 	try:
 		# Create lambdas based on thread count
 		apis = load_apis(access_key, secret_access_key, profile_name, session_token, thread_count, url)
+
+		# do test connection / fingerprint
+		connect_success, testconnect_output, pluginargs = validator.testconnect(pluginargs, args, apis['us-east-2'])
+		log_entry(testconnect_output)
+
+		if not connect_success:
+			return
 
 		# Print stats
 		display_stats(apis)

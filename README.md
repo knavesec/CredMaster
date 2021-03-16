@@ -19,7 +19,7 @@
 
 ## Overview ##
 
-Launch a password spray via Amazon AWS passthrough proxies, shifting the requesting IP address for every authentication attempt. This dynamically creates FireProx APIs to create more evasive password sprays.  
+Launch a password spray via Amazon AWS passthrough proxies, shifting the requesting IP address for every authentication attempt. This dynamically creates FireProx APIs for more evasive password sprays.  
 
 Shoutout to [@ustayready](https://twitter.com/ustayready) for his [CredKing](https://github.com/ustayready/CredKing) and [FireProx](https://github.com/ustayready/fireprox) tools, which form the base of this suite.
 
@@ -96,11 +96,7 @@ usage: **credmaster.py** \<usual arguments\> --threads 5 **--force**
 
 ### O365 ###
 
-The o365 module is specific to Federated Office365 environments due to the authentication method used. If your target is a Managed environment, use the MSOL module as this one _will not work_.
-
-You can use this link to check which type it is, in the "NameSpaceType" key. Change `acmecomputercompany.com` to your target domain.
-
-https://login.microsoftonline.com/getuserrealm.srf?login=username@acmecomputercompany.com&xml=1
+The o365 module is for bruteforcing MS hosted Office365 instances using the "autodiscover-s.outlook.com" URL method.
 
 This plugin does not require any additional arguments.
 
@@ -108,16 +104,12 @@ This plugin does not require any additional arguments.
 
 TBD, more research required (feel free to PR with notes)
 
-**Credits:** This module was based off GrimHacker's [Office365UserEnum](https://bitbucket.org/grimhacker/office365userenum/src/master/README.md) tool.
+**Credits:** This module was based off byt3bl33d3r's [SprayingToolkit](https://github.com/byt3bl33d3r/SprayingToolkit).
 
 
 ### MSOL ###
 
-The MSOL module is specific to Managed Office65 environments due to the authentication method used. If your target is a Federated environment, use the o365 module as this one _will not work_.
-
-You can use this link to check which type it is, in the "NameSpaceType" key. Change `acmecomputercompany.com` to your target domain.
-
-https://login.microsoftonline.com/getuserrealm.srf?login=username@acmecomputercompany.com&xml=1
+The MSOL module is specific to managed Microsoft Online instances like Azure or a managed o365 setup. This module can provide user enumeration and extra information about login attempts. If you want to spray Office365, you can use this module _only_ if it is a Managed instance (not Federated).
 
 This plugin does not require any additional arguments.
 

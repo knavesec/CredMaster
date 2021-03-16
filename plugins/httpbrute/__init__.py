@@ -1,3 +1,5 @@
+import requests
+
 def validate(pluginargs, args):
     #
     # Plugin Args
@@ -19,3 +21,17 @@ def validate(pluginargs, args):
     else:
         error = "Missing url or auth method, specify as --url https://target.com/endpoint/to/test.ext or --auth basic"
         return False, error, None
+
+
+def testconnect(pluginargs, args, api_dict):
+
+    success = True
+    resp = requests.get(api_dict['proxy_url'])
+
+    if resp.status_code == 504:
+        output = "Testconnect: Connection failed, endpoint timed out, exiting"
+        success = False
+    else:
+        output = "Testconnect: Connection success, continuting"
+
+    return success, output, pluginargs
