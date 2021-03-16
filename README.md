@@ -39,6 +39,8 @@ Shoutout to [@ustayready](https://twitter.com/ustayready) for his [CredKing](htt
 
 ## Basic Usage ##
 
+You will need to supply AWS API access/secret access keys, see this blog post for a detailed walkthrough: https://bond-o.medium.com/aws-pass-through-proxy-84f1f7fa4b4b
+
 usage: credmaster.py [-h] --plugin PLUGIN -u USERFILE -p PASSWORDFILE
 				[-a USERAGENTFILE] [-o OUTFILE] [-t THREADS] [-j JITTER] [-m JITTER_MIN]
 				[-d DELAY] [--passwordsperdelay PASSWORDSPERDELAY] [--profile_name PROFILE_NAME]
@@ -96,7 +98,7 @@ usage: **credmaster.py** \<usual arguments\> --threads 5 **--force**
 
 ### O365 ###
 
-The o365 module is for bruteforcing MS hosted Office365 instances using the "autodiscover-s.outlook.com" URL method.
+The o365 module is for bruteforcing Office365 instances using the "autodiscover-s.outlook.com" URL method. This works for both Managed/Federated environments.
 
 This plugin does not require any additional arguments.
 
@@ -109,7 +111,7 @@ TBD, more research required (feel free to PR with notes)
 
 ### MSOL ###
 
-The MSOL module is specific to managed Microsoft Online instances like Azure or a managed o365 setup. This module can provide user enumeration and extra information about login attempts. If you want to spray Office365, you can use this module _only_ if it is a Managed instance (not Federated).
+The MSOL module is specific to managed Microsoft Online instances like Azure or a managed Office365 setup. This module can provide user enumeration and extra information about login attempts. If you want to spray Office365, you can use this module _only_ if it is a Managed instance (not Federated).
 
 This plugin does not require any additional arguments.
 
@@ -170,7 +172,7 @@ You can install and run automatically using Python 3 with the following command:
 $ git clone https://github.com/knavesec/CredMaster
 $ cd CredMaster
 $ pip3 install -r requirements.txt
-$ python3 credmaster.py
+$ python3 credmaster.py -h
 ```
 
 Note that Python 3 is required.
@@ -190,7 +192,7 @@ $ touch __init__.py
 $ touch newplugin.py
 ```
 
-A template is provided in the `plugins/template` directory. Instructions within that file should give you all the information you need to add a new plugin.
+A template is provided in the `plugins/template` directory. Instructions within that file should give you all the information you need to add a new plugin. Feel free to reach out if you have any questions.
 
 
 ### Plugin specific arguments ###
@@ -199,7 +201,7 @@ Plugin specific arguments can be specified with no modifications to credmaster.p
 
 If your plugin requirements plugin-specific arguments, you can implement a validate function in the \_\_init\_\_.py file of your plugin directory that will be passed an dictionary of all optional arguments. An example of plugin argument validation can be found in any of the plugins provided.
 
-All validate functions _must_ return a `pluginargs['url']` value to be used for the API creation, which cannot include the URI. FireProx will not work properly if the URI is provided. The `httpbrute` and `o365` methods are good examples if you need clarification. Everything else will be passed to the authentication function to be used.
+All validate functions _must_ return a `pluginargs['url']` value to be used for the API creation, which cannot include the URI. FireProx will not work properly if the URI is provided. The `httpbrute` plugin is a good example if you need clarification. Everything else will be passed to the authentication function to be used.
 
 
 ## Anonymity Notes ##
@@ -222,5 +224,5 @@ Further data & screenshots will be in an upcoming blog post.
 - Beau Bullock ([dafthack](https://twitter.com/dafthack)) - MSOLSpray tool
 - Martin Ingesen ([mrtn9](https://twitter.com/Mrtn9)) - MSOLSpray Python tool
 - Oliver Morton ([grimhacker](https://twitter.com/grimhacker)) - Office365UserEnum tool
+- Marcello ([byt3bl33d3r](https://twitter.com/byt3bl33d3r)) - SprayingToolkit
 - Erforschr - HTTP Bruteforce tool
-- My team at [RSM](https://rsmus.com/what-we-do/services/risk-advisory/cybersecurity-data-privacy/security-testing/network-penetration-testing.html) for help with testing and development
