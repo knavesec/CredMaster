@@ -20,10 +20,11 @@ start_time = None
 end_time = None
 time_lapse = None
 results = []
+cancelled = False
 
 def main(args,pargs):
 
-	global start_time, end_time, time_lapse, outfile
+	global start_time, end_time, time_lapse, outfile, cancelled
 
 	# assign variables
 	thread_count = args.threads
@@ -99,6 +100,8 @@ def main(args,pargs):
 	# this is the original URL, NOT the fireproxy one. Don't use this in your sprays!
 	url = pluginargs['url']
 
+	threads = []
+
 	try:
 		# Create lambdas based on thread count
 		apis = load_apis(access_key, secret_access_key, profile_name, session_token, thread_count, url)
@@ -147,20 +150,23 @@ def main(args,pargs):
 				count = 0
 				time.sleep(delay * 60)
 
-		# Capture duration
-		end_time = datetime.datetime.utcnow()
-		time_lapse = (end_time-start_time).total_seconds()
-
 		# Remove AWS resources
 		destroy_apis(apis, access_key, secret_access_key, profile_name, session_token)
 
 	except KeyboardInterrupt:
 		log_entry("KeyboardInterrupt detected, cleaning up APIs")
 		try:
+			log_entry("Finishing active requests")
+			cancelled = True
+			for t in threads:
+				t.join()
 			destroy_apis(apis, access_key, secret_access_key, profile_name, session_token)
 		except KeyboardInterrupt:
 			log_entry("Second KeyboardInterrupt detected, unable to clean up APIs :( try the --clean option")
 
+	# Capture duration
+	end_time = datetime.datetime.utcnow()
+	time_lapse = (end_time-start_time).total_seconds()
 
 	# Print stats
 	display_stats(apis, False)
@@ -276,7 +282,7 @@ def spray_thread(api_key, api_dict, plugin, pluginargs, jitter=None, jitter_min=
 		log_entry("Error: {}".format(ex))
 		exit()
 
-	while not q_spray.empty():
+	while not q_spray.empty() and not cancelled:
 
 		try:
 			cred = q_spray.get_nowait()
