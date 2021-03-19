@@ -87,7 +87,7 @@ def owa_authenticate(url, username, password, useragent, pluginargs):
 
         resp = requests.post("{}/owa/auth.owa".format(url),data=post_params,headers=headers,cookies=cookies,allow_redirects=False)
 
-        if resp.status_code == 302 and 'Set-Cookie' in resp.headers and 'cadataKey' in resp.text:
+        if resp.status_code == 302 and 'moved' in resp.text and 'Set-Cookie' in resp.headers:
             data_response['success'] = True
             data_response['output'] = '[+] SUCCESS: => {}:{}'.format(f'{domain}\{username}', password)
 
@@ -96,7 +96,7 @@ def owa_authenticate(url, username, password, useragent, pluginargs):
             data_response['output'] = '[+] SUCCESS: PASSWORD CHANGE REQUIRED: => {}:{}'.format(f'{domain}\{username}', password)
             data_response['password_change'] = True
 
-        elif 'Set-Cookie' not in resp.headers or 'reason=2' in resp.text:
+        elif 'Set-Cookie' not in resp.headers:
             data_response['success'] = False
             data_response['output'] = '[-] FAILED: {} => {}:{}'.format(resp.status_code, f'{domain}\{username}', password)
 
@@ -104,12 +104,6 @@ def owa_authenticate(url, username, password, useragent, pluginargs):
             data_response['success'] = False
             data_response['output'] = '[-] FAILED: SOMETHING HAPPENED: {} => {}:{}'.format(resp.status_code, f'{domain}\{username}', password)
 
-    except Exception as ex:
-        data_response['error'] = True
-        data_response['output'] = ex
-        pass
-
-    return data_response
     except Exception as ex:
         data_response['error'] = True
         data_response['output'] = ex
