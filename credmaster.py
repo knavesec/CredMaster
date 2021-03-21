@@ -107,7 +107,7 @@ def main(args,pargs):
 		apis = load_apis(access_key, secret_access_key, profile_name, session_token, thread_count, url)
 
 		# do test connection / fingerprint
-		connect_success, testconnect_output, pluginargs = validator.testconnect(pluginargs, args, apis['us-east-2'])
+		connect_success, testconnect_output, pluginargs = validator.testconnect(pluginargs, args, apis['us-east-2'], random.choice(useragent_file))
 		log_entry(testconnect_output)
 
 		if not connect_success:

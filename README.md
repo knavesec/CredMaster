@@ -4,7 +4,7 @@ Launch a password spray via Amazon AWS passthrough proxies, shifting the request
 
 Shoutout to [@ustayready](https://twitter.com/ustayready) for his [CredKing](https://github.com/ustayready/CredKing) and [FireProx](https://github.com/ustayready/fireprox) tools, which form the base of this suite.
 
-See all the full notes on the [Wiki](https://github.com/knavesec/CredMaster/wiki)
+See all the full notes on the [Wiki](https://github.com/knavesec/CredMaster/wiki), tool released with specifics in this [blogpost](https://whynotsecurity.com/blog/credmaster/)
 
 
 ## Benefits ##
