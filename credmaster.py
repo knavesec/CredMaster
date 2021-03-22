@@ -111,6 +111,7 @@ def main(args,pargs):
 		log_entry(testconnect_output)
 
 		if not connect_success:
+			destroy_apis(apis, access_key, secret_access_key, profile_name, session_token)
 			return
 
 		# Print stats
@@ -223,7 +224,6 @@ def display_stats(apis, start=True):
 			if val:
 				api_count += 1
 
-		#log_entry('User/Password Combinations: {}'.format(len(credentials['accounts'])))
 		log_entry('Total Regions Available: {}'.format(len(regions)))
 		log_entry('Total API Gateways: {}'.format(api_count))
 
