@@ -6,6 +6,8 @@ Shoutout to [@ustayready](https://twitter.com/ustayready) for his [CredKing](htt
 
 See all the full notes on the [Wiki](https://github.com/knavesec/CredMaster/wiki), tool released with specifics in this [blogpost](https://whynotsecurity.com/blog/credmaster/)
 
+For detection tips, see the blogpost and detection section. 
+
 
 ## Benefits ##
 
