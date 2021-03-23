@@ -76,7 +76,6 @@ def main(args,pargs):
 		log_entry("--jitter flag must be greater than --jitter-min flag")
 		return
 
-
 	pluginargs = {}
 	if len(pargs) % 2 == 1:
 		pargs.append(None)
@@ -107,7 +106,8 @@ def main(args,pargs):
 		apis = load_apis(access_key, secret_access_key, profile_name, session_token, thread_count, url)
 
 		# do test connection / fingerprint
-		connect_success, testconnect_output, pluginargs = validator.testconnect(pluginargs, args, apis['us-east-2'], random.choice(useragent_file))
+		useragent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0"
+		connect_success, testconnect_output, pluginargs = validator.testconnect(pluginargs, args, apis['us-east-2'], useragent)
 		log_entry(testconnect_output)
 
 		if not connect_success:
