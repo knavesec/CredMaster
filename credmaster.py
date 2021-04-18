@@ -64,6 +64,9 @@ def main(args,pargs):
 	if args.clean:
 		clear_all_apis(access_key, secret_access_key, profile_name, session_token)
 		return
+	elif args.destroy != None:
+		destroy_single_api(args.destroy, access_key, secret_access_key, profile_name, session_token)
+		return
 	else:
 		if username_file == None or password_file == None:
 			log_entry("Plugin name, User file and password file must be provided")
@@ -237,6 +240,30 @@ def display_stats(apis, start=True):
 			log_entry('VALID - {}:{}'.format(cred['username'],cred['password']))
 
 
+def destroy_single_api(api, access_key, secret_access_key, profile_name, session_token):
+
+	log_entry("Destroying single API, locating region...")
+	for region in regions:
+
+		args, help_str = get_fireprox_args(access_key, secret_access_key, profile_name, session_token, "list", region)
+		print(1)
+		fp = FireProx(args, help_str)
+		print(2)
+		active_apis = fp.list_api()
+		count = len(active_apis)
+		err = "skipping"
+		if count != 0:
+			err = "removing"
+		log_entry("Region: {}, found {} APIs configured, {}".format(region, count, err))
+
+		print(active_apis)
+
+		# for api in active_apis:
+		# 	if "fireprox" in api['name']:
+		# 		fp.delete_api(api['id'])
+		# 		clear_count += 1
+
+
 def destroy_apis(apis, access_key, secret_access_key, profile_name, session_token):
 
 	for api_key in apis:
@@ -371,6 +398,7 @@ if __name__ == '__main__':
 	parser.add_argument('--session_token', type=str, default=None, help='AWS Session Token')
 	parser.add_argument('--config', type=str, default=None, help='Authenticate to AWS using config file aws.config')
 	parser.add_argument('--clean', default=False, action="store_true", help='Clean up ALL AWS APIs from every region, warning irreversible')
+	parser.add_argument('--destroy', type=str, default=None, help='Destroy single API instance')
 
 	args,pluginargs = parser.parse_known_args()
 

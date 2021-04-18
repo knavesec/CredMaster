@@ -6,7 +6,9 @@ Shoutout to [@ustayready](https://twitter.com/ustayready) for his [CredKing](htt
 
 See all the full notes on the [Wiki](https://github.com/knavesec/CredMaster/wiki), tool released with specifics in this [blogpost](https://whynotsecurity.com/blog/credmaster/)
 
-For detection tips, see the blogpost and detection section. 
+For detection tips, see the blogpost and detection section.
+
+*Be careful for account lockouts, know the reset policies of your target*
 
 
 ## Benefits ##
@@ -26,9 +28,10 @@ For detection tips, see the blogpost and detection section.
 
 The following plugins are currently supported:
 
+* [OWA](https://github.com/knavesec/CredMaster/wiki/OWA)
 * [O365](https://github.com/knavesec/CredMaster/wiki/O365)
-* [Okta](https://github.com/knavesec/CredMaster/wiki/Okta)
 * [MSOL](https://github.com/knavesec/CredMaster/wiki/MSOL) (Microsoft Online)
+* [Okta](https://github.com/knavesec/CredMaster/wiki/Okta)
 * [FortinetVPN](https://github.com/knavesec/CredMaster/wiki/FortinetVPN)
 * [HTTPBrute](https://github.com/knavesec/CredMaster/wiki/HTTPBrute)
 
