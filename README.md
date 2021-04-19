@@ -8,7 +8,7 @@ See all the full notes on the [Wiki](https://github.com/knavesec/CredMaster/wiki
 
 For detection tips, see the blogpost and detection section.
 
-*Be careful for account lockouts, know the reset policies of your target*
+**Be careful for account lockouts, know the reset policies of your target**
 
 
 ## Benefits ##
@@ -28,12 +28,13 @@ For detection tips, see the blogpost and detection section.
 
 The following plugins are currently supported:
 
-* [OWA](https://github.com/knavesec/CredMaster/wiki/OWA)
-* [O365](https://github.com/knavesec/CredMaster/wiki/O365)
-* [MSOL](https://github.com/knavesec/CredMaster/wiki/MSOL) (Microsoft Online)
-* [Okta](https://github.com/knavesec/CredMaster/wiki/Okta)
-* [FortinetVPN](https://github.com/knavesec/CredMaster/wiki/FortinetVPN)
-* [HTTPBrute](https://github.com/knavesec/CredMaster/wiki/HTTPBrute)
+* [OWA](https://github.com/knavesec/CredMaster/wiki/OWA) - Outlook Web Access
+* [EWS](https://github.com/knavesec/CredMaster/wiki/EWS) - Exchange Web Services
+* [O365](https://github.com/knavesec/CredMaster/wiki/O365) - Office365
+* [MSOL](https://github.com/knavesec/CredMaster/wiki/MSOL) - Microsoft Online
+* [Okta](https://github.com/knavesec/CredMaster/wiki/Okta) - Okta Authentication Portal
+* [FortinetVPN](https://github.com/knavesec/CredMaster/wiki/FortinetVPN) - Fortinet VPN Client
+* [HTTPBrute](https://github.com/knavesec/CredMaster/wiki/HTTPBrute) - Generic HTTP Brute Methods (Basic/Digest/NTLM)
 
 Example Use:
 ```
