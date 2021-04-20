@@ -1,4 +1,6 @@
-import requests, random
+import requests
+from utils.utils import generate_ip, generate_id, generate_trace_id
+
 
 def validate(pluginargs, args):
     #
@@ -40,18 +42,3 @@ def testconnect(pluginargs, args, api_dict, useragent):
         output = "Testconnect: Connection success, continuting"
 
     return success, output, pluginargs
-
-
-def generate_ip():
-    return ".".join(str(random.randint(0,255)) for _ in range(4))
-
-
-def generate_id():
-    return "".join(random.choice("0123456789abcdefghijklmnopqrstuvwxyz") for _ in range(10))
-
-
-def generate_trace_id():
-    str = "Root=1-"
-    first = "".join(random.choice("0123456789abcdef") for _ in range(8))
-    second = "".join(random.choice("0123456789abcdef") for _ in range(24))
-    return str + first + "-" + second

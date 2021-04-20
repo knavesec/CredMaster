@@ -1,22 +1,6 @@
-import json, datetime, requests, random
+import datetime, requests
+from utils.utils import generate_ip, generate_id, generate_trace_id
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
-
-
-def generate_ip():
-
-    return ".".join(str(random.randint(0,255)) for _ in range(4))
-
-
-def generate_id():
-
-    return "".join(random.choice("0123456789abcdefghijklmnopqrstuvwxyz") for _ in range(10))
-
-
-def generate_trace_id():
-    str = "Root=1-"
-    first = "".join(random.choice("0123456789abcdef") for _ in range(8))
-    second = "".join(random.choice("0123456789abcdef") for _ in range(24))
-    return str + first + "-" + second
 
 
 def o365_authenticate(url, username, password, useragent, pluginargs):

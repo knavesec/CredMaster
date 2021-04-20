@@ -1,21 +1,6 @@
-import json, datetime, requests, random, requests_ntlm
-
-
-def generate_ip():
-
-    return ".".join(str(random.randint(0,255)) for _ in range(4))
-
-
-def generate_id():
-
-    return "".join(random.choice("0123456789abcdefghijklmnopqrstuvwxyz") for _ in range(10))
-
-
-def generate_trace_id():
-    str = "Root=1-"
-    first = "".join(random.choice("0123456789abcdef") for _ in range(8))
-    second = "".join(random.choice("0123456789abcdef") for _ in range(24))
-    return str + first + "-" + second
+import datetime, requests, requests_ntlm
+from utils.utils import generate_ip, generate_id, generate_trace_id
+requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
 
 def httpbrute_authenticate(url, username, password, useragent, pluginargs): # CHANGEME: replace template with plugin name
@@ -53,24 +38,23 @@ def httpbrute_authenticate(url, username, password, useragent, pluginargs): # CH
         "X-My-X-Amzn-Trace-Id" : trace_id,
     }
 
-
     try:
 
         resp = None
 
         full_url = "{}/{}".format(url,pluginargs['uri'])
 
-		if pluginargs['auth'] == 'basic':
-			auth = requests.auth.HTTPBasicAuth(username, password)
-			resp = requests.get(url=full_url, auth=auth, verify=False, timeout=30)
+        if pluginargs['auth'] == 'basic':
+            auth = requests.auth.HTTPBasicAuth(username, password)
+            resp = requests.get(url=full_url, auth=auth, verify=False, timeout=30)
 
-		elif pluginargs['auth'] == 'digest':
-			auth = requests.auth.HTTPDigestAuth(username, password)
-			resp = requests.get(url=full_url, auth=auth, verify=False, timeout=30)
+        elif pluginargs['auth'] == 'digest':
+            auth = requests.auth.HTTPDigestAuth(username, password)
+            resp = requests.get(url=full_url, auth=auth, verify=False, timeout=30)
 
-		else: # NTLM
-			auth = requests_ntlm.HttpNtlmAuth(username, password)
-			resp = requests.get(url=full_url, auth=auth, verify=False, timeout=30)
+        else: # NTLM
+            auth = requests_ntlm.HttpNtlmAuth(username, password)
+            resp = requests.get(url=full_url, auth=auth, verify=False, timeout=30)
 
 
         if resp.status_code == 200:
