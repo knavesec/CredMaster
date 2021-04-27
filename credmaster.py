@@ -65,8 +65,11 @@ def main(args,pargs):
 	if args.clean:
 		clear_all_apis(access_key, secret_access_key, profile_name, session_token)
 		return
-	elif args.destroy != None:
-		destroy_single_api(args.destroy, access_key, secret_access_key, profile_name, session_token)
+	elif args.api_destroy != None:
+		destroy_single_api(args.api_destroy, access_key, secret_access_key, profile_name, session_token)
+		return
+	elif args.api_list:
+		list_apis(access_key, secret_access_key, profile_name, session_token)
 		return
 	else:
 		if userpass_file == None and (username_file == None or password_file == None):
@@ -248,28 +251,36 @@ def display_stats(apis, start=True):
 			log_entry('VALID - {}:{}'.format(cred['username'],cred['password']))
 
 
+def list_apis(access_key, secret_access_key, profile_name, session_token):
+
+	for region in regions:
+
+		args, help_str = get_fireprox_args(access_key, secret_access_key, profile_name, session_token, "list", region)
+		fp = FireProx(args, help_str)
+		active_apis = fp.list_api()
+		log_entry("Region: {} - total APIs: {}".format(region, len(active_apis)))
+
+		if len(active_apis) != 0:
+			for api in active_apis:
+				log_entry("API ID: {}".format(api['id']))
+
+
 def destroy_single_api(api, access_key, secret_access_key, profile_name, session_token):
 
 	log_entry("Destroying single API, locating region...")
 	for region in regions:
 
 		args, help_str = get_fireprox_args(access_key, secret_access_key, profile_name, session_token, "list", region)
-		print(1)
 		fp = FireProx(args, help_str)
-		print(2)
 		active_apis = fp.list_api()
-		count = len(active_apis)
-		err = "skipping"
-		if count != 0:
-			err = "removing"
-		log_entry("Region: {}, found {} APIs configured, {}".format(region, count, err))
 
-		print(active_apis)
+		for api1 in active_apis:
+			if api1['id'] == api:
+				log_entry("API found in region {}, destroying...".format(region))
+				fp.delete_api(api)
+				return
 
-		# for api in active_apis:
-		# 	if "fireprox" in api['name']:
-		# 		fp.delete_api(api['id'])
-		# 		clear_count += 1
+		log_entry("API not found")
 
 
 def destroy_apis(apis, access_key, secret_access_key, profile_name, session_token):
@@ -414,8 +425,9 @@ if __name__ == '__main__':
 	parser.add_argument('--secret_access_key', type=str, default=None, help='AWS Secret Access Key')
 	parser.add_argument('--session_token', type=str, default=None, help='AWS Session Token')
 	parser.add_argument('--config', type=str, default=None, help='Authenticate to AWS using config file aws.config')
-	parser.add_argument('--clean', default=False, action="store_true", help='Clean up ALL AWS APIs from every region, warning irreversible')
-	parser.add_argument('--destroy', type=str, default=None, help='Destroy single API instance')
+	parser.add_argument('--clean', default=False, action="store_true", help='Clean up all fireprox AWS APIs from every region, warning irreversible')
+	parser.add_argument('--api_destroy', type=str, default=None, help='Destroy single API instance, by API ID')
+	parser.add_argument('--api_list', default=False, action="store_true", help='List all fireprox APIs')
 
 	args,pluginargs = parser.parse_known_args()
 
