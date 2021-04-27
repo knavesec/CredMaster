@@ -31,6 +31,7 @@ def main(args,pargs):
 	plugin = args.plugin
 	username_file = args.userfile
 	password_file = args.passwordfile
+	userpass_file = args.userpassfile
 	profile_name = args.profile_name
 	access_key = args.access_key
 	secret_access_key = args.secret_access_key
@@ -68,9 +69,10 @@ def main(args,pargs):
 		destroy_single_api(args.destroy, access_key, secret_access_key, profile_name, session_token)
 		return
 	else:
-		if username_file == None or password_file == None:
-			log_entry("Plugin name, User file and password file must be provided")
+		if userpass_file == None and (username_file == None or password_file == None):
+			log_entry("Plugin name, user file and password file (or userpass file) must be provided")
 			return
+
 
 	if jitter_min is not None and jitter is None:
 		log_entry("--jitter flag must be set with --jitter-min flag")
@@ -123,10 +125,13 @@ def main(args,pargs):
 		log_entry("Starting Spray...")
 
 		count = 0
-		passwords = load_file(password_file)
+		passwords = ["Password123"]
+		if userpass_file == None:
+			passwords = load_file(password_file)
+
 		for password in passwords:
 
-			load_credentials(username_file, password, useragent_file)
+			load_credentials(username_file, password, useragent_file, userpass=userpass_file)
 
 			# Start Spray
 			threads = []
@@ -141,7 +146,10 @@ def main(args,pargs):
 			count = count + 1
 
 			if delay == None or len(passwords) == 1 or password == passwords[len(passwords)-1]:
-				log_entry('Completed spray with password {} at {}'.format(password, datetime.datetime.utcnow()))
+				if userpass_file != None:
+					log_entry('Completed spray with user-pass file {}'.format(userpass_file, datetime.datetime.utcnow()))
+				else:
+					log_entry('Completed spray with password {} at {}'.format(password, datetime.datetime.utcnow()))
 				continue
 			elif count != passwordsperdelay:
 				log_entry('Completed spray with password {} at {}, moving on to next password...'.format(password, datetime.datetime.utcnow()))
@@ -334,11 +342,16 @@ def spray_thread(api_key, api_dict, plugin, pluginargs, jitter=None, jitter_min=
 			log_entry("ERROR: {}: {} - {}".format(api_key,cred['username'],ex))
 
 
-def load_credentials(user_file, password, useragent_file=None):
+def load_credentials(user_file, password, useragent_file=None, userpass=None):
 
-	log_entry('Loading credentials from {} with password {}'.format(user_file, password))
+	users = []
+	if userpass == None:
+		log_entry('Loading credentials from {} with password {}'.format(user_file, password))
+		users = load_file(user_file)
+	else:
+		log_entry('Loading credentials from {} as user-pass file'.format(userpass))
+		users = load_file(userpass)
 
-	users = load_file(user_file)
 
 	if useragent_file is not None:
 		useragents = load_file(useragent_file)
@@ -347,6 +360,9 @@ def load_credentials(user_file, password, useragent_file=None):
 		useragents = ["Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0"]
 
 	for user in users:
+		if userpass != None:
+			password = ":".join(user.split(':')[1:]).strip()
+			user = user.split(':')[0].strip()
 		cred = {}
 		cred['username'] = user
 		cred['password'] = password
@@ -385,6 +401,7 @@ if __name__ == '__main__':
 	parser.add_argument('--plugin', help='Spray plugin', default=None, required=False)
 	parser.add_argument('-u', '--userfile', default=None, required=False, help='Username file')
 	parser.add_argument('-p', '--passwordfile', default=None, required=False, help='Password file')
+	parser.add_argument('-f', '--userpassfile', default=None, required=False, help='Username-Password file (one-to-one map, colon separated)')
 	parser.add_argument('-a', '--useragentfile', default=None, required=False, help='Useragent file')
 	parser.add_argument('-o', '--outfile', default=None, required=False, help='Output file to write contents (omit extension)')
 	parser.add_argument('-t', '--threads', type=int, default=1, help='Thread count (default 1, max 15)')
