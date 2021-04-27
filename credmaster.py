@@ -71,11 +71,12 @@ def main(args,pargs):
 	elif args.api_list:
 		list_apis(access_key, secret_access_key, profile_name, session_token)
 		return
+	elif userpass_file == None and (username_file == None or password_file == None):
+		log_entry("User file and password file (or userpass file) must be provided")
+		return
 	else:
-		if userpass_file == None and (username_file == None or password_file == None):
-			log_entry("Plugin name, user file and password file (or userpass file) must be provided")
-			return
-
+		log_entry("Please provide plugin & username/password information, or provide API utility options (api_list/api_destroy/clean)")
+		return
 
 	if jitter_min is not None and jitter is None:
 		log_entry("--jitter flag must be set with --jitter-min flag")
