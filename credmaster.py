@@ -262,7 +262,7 @@ def list_apis(access_key, secret_access_key, profile_name, session_token):
 
 		if len(active_apis) != 0:
 			for api in active_apis:
-				log_entry("API ID: {}".format(api['id']))
+				log_entry("API Info --  ID: {}, Name: {}, Created Date: {}".format(api['id'], api['name'], api['createdDate']))
 
 
 def destroy_single_api(api, access_key, secret_access_key, profile_name, session_token):
