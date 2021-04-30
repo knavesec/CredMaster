@@ -72,9 +72,6 @@ def main(args,pargs):
 		list_apis(access_key, secret_access_key, profile_name, session_token)
 		return
 	elif userpass_file == None and (username_file == None or password_file == None):
-		log_entry("User file and password file (or userpass file) must be provided")
-		return
-	else:
 		log_entry("Please provide plugin & username/password information, or provide API utility options (api_list/api_destroy/clean)")
 		return
 
