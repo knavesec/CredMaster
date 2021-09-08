@@ -54,6 +54,7 @@ All other usage details can be found [here](https://github.com/knavesec/CredMast
 - Oliver Morton ([grimhacker](https://twitter.com/grimhacker)) - Office365UserEnum tool
 - Marcello ([byt3bl33d3r](https://twitter.com/byt3bl33d3r)) - SprayingToolkit
 - Erforschr - HTTP Bruteforce tool
+- Florian Hauser ([frycos](https://twitter.com/frycos) from [codewhitesec](https://twitter.com/codewhitesec)) - ADFS plugin
 
 Feel free to drop me a line
 [keybase] - \@knave
