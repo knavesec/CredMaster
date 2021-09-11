@@ -35,6 +35,7 @@ The following plugins are currently supported:
 * [Okta](https://github.com/knavesec/CredMaster/wiki/Okta) - Okta Authentication Portal
 * [FortinetVPN](https://github.com/knavesec/CredMaster/wiki/FortinetVPN) - Fortinet VPN Client
 * [HTTPBrute](https://github.com/knavesec/CredMaster/wiki/HTTPBrute) - Generic HTTP Brute Methods (Basic/Digest/NTLM)
+* [ADFS](https://github.com/knavesec/CredMaster/wiki/ADFS) - Active Directory Federation Services
 
 Example Use:
 ```
