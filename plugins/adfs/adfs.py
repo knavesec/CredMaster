@@ -50,7 +50,7 @@ def adfs_authenticate(url, username, password, useragent, pluginargs):
     trace_id = generate_trace_id()
 
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:65.0) Gecko/20100101 Firefox/65.0', #useragent,
+        'User-Agent': useragent, # suggestion: Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:65.0) Gecko/20100101 Firefox/65.0
         "X-My-X-Forwarded-For": spoofed_ip,
         "x-amzn-apigateway-api-id": amazon_id,
         "X-My-X-Amzn-Trace-Id": trace_id,
