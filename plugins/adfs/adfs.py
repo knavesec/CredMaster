@@ -42,7 +42,8 @@ def adfs_authenticate(url, username, password, useragent, pluginargs):
         'cbcxt' : '',
         'username' : username,
         'mkt' : '',
-        'lc' : ''
+        'lc' : '',
+        'pullStatus' : 0
     }
 
     spoofed_ip = generate_ip()  # maybe use client related IP address
@@ -50,7 +51,7 @@ def adfs_authenticate(url, username, password, useragent, pluginargs):
     trace_id = generate_trace_id()
 
     headers = {
-        'User-Agent': useragent, # suggestion: Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:65.0) Gecko/20100101 Firefox/65.0
+        'User-Agent': useragent,
         "X-My-X-Forwarded-For": spoofed_ip,
         "x-amzn-apigateway-api-id": amazon_id,
         "X-My-X-Amzn-Trace-Id": trace_id,
