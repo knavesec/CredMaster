@@ -35,6 +35,7 @@ The following plugins are currently supported:
 * [Okta](https://github.com/knavesec/CredMaster/wiki/Okta) - Okta Authentication Portal
 * [FortinetVPN](https://github.com/knavesec/CredMaster/wiki/FortinetVPN) - Fortinet VPN Client
 * [HTTPBrute](https://github.com/knavesec/CredMaster/wiki/HTTPBrute) - Generic HTTP Brute Methods (Basic/Digest/NTLM)
+* [ADFS](https://github.com/knavesec/CredMaster/wiki/ADFS) - Active Directory Federation Services
 
 Example Use:
 ```
@@ -54,6 +55,7 @@ All other usage details can be found [here](https://github.com/knavesec/CredMast
 - Oliver Morton ([grimhacker](https://twitter.com/grimhacker)) - Office365UserEnum tool
 - Marcello ([byt3bl33d3r](https://twitter.com/byt3bl33d3r)) - SprayingToolkit
 - Erforschr - HTTP Bruteforce tool
+- Florian Hauser ([frycos](https://twitter.com/frycos) from [codewhitesec](https://twitter.com/codewhitesec)) - ADFS plugin
 
 Feel free to drop me a line
 [keybase] - \@knave
