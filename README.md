@@ -47,6 +47,11 @@ This tool requires AWS API access keys, a walkthrough on how to acquire these ke
 All other usage details can be found [here](https://github.com/knavesec/CredMaster/wiki/Usage)
 
 
+## TODO ## 
+
+* [Optiv's Go365 Method](https://github.com/optiv/Go365) - Includes Office365 auth and userenum capabilities
+* [Seamless SSO Method](https://arstechnica.com/information-technology/2021/09/new-azure-active-directory-password-brute-forcing-flaw-has-no-fix/) - not a ton of info about this one, seems like it doesn't leave logs in tenants though
+
 ## Credits ##
 
 - Mike Felch ([ustayready](https://twitter.com/ustayready)) - CredKing & FireProx
