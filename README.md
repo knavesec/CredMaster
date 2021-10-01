@@ -36,6 +36,7 @@ The following plugins are currently supported:
 * [FortinetVPN](https://github.com/knavesec/CredMaster/wiki/FortinetVPN) - Fortinet VPN Client
 * [HTTPBrute](https://github.com/knavesec/CredMaster/wiki/HTTPBrute) - Generic HTTP Brute Methods (Basic/Digest/NTLM)
 * [ADFS](https://github.com/knavesec/CredMaster/wiki/ADFS) - Active Directory Federation Services
+* [AzureSSO](https://github.com/knavesec/CredMaster/wiki/AzureSSO) - Azure AD Seamless SSO Endpoint
 
 Example Use:
 ```
@@ -47,10 +48,10 @@ This tool requires AWS API access keys, a walkthrough on how to acquire these ke
 All other usage details can be found [here](https://github.com/knavesec/CredMaster/wiki/Usage)
 
 
-## TODO ## 
+## TODO ##
 
 * [Optiv's Go365 Method](https://github.com/optiv/Go365) - Includes Office365 auth and userenum capabilities
-* [Seamless SSO Method](https://arstechnica.com/information-technology/2021/09/new-azure-active-directory-password-brute-forcing-flaw-has-no-fix/) - not a ton of info about this one, seems like it doesn't leave logs in tenants though
+
 
 ## Credits ##
 
@@ -61,6 +62,7 @@ All other usage details can be found [here](https://github.com/knavesec/CredMast
 - Marcello ([byt3bl33d3r](https://twitter.com/byt3bl33d3r)) - SprayingToolkit
 - Erforschr - HTTP Bruteforce tool
 - Florian Hauser ([frycos](https://twitter.com/frycos) from [codewhitesec](https://twitter.com/codewhitesec)) - ADFS plugin
+- [nyxgeek](https://twitter.com/nyxgeek) - Azure AD Seamless SSO python implementation
 
 Feel free to drop me a line
 [keybase] - \@knave
