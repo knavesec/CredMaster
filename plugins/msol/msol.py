@@ -1,4 +1,4 @@
-import json, datetime, requests
+import datetime, requests
 from utils.utils import generate_ip, generate_id, generate_trace_id
 
 
@@ -109,6 +109,5 @@ def msol_authenticate(url, username, password, useragent, pluginargs):
     except Exception as ex:
         data_response['error'] = True
         data_response['output'] = ex
-        pass
 
     return data_response

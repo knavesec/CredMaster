@@ -58,7 +58,7 @@ def main(args,pargs):
 		profile_name = aws_dict['profile_name']
 		session_token = aws_dict['session_token']
 
-	if access_key == None and secret_access_key == None and session_token == None and profile_name == None:
+	if access_key is None and secret_access_key is None and session_token is None and profile_name is None:
 		log_entry("No FireProx access arguments settings configured, add access keys/session token or fill out config file")
 		return
 
@@ -71,7 +71,7 @@ def main(args,pargs):
 	elif args.api_list:
 		list_apis(access_key, secret_access_key, profile_name, session_token)
 		return
-	elif userpass_file == None and (username_file == None or password_file == None):
+	elif userpass_file is None and (username_file is None or password_file is None):
 		log_entry("Please provide plugin & username/password information, or provide API utility options (api_list/api_destroy/clean)")
 		return
 
@@ -127,7 +127,7 @@ def main(args,pargs):
 
 		count = 0
 		passwords = ["Password123"]
-		if userpass_file == None:
+		if userpass_file is None:
 			passwords = load_file(password_file)
 
 		for password in passwords:
@@ -146,9 +146,9 @@ def main(args,pargs):
 
 			count = count + 1
 
-			if delay == None or len(passwords) == 1 or password == passwords[len(passwords)-1]:
+			if delay is None or len(passwords) == 1 or password == passwords[len(passwords)-1]:
 				if userpass_file != None:
-					log_entry('Completed spray with user-pass file {}'.format(userpass_file, datetime.datetime.utcnow()))
+					log_entry('Completed spray with user-pass file {} at {}'.format(userpass_file, datetime.datetime.utcnow()))
 				else:
 					log_entry('Completed spray with password {} at {}'.format(password, datetime.datetime.utcnow()))
 				continue
@@ -354,7 +354,7 @@ def spray_thread(api_key, api_dict, plugin, pluginargs, jitter=None, jitter_min=
 def load_credentials(user_file, password, useragent_file=None, userpass=None):
 
 	users = []
-	if userpass == None:
+	if userpass is None:
 		log_entry('Loading credentials from {} with password {}'.format(user_file, password))
 		users = load_file(user_file)
 	else:

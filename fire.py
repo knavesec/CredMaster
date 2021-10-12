@@ -1,16 +1,12 @@
 from multiprocessing import Pool
-from pathlib import Path
-import shutil
 import tldextract
 import boto3
 import os
 import sys
 import datetime
-import tzlocal
 import argparse
-import json
 import configparser
-from typing import Tuple, Callable
+from typing import Tuple
 
 
 class FireProx(object):

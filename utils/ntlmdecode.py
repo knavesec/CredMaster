@@ -25,7 +25,6 @@ import base64
 import struct
 import string
 import collections
-import logging
 from binascii import hexlify
 
 flags_tbl_str = """0x00000001  Negotiate Unicode
@@ -233,4 +232,4 @@ def ntlmdecode(authenticate_header):
 
     return pretty_print_challenge(st)
 
-    raise Exception(f"Unknown message structure.  Have a raw (hex-encoded) message: {hexlify(st)}")
+    #raise Exception(f"Unknown message structure.  Have a raw (hex-encoded) message: {hexlify(st)}")

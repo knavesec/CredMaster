@@ -80,6 +80,5 @@ def okta_authenticate(url, username, password, useragent, pluginargs):
 	except Exception as ex:
 		data_response['error'] = True
 		data_response['output'] = ex
-		pass
 
 	return data_response
