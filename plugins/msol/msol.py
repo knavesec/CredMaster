@@ -1,4 +1,4 @@
-import json, datetime, requests
+import datetime, requests
 from utils.utils import generate_ip, generate_id, generate_trace_id
 
 
