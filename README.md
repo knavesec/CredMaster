@@ -50,7 +50,11 @@ All other usage details can be found [here](https://github.com/knavesec/CredMast
 
 ## TODO ##
 
-* [Optiv's Go365 Method](https://github.com/optiv/Go365) - Includes Office365 auth and userenum capabilities
+PRs welcome :)
+
+* New Plugin: [Optiv's Go365 Method](https://github.com/optiv/Go365) - Includes Office365 auth and userenum capabilities via SOAP
+* "Resume" functionality for paused/cancelled scans. Ideally storing data for APIs used, if they were destroyed and what user/pwd the spray was on
+* Password file read dynamically so you can add/delete pwds mid-scan and it will perform as desired
 
 
 ## Credits ##
