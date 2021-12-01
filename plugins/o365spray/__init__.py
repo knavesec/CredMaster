@@ -35,7 +35,7 @@ def testconnect(pluginargs, args, api_dict, useragent):
         response = req.text
         valid_response = re.search('"NameSpaceType":"Managed",', response)
         if valid_response:
-             output = "Testconnect: Connection success, tennant is using a managed instance, continuting."
+             output = "Testconnect: Connection success, tennant is using a managed instance, continuting"
         else:
     	     output = "Testconnect: Connection failed, tennant not using a managed instance, exiting"
     	     success = False
