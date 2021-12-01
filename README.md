@@ -55,7 +55,7 @@ PRs welcome :)
 * New Plugin: [Optiv's Go365 Method](https://github.com/optiv/Go365) - Includes Office365 auth and userenum capabilities via SOAP
 * "Resume" functionality for paused/cancelled scans. Ideally storing data for APIs used, if they were destroyed and what user/pwd the spray was on
 * Password file read dynamically so you can add/delete pwds mid-scan and it will perform as desired
-* Method to reliably determine if an auth attempt was throttled, so the username could be re-queued and tried again later for full cover
+* Method to reliably determine if an auth attempt was throttled, so the username could be re-queued and tried again later for full cover (would have to be per-plugin, return "throttled" boolean value in plugin script, requeue if throttled)
 
 
 ## Credits ##
