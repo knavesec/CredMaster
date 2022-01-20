@@ -31,6 +31,7 @@ The following plugins are currently supported:
 * [OWA](https://github.com/knavesec/CredMaster/wiki/OWA) - Outlook Web Access
 * [EWS](https://github.com/knavesec/CredMaster/wiki/EWS) - Exchange Web Services
 * [O365](https://github.com/knavesec/CredMaster/wiki/O365) - Office365
+* [O364Enum](https://github.com/knavesec/CredMaster/wiki/O365Enum) - Office365 User Enum (No Authentication Request)
 * [MSOL](https://github.com/knavesec/CredMaster/wiki/MSOL) - Microsoft Online
 * [Okta](https://github.com/knavesec/CredMaster/wiki/Okta) - Okta Authentication Portal
 * [FortinetVPN](https://github.com/knavesec/CredMaster/wiki/FortinetVPN) - Fortinet VPN Client
@@ -68,7 +69,11 @@ PRs welcome :)
 - Erforschr - HTTP Bruteforce tool
 - Florian Hauser ([frycos](https://twitter.com/frycos) from [codewhitesec](https://twitter.com/codewhitesec)) - ADFS plugin
 - [nyxgeek](https://twitter.com/nyxgeek) - Azure AD Seamless SSO python implementation
+- Joe Helle ([joehelle](https://twitter.com/joehelle)) - Oh365UserFinder
+- Cameron Geehr ([BarrelTit0r](https://twitter.com/BarrelTit0r)) - o365enum tool
+- Max Gruenberg ([Max_Gruenberg](https://twitter.com/Max_Gruenberg)) - o365enum plugin
+
 
 Feel free to drop me a line
 [keybase] - \@knave
-[twitter] - \@knavesec
+[twitter] - [knavesec](https://twitter.com/knavesec)

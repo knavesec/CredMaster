@@ -1,9 +1,8 @@
 import datetime, requests
-import re
 from utils.utils import generate_ip, generate_id, generate_trace_id
 
 
-def o365enum_authenticate(url, username, password, useragent, pluginargs): 
+def o365enum_authenticate(url, username, password, useragent, pluginargs):
 
     ts = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
 
@@ -39,24 +38,33 @@ def o365enum_authenticate(url, username, password, useragent, pluginargs):
     }
 
     try:
+
+        # some code stolen from:
+        # https://github.com/BarrelTit0r/o365enum/blob/master/o365enum.py
+        # https://github.com/dievus/Oh365UserFinder/blob/main/oh365userfinder.py
+
+        if_exists_result_codes = {"-1": "UNKNOWN", "0": "VALID_USER", "1": "INVALID_USER", "2": "THROTTLE", "4": "ERROR", "5": "VALID_USER_DIFFERENT_IDP", "6": "VALID_USER"}
+        domainType = {"1": "UNKNOWN", "2": "COMMERCIAL", "3": "MANAGED", "4": "FEDERATED", "5": "CLOUD_FEDERATED"}
+
         body = '{"Username":"%s"}' % username
-        accountQuery = requests.post("https://login.microsoftonline.com/common/GetCredentialType",data=body)
-        accountQuery_response = accountQuery.text
-        valid_response = re.search('"IfExistsResult":0,', accountQuery_response)
-        valid_response5 = re.search('"IfExistsResult":5,', accountQuery_response)
-        valid_response6 = re.search('"IfExistsResult":6,', accountQuery_response)
-        invalid_response = re.search('"IfExistsResult":1,', accountQuery_response)
-        #print(accountQuery.text)
-        if invalid_response:
-            data_response['output'] = "The user {username} doesn't exist.".format(username=username)
-            data_response['success'] = False
-        elif valid_response or valid_response5 or valid_response6:
-            data_response['output'] = "Username: {username} could exist.".format(username=username)
-            data_response['success'] = False
-        else: #fail
-            data_response['success'] = False
-            data_response['output'] = 'FAILURE_MESSAGE: {} => {}:{}'.format(resp.status_code, username, password)
-            data_response['2fa_enabled'] = True
+
+        sess = requests.session()
+
+        response = sess.post("{}/common/GetCredentialType".format(url), data=body)
+
+        throttle_status = int(response.json()['ThrottleStatus'])
+        if_exists_result = str(response.json()['IfExistsResult'])
+        if_exists_result_response = if_exists_result_codes[if_exists_result]
+        domain_type = domainType[str(response.json()['EstsProperties']['DomainType'])]
+        domain = username.split("@")[1]
+
+        if domain_type != "MANAGED":
+            data_response['output'] = "WARNING: {username} Domain type {domaintype} not supported for user enum".format(username=username,domaintype=domain_type)
+        elif throttle_status != 0 or if_exists_result_response == "THROTTLE":
+            data_response['output'] = "WARNING: Throttle detected on user {}".format(username=username)
+            data_response['throttled'] = True
+        else:
+            data_response['output'] = "{if_exists_result_response}: {username}".format(if_exists_result_response=if_exists_result_response, username=username)
 
     except Exception as ex:
         data_response['error'] = True
