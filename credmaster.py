@@ -42,6 +42,9 @@ def main(args,pargs):
 	passwordsperdelay = args.passwordsperdelay
 	jitter = args.jitter
 	jitter_min = args.jitter_min
+	randomize = args.randomize
+	headers = args.header
+
 
 	# input exception handling
 	if outfile != None:
@@ -116,6 +119,12 @@ def main(args,pargs):
 		connect_success, testconnect_output, pluginargs = validator.testconnect(pluginargs, args, apis['us-east-2'], useragent)
 		log_entry(testconnect_output)
 
+		if headers is not None:
+			log_entry("Adding custom header \"{}\" to requests".format(headers))
+			head = headers.split(":")[0].strip()
+			val = headers.split(":")[1].strip()
+			pluginargs["custom-headers"] = {head : val}
+
 		if not connect_success:
 			destroy_apis(apis, access_key, secret_access_key, profile_name, session_token)
 			return
@@ -132,7 +141,7 @@ def main(args,pargs):
 
 		for password in passwords:
 
-			load_credentials(username_file, password, useragent_file, userpass=userpass_file)
+			load_credentials(username_file, password, useragent_file, userpass=userpass_file, randomize=randomize)
 
 			# Start Spray
 			threads = []
@@ -338,6 +347,9 @@ def spray_thread(api_key, api_dict, plugin, pluginargs, jitter=None, jitter_min=
 
 			response = plugin_authentiate(api_dict['proxy_url'], cred['username'], cred['password'], cred['useragent'], pluginargs)
 
+			if "debug" in response.keys():
+				print(response["debug"])
+
 			if not response['error']:
 				log_entry("{}: {}".format(api_key,response['output']))
 			else:
@@ -351,14 +363,18 @@ def spray_thread(api_key, api_dict, plugin, pluginargs, jitter=None, jitter_min=
 			log_entry("ERROR: {}: {} - {}".format(api_key,cred['username'],ex))
 
 
-def load_credentials(user_file, password, useragent_file=None, userpass=None):
+def load_credentials(user_file, password, useragent_file=None, userpass=None, randomize=False):
+
+	r = ""
+	if randomize:
+		r = ", randomized order"
 
 	users = []
 	if userpass is None:
-		log_entry('Loading credentials from {} with password {}'.format(user_file, password))
+		log_entry('Loading credentials from {} with password {}{}'.format(user_file, password, r))
 		users = load_file(user_file)
 	else:
-		log_entry('Loading credentials from {} as user-pass file'.format(userpass))
+		log_entry('Loading credentials from {} as user-pass file{}'.format(userpass, r))
 		users = load_file(userpass)
 
 
@@ -368,16 +384,36 @@ def load_credentials(user_file, password, useragent_file=None, userpass=None):
 		# randomly selected
 		useragents = ["Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0"]
 
-	for user in users:
+	while users != []:
+		user = None
+
+		if randomize:
+			user = users.pop(random.randint(0,len(users)-1))
+		else:
+			user = users.pop(0)
+
 		if userpass != None:
 			password = ":".join(user.split(':')[1:]).strip()
-			user = user.split(':')[0].strip()
+			username = user.split(':')[0].strip()
+
 		cred = {}
 		cred['username'] = user
 		cred['password'] = password
 		cred['useragent'] = random.choice(useragents)
 
 		q_spray.put(cred)
+
+
+	# for user in users:
+	# 	if userpass != None:
+	# 		password = ":".join(user.split(':')[1:]).strip()
+	# 		user = user.split(':')[0].strip()
+	# 	cred = {}
+	# 	cred['username'] = user
+	# 	cred['password'] = password
+	# 	cred['useragent'] = random.choice(useragents)
+	#
+	# 	q_spray.put(cred)
 
 
 def load_file(filename):
@@ -417,6 +453,8 @@ if __name__ == '__main__':
 	parser.add_argument('-j', '--jitter', type=int, default=None, required=False, help='Jitter delay between requests in seconds (applies per-thread)')
 	parser.add_argument('-m', '--jitter_min', type=int, default=None, required=False, help='Minimum jitter time in seconds, defaults to 0')
 	parser.add_argument('-d', '--delay', type=int, required=False, help='Delay between unique passwords, in minutes')
+	parser.add_argument('-r', '--randomize', required=False, action="store_true", help='Randomize the input list of usernames to spray (will remain the same password)')
+	parser.add_argument('--header', default=None, required=False, help='Add a custom header to each request for attribution, specify "X-Header: value"')
 	parser.add_argument('--passwordsperdelay', type=int, default=1, required=False, help='Number of passwords to be tested per delay cycle')
 	parser.add_argument('--profile_name', type=str, default=None, help='AWS Profile Name to store/retrieve credentials')
 	parser.add_argument('--access_key', type=str, default=None, help='AWS Access Key')

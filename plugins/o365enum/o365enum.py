@@ -37,6 +37,10 @@ def o365enum_authenticate(url, username, password, useragent, pluginargs):
         "X-My-X-Amzn-Trace-Id" : trace_id,
     }
 
+    if "custom-headers" in pluginargs.keys():
+        for header in pluginargs["custom-headers"]:
+            headers[header] = pluginargs["custom-headers"][header]
+
     try:
 
         # some code stolen from:
@@ -50,7 +54,7 @@ def o365enum_authenticate(url, username, password, useragent, pluginargs):
 
         sess = requests.session()
 
-        response = sess.post("{}/common/GetCredentialType".format(url), data=body)
+        response = sess.post("{}/common/GetCredentialType".format(url), headers=headers, data=body)
 
         throttle_status = int(response.json()['ThrottleStatus'])
         if_exists_result = str(response.json()['IfExistsResult'])

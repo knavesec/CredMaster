@@ -19,6 +19,11 @@ def generate_trace_id():
     return str + first + "-" + second
 
 
+def generate_string(chars):
+
+    return "".join(random.choice("0123456789abcdefghijklmnopqrstuvwxyz") for _ in range(chars))
+
+
 def get_owa_domain(url, uri, useragent):
     # Stolen from https://github.com/byt3bl33d3r/SprayingToolkit who stole it from https://github.com/dafthack/MailSniper
     auth_header = {

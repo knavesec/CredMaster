@@ -31,7 +31,7 @@ The following plugins are currently supported:
 * [OWA](https://github.com/knavesec/CredMaster/wiki/OWA) - Outlook Web Access
 * [EWS](https://github.com/knavesec/CredMaster/wiki/EWS) - Exchange Web Services
 * [O365](https://github.com/knavesec/CredMaster/wiki/O365) - Office365
-* [O364Enum](https://github.com/knavesec/CredMaster/wiki/O365Enum) - Office365 User Enum (No Authentication Request)
+* [O365Enum](https://github.com/knavesec/CredMaster/wiki/O365Enum) - Office365 User Enum (No Authentication Request)
 * [MSOL](https://github.com/knavesec/CredMaster/wiki/MSOL) - Microsoft Online
 * [Okta](https://github.com/knavesec/CredMaster/wiki/Okta) - Okta Authentication Portal
 * [FortinetVPN](https://github.com/knavesec/CredMaster/wiki/FortinetVPN) - Fortinet VPN Client
@@ -57,7 +57,6 @@ PRs welcome :)
 * "Resume" functionality for paused/cancelled scans. Ideally storing data for APIs used, if they were destroyed and what user/pwd the spray was on
 * Password file read dynamically so you can add/delete pwds mid-scan and it will perform as desired
 * Method to reliably determine if an auth attempt was throttled, so the username could be re-queued and tried again later for full cover (would have to be per-plugin, return "throttled" boolean value in plugin script, requeue if throttled)
-* Method to add a custom header to each attempt as a "marker" for attribution if desired
 
 
 ## Credits ##
@@ -76,5 +75,5 @@ PRs welcome :)
 
 
 Feel free to drop me a line
-[keybase] - \@knave
-[twitter] - [knavesec](https://twitter.com/knavesec)
+- \@knave on Keybase
+[Twitter - knavesec](https://twitter.com/knavesec)
