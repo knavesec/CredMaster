@@ -1,5 +1,5 @@
 import datetime, requests
-from utils.utils import generate_ip, generate_id, generate_trace_id
+import utils.utils as utils
 
 
 def adfs_authenticate(url, username, password, useragent, pluginargs):
@@ -46,9 +46,9 @@ def adfs_authenticate(url, username, password, useragent, pluginargs):
         'pullStatus' : 0
     }
 
-    spoofed_ip = generate_ip()  # maybe use client related IP address
-    amazon_id = generate_id()
-    trace_id = generate_trace_id()
+    spoofed_ip = utils.generate_ip()  # maybe use client related IP address
+    amazon_id = utils.generate_id()
+    trace_id = utils.generate_trace_id()
 
     headers = {
         'User-Agent': useragent,
@@ -59,6 +59,8 @@ def adfs_authenticate(url, username, password, useragent, pluginargs):
         'Content-Type': 'application/x-www-form-urlencoded',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9, image/webp,*/*;q=0.8'
     }
+
+    headers = utils.add_custom_headers(pluginargs, headers)
 
     try:
 

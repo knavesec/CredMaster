@@ -76,4 +76,4 @@ PRs welcome :)
 
 Feel free to drop me a line
 - \@knave on Keybase
-[Twitter - knavesec](https://twitter.com/knavesec)
+- [Twitter - knavesec](https://twitter.com/knavesec)

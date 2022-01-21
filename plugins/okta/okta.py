@@ -1,5 +1,5 @@
 import json, datetime, requests
-from utils.utils import generate_ip, generate_id, generate_trace_id
+import utils.utils as utils
 
 
 def okta_authenticate(url, username, password, useragent, pluginargs):
@@ -27,9 +27,9 @@ def okta_authenticate(url, username, password, useragent, pluginargs):
 
 	raw_body = "{\"username\":\"%s\",\"password\":\"%s\",\"options\":{\"warnBeforePasswordExpired\":true,\"multiOptionalFactorEnroll\":true}}" % (username, password)
 
-	spoofed_ip = generate_ip()
-	amazon_id = generate_id()
-	trace_id = generate_trace_id()
+	spoofed_ip = utils.generate_ip()
+	amazon_id = utils.generate_id()
+	trace_id = utils.generate_trace_id()
 
 	headers = {
 		'User-Agent': useragent,
@@ -39,6 +39,8 @@ def okta_authenticate(url, username, password, useragent, pluginargs):
 
 		'Content-Type': 'application/json'
 	}
+
+    headers = utils.add_custom_headers(pluginargs, headers)
 
 	try:
 		resp = requests.post("{}/api/v1/authn/".format(url),data=raw_body,headers=headers)

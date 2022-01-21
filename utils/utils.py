@@ -24,6 +24,15 @@ def generate_string(chars):
     return "".join(random.choice("0123456789abcdefghijklmnopqrstuvwxyz") for _ in range(chars))
 
 
+def add_custom_headers(pluginargs, headers):
+
+    if "custom-headers" in pluginargs.keys():
+        for header in pluginargs["custom-headers"]:
+            headers[header] = pluginargs["custom-headers"][header]
+
+    return headers
+
+
 def get_owa_domain(url, uri, useragent):
     # Stolen from https://github.com/byt3bl33d3r/SprayingToolkit who stole it from https://github.com/dafthack/MailSniper
     auth_header = {

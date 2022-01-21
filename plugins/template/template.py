@@ -1,5 +1,5 @@
 import datetime, requests
-from utils.utils import generate_ip, generate_id, generate_trace_id
+import utils.utils as utils
 
 
 def template_authenticate(url, username, password, useragent, pluginargs): # CHANGEME: replace template with plugin name
@@ -30,9 +30,9 @@ def template_authenticate(url, username, password, useragent, pluginargs): # CHA
         'output' : ""
     }
 
-    spoofed_ip = generate_ip()
-    amazon_id = generate_id()
-    trace_id = generate_trace_id()
+    spoofed_ip = utils.generate_ip()
+    amazon_id = utils.generate_id()
+    trace_id = utils.generate_trace_id()
 
     # CHANGEME: Add more if necessary
     headers = {
@@ -41,6 +41,8 @@ def template_authenticate(url, username, password, useragent, pluginargs): # CHA
         "x-amzn-apigateway-api-id" : amazon_id,
         "X-My-X-Amzn-Trace-Id" : trace_id,
     }
+
+    headers = utils.add_custom_headers(pluginargs, headers)
 
     try:
 

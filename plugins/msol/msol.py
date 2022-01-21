@@ -1,5 +1,5 @@
 import datetime, requests
-from utils.utils import generate_ip, generate_id, generate_trace_id
+import utils.utils as utils
 
 
 def msol_authenticate(url, username, password, useragent, pluginargs):
@@ -35,9 +35,9 @@ def msol_authenticate(url, username, password, useragent, pluginargs):
         'scope': 'openid',
     }
 
-    spoofed_ip = generate_ip()
-    amazon_id = generate_id()
-    trace_id = generate_trace_id()
+    spoofed_ip = utils.generate_ip()
+    amazon_id = utils.generate_id()
+    trace_id = utils.generate_trace_id()
 
     headers = {
         "X-My-X-Forwarded-For" : spoofed_ip,
@@ -48,6 +48,8 @@ def msol_authenticate(url, username, password, useragent, pluginargs):
         'Accept': 'application/json',
         'Content-Type': 'application/x-www-form-urlencoded'
     }
+
+    headers = utils.add_custom_headers(pluginargs, headers)
 
     try:
         resp = requests.post("{}/common/oauth2/token".format(url), headers=headers, data=body)

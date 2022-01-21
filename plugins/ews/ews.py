@@ -1,6 +1,6 @@
 import datetime, requests
 from requests_ntlm import HttpNtlmAuth
-from utils.utils import generate_ip, generate_id, generate_trace_id
+import utils.utils as utils
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
 
@@ -27,9 +27,9 @@ def ews_authenticate(url, username, password, useragent, pluginargs):
         'output' : ""
     }
 
-    spoofed_ip = generate_ip()
-    amazon_id = generate_id()
-    trace_id = generate_trace_id()
+    spoofed_ip = utils.generate_ip()
+    amazon_id = utils.generate_id()
+    trace_id = utils.generate_trace_id()
 
     headers = {
         'User-Agent': useragent,
@@ -39,6 +39,8 @@ def ews_authenticate(url, username, password, useragent, pluginargs):
 
         "Content-Type": "text/xml"
     }
+
+    headers = utils.add_custom_headers(pluginargs, headers)
 
     try:
 

@@ -1,5 +1,5 @@
 import datetime, requests, uuid, re
-from utils.utils import generate_ip, generate_id, generate_trace_id
+import utils.utils as utils
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
 
@@ -74,9 +74,9 @@ def azuresso_authenticate(url, username, password, useragent, pluginargs):
     tempdata = tempdata.replace("UsernamePlaceholder", username)
     tempdata = tempdata.replace("PasswordPlaceholder", password)
 
-    spoofed_ip = generate_ip()
-    amazon_id = generate_id()
-    trace_id = generate_trace_id()
+    spoofed_ip = utils.generate_ip()
+    amazon_id = utils.generate_id()
+    trace_id = utils.generate_trace_id()
 
     headers = {
         'User-Agent': useragent,
@@ -88,6 +88,8 @@ def azuresso_authenticate(url, username, password, useragent, pluginargs):
         'return-client-request-id':'true',
         'Content-type':'application/soap+xml; charset=utf-8'
     }
+
+    headers = utils.add_custom_headers(pluginargs, headers)
 
     try:
         r = requests.post("{url}/{domain}/winauth/trust/2005/usernamemixed?client-request-id={requestid}".format(url=url,domain=pluginargs['domain'],requestid=requestid), data=tempdata, headers=headers, verify=False, timeout=30)

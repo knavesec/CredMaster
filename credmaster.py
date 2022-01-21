@@ -105,6 +105,13 @@ def main(args,pargs):
 	else:
 		log_entry("No validate function found for plugin: {}".format(plugin))
 
+	if headers is not None:
+		log_entry("Adding custom header \"{}\" to requests".format(headers))
+		head = headers.split(":")[0].strip()
+		val = headers.split(":")[1].strip()
+		pluginargs["custom-headers"] = {head : val}
+
+
 	# this is the original URL, NOT the fireproxy one. Don't use this in your sprays!
 	url = pluginargs['url']
 
@@ -118,12 +125,6 @@ def main(args,pargs):
 		useragent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0"
 		connect_success, testconnect_output, pluginargs = validator.testconnect(pluginargs, args, apis['us-east-2'], useragent)
 		log_entry(testconnect_output)
-
-		if headers is not None:
-			log_entry("Adding custom header \"{}\" to requests".format(headers))
-			head = headers.split(":")[0].strip()
-			val = headers.split(":")[1].strip()
-			pluginargs["custom-headers"] = {head : val}
 
 		if not connect_success:
 			destroy_apis(apis, access_key, secret_access_key, profile_name, session_token)

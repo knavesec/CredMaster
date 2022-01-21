@@ -1,5 +1,5 @@
 import requests
-from utils.utils import generate_ip, generate_id, generate_trace_id, get_owa_domain
+import utils.utils as utils
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
 
@@ -23,10 +23,12 @@ def testconnect(pluginargs, args, api_dict, useragent):
     success = True
     headers = {
         'User-Agent': useragent,
-        "X-My-X-Forwarded-For" : generate_ip(),
-        "x-amzn-apigateway-api-id" : generate_id(),
-        "X-My-X-Amzn-Trace-Id" : generate_trace_id(),
+        "X-My-X-Forwarded-For" : utils.generate_ip(),
+        "x-amzn-apigateway-api-id" : utils.generate_id(),
+        "X-My-X-Amzn-Trace-Id" : utils.generate_trace_id(),
     }
+
+    headers = utils.add_custom_headers(pluginargs, headers)
 
     resp = requests.get(url, headers=headers, verify=False)
 
@@ -37,7 +39,7 @@ def testconnect(pluginargs, args, api_dict, useragent):
         output = "Testconnect: Fingerprinting host... Internal Domain name: {domain}, continuing"
 
     if success:
-        domainname = get_owa_domain(url, "/autodiscover/autodiscover.xml", useragent)
+        domainname = utils.get_owa_domain(url, "/autodiscover/autodiscover.xml", useragent)
         output = output.format(domain=domainname)
         pluginargs['domain'] = domainname
 

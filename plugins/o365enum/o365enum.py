@@ -1,5 +1,5 @@
 import datetime, requests
-from utils.utils import generate_ip, generate_id, generate_trace_id
+import utils.utils as utils
 
 
 def o365enum_authenticate(url, username, password, useragent, pluginargs):
@@ -25,9 +25,9 @@ def o365enum_authenticate(url, username, password, useragent, pluginargs):
         'output' : ""
     }
 
-    spoofed_ip = generate_ip()
-    amazon_id = generate_id()
-    trace_id = generate_trace_id()
+    spoofed_ip = utils.generate_ip()
+    amazon_id = utils.generate_id()
+    trace_id = utils.generate_trace_id()
 
 
     headers = {
@@ -37,9 +37,7 @@ def o365enum_authenticate(url, username, password, useragent, pluginargs):
         "X-My-X-Amzn-Trace-Id" : trace_id,
     }
 
-    if "custom-headers" in pluginargs.keys():
-        for header in pluginargs["custom-headers"]:
-            headers[header] = pluginargs["custom-headers"][header]
+    headers = utils.add_custom_headers(pluginargs, headers)
 
     try:
 
