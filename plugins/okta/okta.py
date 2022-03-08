@@ -40,7 +40,7 @@ def okta_authenticate(url, username, password, useragent, pluginargs):
 		'Content-Type': 'application/json'
 	}
 
-    headers = utils.add_custom_headers(pluginargs, headers)
+	headers = utils.add_custom_headers(pluginargs, headers)
 
 	try:
 		resp = requests.post("{}/api/v1/authn/".format(url),data=raw_body,headers=headers)
@@ -70,10 +70,12 @@ def okta_authenticate(url, username, password, useragent, pluginargs):
 			else:
 				data_response['success'] = False
 				data_response['output'] = "ALERT: 200 but doesn't indicate success {}:{}".format(username,password)
+
 		elif resp.status_code == 403:
 			data_response['success'] = False
 			data_response['code'] = resp.status_code
 			data_response['output'] = "FAILED THROTTLE INDICATED: {} => {}:{}".format(resp.status_code, username, password)
+
 		else:
 			data_response['success'] = False
 			data_response['code'] = resp.status_code
