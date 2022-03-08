@@ -40,7 +40,7 @@ def okta_authenticate(url, username, password, useragent, pluginargs):
 		'Content-Type': 'application/json'
 	}
 
-    headers = utils.add_custom_headers(pluginargs, headers)
+    	headers = utils.add_custom_headers(pluginargs, headers)
 
 	try:
 		resp = requests.post("{}/api/v1/authn/".format(url),data=raw_body,headers=headers)
