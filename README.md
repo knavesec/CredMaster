@@ -11,14 +11,15 @@ For detection tips, see the blogpost and detection section.
 **Be careful for account lockouts, know the reset policies of your target**
 
 
-## Benefits ##
+## Benefits & Features ##
 
-* Fully supports all AWS Regions
+* Rotates the requesting IP address for every request
 * Automatically generates APIs for proxy passthru
 * Spoofs API tracking numbers, forwarded-for IPs, and other proxy tracking headers
 * Multi-threaded processing
 * Password delay counters & configuration for lockout policy evasion
 * Easily add new plugins
+* [WeekdayWarrior](https://github.com/knavesec/CredMaster/wiki/Weekday-Warrior) setting for timed spraying and SOC evasion
 * Fully [anonymous](https://github.com/knavesec/CredMaster/wiki/Anonymity)
 
 ![general](https://raw.githubusercontent.com/whynotsecurity/whynotsecurity.github.io/master/assests/images/credmaster-screenshots/credmaster-default.png)
@@ -57,7 +58,6 @@ PRs welcome :)
 * "Resume" functionality for paused/cancelled scans. Ideally storing data for APIs used, if they were destroyed and what user/pwd the spray was on
 * Password file read dynamically so you can add/delete pwds mid-scan and it will perform as desired
 * Method to reliably determine if an auth attempt was throttled, so the username could be re-queued and tried again later for full cover (would have to be per-plugin, return "throttled" boolean value in plugin script, requeue if throttled)
-* "Weekday Warrior" functionality to only spray between normal working hours to avoid detection
 
 
 ## Credits ##
