@@ -29,7 +29,6 @@ def o365enum_authenticate(url, username, password, useragent, pluginargs):
     amazon_id = utils.generate_id()
     trace_id = utils.generate_trace_id()
 
-
     headers = {
         'User-Agent': useragent,
         "X-My-X-Forwarded-For" : spoofed_ip,
@@ -62,9 +61,11 @@ def o365enum_authenticate(url, username, password, useragent, pluginargs):
 
         if domain_type != "MANAGED":
             data_response['output'] = "WARNING: {username} Domain type {domaintype} not supported for user enum".format(username=username,domaintype=domain_type)
+
         elif throttle_status != 0 or if_exists_result_response == "THROTTLE":
             data_response['output'] = "WARNING: Throttle detected on user {}".format(username=username)
             data_response['throttled'] = True
+
         else:
             data_response['output'] = "{if_exists_result_response}: {username}".format(if_exists_result_response=if_exists_result_response, username=username)
 

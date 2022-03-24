@@ -4,7 +4,10 @@ requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.
 
 
 def validate(pluginargs, args):
-    pluginargs = {'url' : "https://login.microsoftonline.com"}
+    pluginargs = {
+        'url' : "https://login.microsoftonline.com",
+        'userenum' : True
+    }
     return True, None, pluginargs
 
 
