@@ -433,7 +433,7 @@ def load_credentials(user_file, password, userenum, useragent_file=None, userpas
 
 		if userpass != None:
 			password = ":".join(user.split(':')[1:]).strip()
-			username = user.split(':')[0].strip()
+			user = user.split(':')[0].strip()
 
 		cred = {}
 		cred['username'] = user
