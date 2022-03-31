@@ -67,6 +67,10 @@ def okta_authenticate(url, username, password, useragent, pluginargs):
 				data_response['success'] = True
 				data_response['output'] = "SUCCESS: password expired {}:{}".format(username,password)
 
+			elif resp_json.get("status") == "MFA_ENROLL":
+				data_response['success'] = True
+				data_response['output'] = "SUCCESS: MFA enrollment required {}:{}".format(username,password)
+
 			else:
 				data_response['success'] = False
 				data_response['output'] = "ALERT: 200 but doesn't indicate success {}:{}".format(username,password)

@@ -39,6 +39,7 @@ The following plugins are currently supported:
 * [HTTPBrute](https://github.com/knavesec/CredMaster/wiki/HTTPBrute) - Generic HTTP Brute Methods (Basic/Digest/NTLM)
 * [ADFS](https://github.com/knavesec/CredMaster/wiki/ADFS) - Active Directory Federation Services
 * [AzureSSO](https://github.com/knavesec/CredMaster/wiki/AzureSSO) - Azure AD Seamless SSO Endpoint
+* [GmailEnum](https://github.com/knavesec/CredMaster/wiki/GmailEnum) - Gmail User Enumeration (No Authentication Request)
 
 Example Use:
 ```
@@ -58,6 +59,12 @@ PRs welcome :)
 * "Resume" functionality for paused/cancelled scans. Ideally storing data for APIs used, if they were destroyed and what user/pwd the spray was on
 * Password file read dynamically so you can add/delete pwds mid-scan and it will perform as desired
 * Method to reliably determine if an auth attempt was throttled, so the username could be re-queued and tried again later for full cover (would have to be per-plugin, return "throttled" boolean value in plugin script, requeue if throttled)
+* Notification system for webhooks
+* Automatic logging of valid users
+* Stop on success flag
+* Spray profile overhaul
+* Config file overhaul
+* Development notes
 
 
 ## Credits ##
@@ -73,6 +80,7 @@ PRs welcome :)
 - Joe Helle ([joehelle](https://twitter.com/joehelle)) - Oh365UserFinder
 - Cameron Geehr ([BarrelTit0r](https://twitter.com/BarrelTit0r)) - o365enum tool
 - Max Gruenberg ([Max_Gruenberg](https://twitter.com/Max_Gruenberg)) - o365enum plugin
+- x0rz - GmailEnum technique
 
 
 Feel free to drop me a line
