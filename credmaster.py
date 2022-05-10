@@ -75,7 +75,7 @@ def main(args,pargs):
 			log_entry("secret_access_key requires access_key")
 			return
 		if access_key is None and secret_access_key is None and session_token is None and profile_name is None:
-			log_entry("No FireProx access arguments settings configured, add access keys/session token or fill out config file")
+			log_entry("--config passed, but the file contains no valid configuration!")
 			return
 
 	# Utility handling
