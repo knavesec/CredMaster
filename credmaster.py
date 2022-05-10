@@ -560,7 +560,7 @@ if __name__ == '__main__':
 	adv_args.add_argument('--weekday-warrior', default=None, required=False, help="If you don't know what this is don't use it, input is timezone UTC offset")
 
 	fp_args = parser.add_argument_group(title='Fireprox Connection Inputs')
-	fp_args.add_argument('--profile_name', type=str, default=None, help='AWS Profile Name to store/retrieve credentials')
+	fp_args.add_argument('--profile_name', '--profile', type=str, default=None, help='AWS Profile Name to store/retrieve credentials')
 	fp_args.add_argument('--access_key', type=str, default=None, help='AWS Access Key')
 	fp_args.add_argument('--secret_access_key', type=str, default=None, help='AWS Secret Access Key')
 	fp_args.add_argument('--session_token', type=str, default=None, help='AWS Session Token')
