@@ -58,13 +58,25 @@ def main(args,pargs):
 	if args.config != None:
 		log_entry("Loading AWS configuration details from file: {}".format(args.config))
 		aws_dict = json.loads(open(args.config).read())
-		access_key = aws_dict['access_key']
-		secret_access_key = aws_dict['secret_access_key']
-		profile_name = aws_dict['profile_name']
-		session_token = aws_dict['session_token']
-	if access_key is None and secret_access_key is None and session_token is None and profile_name is None:
-		log_entry("No FireProx access arguments settings configured, add access keys/session token or fill out config file")
-		return
+		access_key = aws_dict.get('access_key')
+		secret_access_key = aws_dict.get('secret_access_key')
+		profile_name = aws_dict.get('profile_name')
+		session_token = aws_dict.get('session_token')
+		if session_token is not None and (secret_access_key is None or access_key is None):
+			log_entry("Session token requires access_key and secret_access_key")
+			return
+		if profile_name is not None and (access_key is not None or secret_access_key is not None):
+			log_entry("Cannot use a passed profile and keys")
+			return
+		if access_key is not None and secret_access_key is None:
+			log_entry("access_key requires secret_access_key")
+			return
+		if access_key is None and secret_access_key is not None:
+			log_entry("secret_access_key requires access_key")
+			return
+		if access_key is None and secret_access_key is None and session_token is None and profile_name is None:
+			log_entry("No FireProx access arguments settings configured, add access keys/session token or fill out config file")
+			return
 
 	# Utility handling
 	if args.clean:
