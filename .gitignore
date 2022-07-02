@@ -1,0 +1,4 @@
+aws.config
+venv/
+env/
+__pycache__/
