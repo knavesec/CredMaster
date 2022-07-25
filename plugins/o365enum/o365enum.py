@@ -44,7 +44,7 @@ def o365enum_authenticate(url, username, password, useragent, pluginargs):
         # https://github.com/BarrelTit0r/o365enum/blob/master/o365enum.py
         # https://github.com/dievus/Oh365UserFinder/blob/main/oh365userfinder.py
 
-        if_exists_result_codes = {"-1": "UNKNOWN", "0": "VALID_USER", "1": "INVALID_USER", "2": "THROTTLE", "4": "ERROR", "5": "VALID_USER_DIFFERENT_IDP", "6": "VALID_USER"}
+        if_exists_result_codes = {"-1": "UNKNOWN", "0": "VALID_USER", "1": "NO_SUCH_USER", "2": "THROTTLE", "4": "ERROR", "5": "VALID_USER_DIFFERENT_IDP", "6": "VALID_USER"}
         domainType = {"1": "UNKNOWN", "2": "COMMERCIAL", "3": "MANAGED", "4": "FEDERATED", "5": "CLOUD_FEDERATED"}
 
         body = '{"Username":"%s"}' % username
