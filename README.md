@@ -10,6 +10,18 @@ For detection tips, see the blogpost and detection section.
 
 **Be careful for account lockouts, know the reset policies of your target**
 
+## TL;DR
+1. git clone the repo down
+2. If unsure how to create correct keys see this [blog](https://bond-o.medium.com/aws-pass-through-proxy-84f1f7fa4b4b).
+3. `pip install -r requirements.txt`
+4. [Optional] Add your slack webhook URL into config-vars.json if you want to use a webhook for when credentials are successfully guessed! (thanks to Ian for the function for notifications)
+
+```
+{
+	"slack_webhook":"YOURURLHERE"
+}
+```
+
 
 ## Benefits & Features ##
 
@@ -21,6 +33,7 @@ For detection tips, see the blogpost and detection section.
 * Easily add new plugins
 * [WeekdayWarrior](https://github.com/knavesec/CredMaster/wiki/Weekday-Warrior) setting for timed spraying and SOC evasion
 * Fully [anonymous](https://github.com/knavesec/CredMaster/wiki/Anonymity)
+* Colourised output & slack notifications
 
 ![general](https://raw.githubusercontent.com/whynotsecurity/whynotsecurity.github.io/master/assests/images/credmaster-screenshots/credmaster-default.png)
 

@@ -1,7 +1,6 @@
 import datetime, requests
 import utils.utils as utils
 
-
 def o365enum_authenticate(url, username, password, useragent, pluginargs):
 
     ts = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
@@ -28,6 +27,7 @@ def o365enum_authenticate(url, username, password, useragent, pluginargs):
     spoofed_ip = utils.generate_ip()
     amazon_id = utils.generate_id()
     trace_id = utils.generate_trace_id()
+
 
     headers = {
         'User-Agent': useragent,
@@ -60,12 +60,10 @@ def o365enum_authenticate(url, username, password, useragent, pluginargs):
         domain = username.split("@")[1]
 
         if domain_type != "MANAGED":
-            data_response['output'] = "WARNING: {username} Domain type {domaintype} not supported for user enum".format(username=username,domaintype=domain_type)
-
+            data_response['output'] = utils.prYellow("WARNING: {username} Domain type {domaintype} not supported for user enum".format(username=username,)domaintype=domain_type)
         elif throttle_status != 0 or if_exists_result_response == "THROTTLE":
-            data_response['output'] = "WARNING: Throttle detected on user {}".format(username=username)
+            data_response['output'] = utils.prYellow("WARNING: Throttle detected on user {}".format(username=username))
             data_response['throttled'] = True
-
         else:
             data_response['output'] = "{if_exists_result_response}: {username}".format(if_exists_result_response=if_exists_result_response, username=username)
 

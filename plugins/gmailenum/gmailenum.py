@@ -45,6 +45,7 @@ def gmailenum_authenticate(url, username, password, useragent, pluginargs):
         if "Set-Cookie" in resp.headers.keys():
             data_response['success'] = False
             data_response['output'] = 'VALID USER: {} - Status: {}'.format(username, resp.status_code)
+            utils.slacknotify(username)
 
         else:
             data_response['success'] = False

