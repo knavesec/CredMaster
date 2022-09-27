@@ -152,6 +152,7 @@ def main(args,pargs):
 		log_entry("Starting Spray...")
 
 		count = 0
+		time_count = 0
 		passwords = ["Password123"]
 		if userpass_file is None and not userenum:
 			passwords = load_file(password_file)
