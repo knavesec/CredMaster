@@ -1,8 +1,7 @@
 import json
+import os
 
-from pathlib import Path
-
-# Json functions for reading slack notifier input
+# Json functions for getting path then reading contents of config variables
 def get_path():
 	"""
 	A function to get the current path to bot.py
@@ -10,7 +9,7 @@ def get_path():
 	Returns:
 	 - cwd (string) : Path to bot.py directory
 	"""
-	cwd = Path(__file__).parent.parent.parent
+	cwd = os.getcwd()
 	#cwd = Path(__file__).resolve().parent[1]
 	cwd = str(cwd)
 	print(cwd)
@@ -42,5 +41,6 @@ def write_json(data, filename):
 	 - filename (string) : The name of the file to write to
 	"""
 	cwd = get_path()
-	with open(cwd + "/" +  filename + ".json", "w") as file:
-		json.dump(data, file, indent=4)
+	with open(cwd + "/" + filename + ".json", "r") as file:
+		data = json.load(file)
+	return data
