@@ -12,7 +12,6 @@ def get_path():
 	cwd = os.getcwd()
 	#cwd = Path(__file__).resolve().parent[1]
 	cwd = str(cwd)
-	print(cwd)
 	return cwd
 
 
