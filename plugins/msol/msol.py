@@ -81,7 +81,7 @@ def msol_authenticate(url, username, password, useragent, pluginargs):
                 data_response['success'] = True
                 data_response['code'] = "2FA Microsoft"
                 data_response['output'] = utils.prYellow(f"SUCCESS! {resp.status_code} {username}:{password} - NOTE: The response indicates MFA (Microsoft) is in use.")
-                utils.slackupdate("The response indicates MFA (Microsoft) is in use.")
+                utils.slacklog("The response indicates MFA (Microsoft) is in use.")
                 utils.slacknotify(username, password)
 
 
@@ -91,7 +91,7 @@ def msol_authenticate(url, username, password, useragent, pluginargs):
                 data_response['success'] = True
                 data_response['code'] = "2FA Other"
                 data_response['output'] = utils.prYellow(f"SUCCESS! {resp.status_code} {username}:{password} - NOTE: The response indicates conditional access (MFA: DUO or other) is in use.")
-                utils.slackupdate("The response indicates conditional access (MFA: DUO or other) is in use.")
+                utils.slacklog("The response indicates conditional access (MFA: DUO or other) is in use.")
                 utils.slacknotify(username, password)
 
             elif "AADSTS50053" in error:

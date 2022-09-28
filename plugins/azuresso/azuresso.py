@@ -104,6 +104,7 @@ def azuresso_authenticate(url, username, password, useragent, pluginargs):
         elif "AADSTS50126" in xmlresponse:
             data_response['output'] = utils.prYellow("[+] VALID USERNAME, invalid password: {}".format(creds))
             data_response['success'] = False
+            utils.slacklog("Alert: Username valid but password incorrect")
 
         elif "DesktopSsoToken" in xmlresponse:
             data_response['output'] = utils.prGreen("[+] VALID CREDS : {}".format(creds))
@@ -117,14 +118,17 @@ def azuresso_authenticate(url, username, password, useragent, pluginargs):
         elif "AADSTS50056" in xmlresponse:
             data_response['output'] = utils.prYellow("[+] VALID USERNAME, no password in AzureAD: {}".format(creds))
             data_response['success'] = False
+            utils.slacklog("Alert: Username valid but password is not in AzureAD")
 
         elif "AADSTS80014" in xmlresponse:
             data_response['output'] = utils.prYellow("[+] VALID USERNAME, max pass-through authentication time exceeded :{}".format(creds))
             data_response['success'] = False
+            utils.slacklog("Alert: Username valid but max pass-through authentication time exceeded")
 
         elif "AADSTS50053" in xmlresponse:
             data_response['output'] = utils.prYellow("[?] SMART LOCKOUT DETECTED - Unable to enumerate:{}".format(creds))
             data_response['success'] = False
+            utils.slacklog("Alert: SMART LOCKOUT DETECTED")
 
         else:
             data_response['output'] = utils.prYellow("[!] Unknown Response : {}".format(creds))

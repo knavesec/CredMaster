@@ -96,6 +96,7 @@ PRs welcome :)
 - x0rz - GmailEnum technique
 - Kole Swesey ([0xPanic_](https://twitter.com/0xPanic_)) - Assorted PR
 - Logan ([TheToddLuci0](https://twitter.com/TheToddLuci0)) - Assorted PRs
+- Andy Gill ([ZephrFish](https://twitter.com/ZephrFish)) - Colour functions + Tweaks/Notifications
 
 
 Feel free to drop me a line

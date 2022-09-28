@@ -46,11 +46,12 @@ def o365_authenticate(url, username, password, useragent, pluginargs):
         if r.status_code == 200:
             data_response['output'] = utils.prGreen("[!] SUCCESS: {username}:{password}".format(username=username,password=password))
             data_response['success'] = True
+            utils.slacklog("Valid Credentials found!!")
             utils.slacknotify(username, password)
         elif r.status_code == 456:
             data_response['output'] = utils.prGreen("[!]SUCCESS: {username}:{password} - 2FA or Locked".format(username=username,password=password))
             data_response['success'] = True
-            utils.slackupdate("Credentials Valid but MFA enabled or account locked out!")
+            utils.slacklog("Credentials Valid but MFA enabled or account locked out!")
             utils.slacknotify(username, password)
         else:
             data_response['output'] =  utils.prRed("FAILED: {username}:{password}".format(username=username,password=password))

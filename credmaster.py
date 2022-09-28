@@ -161,9 +161,9 @@ def main(args,pargs):
     			
 			time_count += 1
 			if time_count == 1:
-				utils.slackupdate("Info: Spray Starting.\nPass: " + password)
+				utils.slacklog("Info: Spray Starting.\nPass: " + password)
 			else:
-				utils.slackupdate("Info: Spray Continuing.\nPass: " + password)
+				utils.slacklog("Info: Spray Continuing.\nPass: " + password)
 
 			if weekdaywarrior is not None:
 				spray_days = {

