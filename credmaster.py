@@ -2,6 +2,7 @@
 # from zipfile import *
 import threading, queue, argparse, datetime, json, importlib, random, os, time
 from fire import FireProx
+import utils.utils as utils
 
 credentials = { 'accounts':[] }
 regions = [
@@ -151,11 +152,18 @@ def main(args,pargs):
 		log_entry("Starting Spray...")
 
 		count = 0
+		time_count = 0
 		passwords = ["Password123"]
 		if userpass_file is None and not userenum:
 			passwords = load_file(password_file)
 
 		for password in passwords:
+    			
+			time_count += 1
+			if time_count == 1:
+				utils.slacklog("Info: Spray Starting.\nPass: " + password)
+			else:
+				utils.slacklog("Info: Spray Continuing.\nPass: " + password)
 
 			if weekdaywarrior is not None:
 				spray_days = {

