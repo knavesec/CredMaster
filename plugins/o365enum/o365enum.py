@@ -1,4 +1,5 @@
 import datetime, requests
+from pickle import TRUE
 import utils.utils as utils
 
 
@@ -9,7 +10,7 @@ def o365enum_authenticate(url, username, password, useragent, pluginargs):
     data_response = {
         'timestamp': ts,
         'username': username,
-        'password': password,
+        'password': "ENUM_ONLY",
         'success': False,
         'change': False,
         '2fa_enabled': False,
@@ -68,6 +69,8 @@ def o365enum_authenticate(url, username, password, useragent, pluginargs):
 
         else:
             data_response['output'] = "{if_exists_result_response}: {username}".format(if_exists_result_response=if_exists_result_response, username=username)
+            data_response['success'] = True
+            data_response['password'] = "ENUM_ONLY"
 
     except Exception as ex:
         data_response['error'] = True

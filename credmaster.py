@@ -392,7 +392,7 @@ def spray_thread(api_key, api_dict, plugin, pluginargs, jitter=None, jitter_min=
 				log_entry("ERROR: {}: {} - {}".format(api_key,cred['username'],response['output']))
 
 			if response['success']:
-				results.append( {'username' : cred['username'], 'password' : cred['password']} )
+				results.append( {'username' : cred['username'], 'password' : response['password']} )
 
 			q_spray.task_done()
 		except Exception as ex:
