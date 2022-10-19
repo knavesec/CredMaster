@@ -38,21 +38,32 @@ For detection tips, see the blogpost and detection section.
 ![general](https://raw.githubusercontent.com/whynotsecurity/whynotsecurity.github.io/master/assests/images/credmaster-screenshots/credmaster-default.png)
 
 
-## Quick Use ##
+## Quick Use
 
 The following plugins are currently supported:
 
 * [OWA](https://github.com/knavesec/CredMaster/wiki/OWA) - Outlook Web Access
+  * `--plugin owa`
 * [EWS](https://github.com/knavesec/CredMaster/wiki/EWS) - Exchange Web Services
+  * `--plugin ews`
 * [O365](https://github.com/knavesec/CredMaster/wiki/O365) - Office365
-* [O365Enum](https://github.com/knavesec/CredMaster/wiki/O365Enum) - Office365 User Enum (No Authentication Request)
-* [MSOL](https://github.com/knavesec/CredMaster/wiki/MSOL) - Microsoft Online
-* [Okta](https://github.com/knavesec/CredMaster/wiki/Okta) - Okta Authentication Portal
-* [FortinetVPN](https://github.com/knavesec/CredMaster/wiki/FortinetVPN) - Fortinet VPN Client
-* [HTTPBrute](https://github.com/knavesec/CredMaster/wiki/HTTPBrute) - Generic HTTP Brute Methods (Basic/Digest/NTLM)
+  * `--plugin o365`
 * [ADFS](https://github.com/knavesec/CredMaster/wiki/ADFS) - Active Directory Federation Services
+  * `--plugin adfs`
+* [O365Enum](https://github.com/knavesec/CredMaster/wiki/O365Enum) - Office365 User Enum (No Authentication Request)
+  * `--plugin o365enum`
+* [MSOL](https://github.com/knavesec/CredMaster/wiki/MSOL) - Microsoft Online
+  * `--plugin msol`
+* [Okta](https://github.com/knavesec/CredMaster/wiki/Okta) - Okta Authentication Portal
+  * `--plugin okta`
+* [FortinetVPN](https://github.com/knavesec/CredMaster/wiki/FortinetVPN) - Fortinet VPN Client
+  * `--plugin fortinetvpn`
+* [HTTPBrute](https://github.com/knavesec/CredMaster/wiki/HTTPBrute) - Generic HTTP Brute Methods (Basic/Digest/NTLM)
+  * `--plugin httpbrute`
+* [GMailEnum](https://github.com/knavesec/CredMaster/wiki/) - GSuite/Gmail enumeration
+  * `--plugin gmailenum`
 * [AzureSSO](https://github.com/knavesec/CredMaster/wiki/AzureSSO) - Azure AD Seamless SSO Endpoint
-* [GmailEnum](https://github.com/knavesec/CredMaster/wiki/GmailEnum) - Gmail User Enumeration (No Authentication Request)
+  * `--plugin azuresso`
 
 Example Use:
 ```
