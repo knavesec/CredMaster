@@ -16,6 +16,7 @@ lock = threading.Lock()
 q_spray = queue.Queue()
 
 outfile = None
+color = None
 
 start_time = None
 end_time = None
@@ -25,7 +26,7 @@ cancelled = False
 
 def main(args,pargs):
 
-	global start_time, end_time, time_lapse, outfile, cancelled
+	global start_time, end_time, time_lapse, outfile, cancelled, color
 
 	# assign variables
 	thread_count = args.threads
@@ -46,6 +47,7 @@ def main(args,pargs):
 	randomize = args.randomize
 	headers = args.header
 	weekdaywarrior = args.weekday_warrior
+	color = args.color
 
 
 	# input exception handling
@@ -158,12 +160,14 @@ def main(args,pargs):
 			passwords = load_file(password_file)
 
 		for password in passwords:
-    			
+
 			time_count += 1
-			if time_count == 1:
-				utils.slacklog("Info: Spray Starting.\nPass: " + password)
-			else:
-				utils.slacklog("Info: Spray Continuing.\nPass: " + password)
+
+			#TODO: if webhook is true:
+			# if time_count == 1:
+			# 	utils.slacklog("Info: Spray Starting.\nPass: " + password)
+			# else:
+			# 	utils.slacklog("Info: Spray Continuing.\nPass: " + password)
 
 			if weekdaywarrior is not None:
 				spray_days = {
@@ -370,7 +374,7 @@ def clear_all_apis(access_key, secret_access_key, profile_name, session_token):
 
 def spray_thread(api_key, api_dict, plugin, pluginargs, jitter=None, jitter_min=None):
 
-	global results
+	global results, color
 
 	try:
 		plugin_authentiate = getattr(importlib.import_module('plugins.{}.{}'.format(plugin, plugin)), '{}_authenticate'.format(plugin))
@@ -394,13 +398,30 @@ def spray_thread(api_key, api_dict, plugin, pluginargs, jitter=None, jitter_min=
 			# if "debug" in response.keys():
 			# 	print(response["debug"])
 
-			if not response['error']:
-				log_entry("{}: {}".format(api_key,response['output']))
-			else:
+			# if not response['error']:
+			# 	log_entry("{}: {}".format(api_key,response['output']))
+			# else:
+			# 	log_entry("ERROR: {}: {} - {}".format(api_key,cred['username'],response['output']))
+
+			if response['error']:
 				log_entry("ERROR: {}: {} - {}".format(api_key,cred['username'],response['output']))
 
-			if response['success']:
+			if response['result'].lower() == "success":
 				results.append( {'username' : cred['username'], 'password' : cred['password']} )
+
+			if color:
+
+				if response['result'].lower() == "success":
+					log_entry(utils.prGreen("{}: {}".format(api_key,response['output'])))
+
+				elif response['result'].lower() == "potential":
+					log_entry(utils.prYellow("{}: {}".format(api_key,response['output'])))
+
+				elif response['result'].lower() == "failure":
+					log_entry(utils.prRed("{}: {}".format(api_key,response['output'])))
+
+			else:
+				log_entry("{}: {}".format(api_key,response['output']))
 
 			q_spray.task_done()
 		except Exception as ex:
@@ -554,6 +575,7 @@ if __name__ == '__main__':
 	adv_args.add_argument('-r', '--randomize', required=False, action="store_true", help='Randomize the input list of usernames to spray (will remain the same password)')
 	adv_args.add_argument('--header', default=None, required=False, help='Add a custom header to each request for attribution, specify "X-Header: value"')
 	adv_args.add_argument('--weekday-warrior', default=None, required=False, help="If you don't know what this is don't use it, input is timezone UTC offset")
+	adv_args.add_argument('--color', default=False, action="store_true", required=False, help="Output spray results in Green/Yellow/Red colors")
 
 	fp_args = parser.add_argument_group(title='Fireprox Connection Inputs')
 	fp_args.add_argument('--profile_name', type=str, default=None, help='AWS Profile Name to store/retrieve credentials')

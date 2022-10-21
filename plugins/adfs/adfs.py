@@ -1,26 +1,10 @@
-import datetime, requests
+import requests
 import utils.utils as utils
-
 
 def adfs_authenticate(url, username, password, useragent, pluginargs):
 
-    ts = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
-
     data_response = {
-        'timestamp': ts,
-        'username': username,
-        'password': password,
-        'success': False,
-        'change': False,
-        '2fa_enabled': False,
-        'type': None,
-        'code': None,
-        'name': None,
-        'action': None,
-        'headers': [],
-        'cookies': [],
-        'sourceip': None,
-        'throttled': False,
+        'result': None,    # Can be "success", "failure" or "potential"
         'error': False,
         'output': ""
     }
@@ -65,18 +49,16 @@ def adfs_authenticate(url, username, password, useragent, pluginargs):
     try:
 
         resp = requests.post("{}/adfs/ls/".format(url), headers=headers, params=params_data, data=post_data, allow_redirects=False)
-        data_response['code'] = resp.status_code
 
         if resp.status_code == 302:
-            utils.slacknotify(username, password)
-            data_response['success'] = True
-            data_response['output'] = utils.prGreen('SUCCESS_MESSAGE: => {}:{}'.format(
-                username, password))
+            data_response['result'] = "success"
+            data_response['output'] = '[+] SUCCESS: => {}:{}'.format(
+                username, password)
 
         else:  # fail
-            data_response['success'] = False
-            data_response['output'] = utils.prRed('FAILURE_MESSAGE: {} => {}:{}'.format(
-                resp.status_code, username, password))
+            data_response['result'] = "failure"
+            data_response['output'] = '[-] FAILURE: {} => {}:{}'.format(
+                resp.status_code, username, password)
 
     except Exception as ex:
         data_response['error'] = True

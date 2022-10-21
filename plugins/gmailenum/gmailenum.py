@@ -1,27 +1,11 @@
-import datetime, requests
+import requests
 import utils.utils as utils
-
 
 def gmailenum_authenticate(url, username, password, useragent, pluginargs):
 
-    ts = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
-
     data_response = {
-        'timestamp': ts,
-        'username': username,
-        'password': password,
-        'success': False,
-        'change': False,
-        '2fa_enabled': False,
-        'type': None,
-        'code': None,
-        'name': None,
-        'action': None,
-        'headers': [],
-        'cookies': [],
-        'sourceip' : None,
-        'throttled' : False,
-        'error' : False,
+        'result': None,    # Can be "success", "failure" or "potential"
+		'error' : False,
         'output' : ""
     }
 
@@ -43,14 +27,12 @@ def gmailenum_authenticate(url, username, password, useragent, pluginargs):
         resp = requests.get("{}/mail/gxlu".format(url),params={"email":username},headers=headers)
 
         if "Set-Cookie" in resp.headers.keys():
-            data_response['success'] = False
-            data_response['output'] = 'VALID USER: {} - Status: {}'.format(username, resp.status_code)
-            utils.slacklog("Valid Gmail/GSuite User found...")
-            utils.slacknotify(username)
+            data_response['result'] = "success"
+            data_response['output'] = '[!] VALID_USERNAME: {} - Status: {}'.format(username, resp.status_code)
 
         else:
-            data_response['success'] = False
-            data_response['output'] = 'INVALID USER: {} - Status: {}'.format(username, resp.status_code)
+            data_response['result'] = "failure"
+            data_response['output'] = '[-] UNKNOWN_USERNAME: {} - Status: {}'.format(username, resp.status_code)
 
 
     except Exception as ex:

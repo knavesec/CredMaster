@@ -1,26 +1,11 @@
-import datetime, requests
+import requests
 import utils.utils as utils
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
 def o365_authenticate(url, username, password, useragent, pluginargs):
 
-    ts = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
-
     data_response = {
-        'timestamp': ts,
-        'username': username,
-        'password': password,
-        'success': False,
-        'change': False,
-        '2fa_enabled': False,
-        'type': None,
-        'code': None,
-        'name': None,
-        'action': None,
-        'headers': [],
-        'cookies': [],
-        'sourceip' : None,
-        'throttled' : False,
+        'result': None,    # Can be "success", "failure" or "potential"
 		'error' : False,
         'output' : ""
     }
@@ -44,19 +29,16 @@ def o365_authenticate(url, username, password, useragent, pluginargs):
         r = requests.get("{}/autodiscover/autodiscover.xml".format(url), auth=(username, password), headers=headers, verify=False, timeout=30)
 
         if r.status_code == 200:
-            data_response['output'] = utils.prGreen("[!] SUCCESS: {username}:{password}".format(username=username,password=password))
-            data_response['success'] = True
-            utils.slacklog("Valid Credentials found!!")
-            utils.slacknotify(username, password)
-        elif r.status_code == 456:
-            data_response['output'] = utils.prGreen("[!]SUCCESS: {username}:{password} - 2FA or Locked".format(username=username,password=password))
-            data_response['success'] = True
-            utils.slacklog("Credentials Valid but MFA enabled or account locked out!")
-            utils.slacknotify(username, password)
-        else:
-            data_response['output'] =  utils.prRed("FAILED: {username}:{password}".format(username=username,password=password))
-            data_response['success'] = False
+            data_response['output'] = "[+] SUCCESS: {username}:{password}".format(username=username,password=password)
+            data_response['result'] = "success"
 
+        elif r.status_code == 456:
+            data_response['output'] = "[+] SUCCESS: {username}:{password} - 2FA or Locked".format(username=username,password=password)
+            data_response['result'] = "success"
+
+        else:
+            data_response['output'] = "[-] FAILURE: {username}:{password}".format(username=username,password=password)
+            data_response['result'] = "failure"
 
     except Exception as ex:
         data_response['error'] = True

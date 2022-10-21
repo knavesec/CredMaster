@@ -1,27 +1,12 @@
-import datetime, requests, requests_ntlm
+import requests, requests_ntlm
 import utils.utils as utils
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
-def httpbrute_authenticate(url, username, password, useragent, pluginargs): 
-    
-    ts = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+def httpbrute_authenticate(url, username, password, useragent, pluginargs):
 
     data_response = {
-        'timestamp': ts,
-        'username': username,
-        'password': password,
-        'success': False,
-        'change': False,
-        '2fa_enabled': False,
-        'type': None,
-        'code': None,
-        'name': None,
-        'action': None,
-        'headers': [],
-        'cookies': [],
-        'sourceip' : None,
-        'throttled' : False,
-        'error' : False,
+        'result': None,    # Can be "success", "failure" or "potential"
+		'error' : False,
         'output' : ""
     }
 
@@ -59,17 +44,16 @@ def httpbrute_authenticate(url, username, password, useragent, pluginargs):
 
 
         if resp.status_code == 200:
-            data_response['success'] = True
-            data_response['output'] = utils.prGreen('[!] SUCCESS: => {}:{}'.format(username, password))
-            utils.slacknotify(username, password)
+            data_response['result'] = "success"
+            data_response['output'] = '[+] SUCCESS: => {}:{}'.format(username, password)
 
         elif resp.status_code == 401:
-            data_response['success'] = False
-            data_response['output'] = utils.prRed('FAILURE: => {}:{}'.format(username, password))
+            data_response['result'] = "failure"
+            data_response['output'] = '[-] FAILURE: => {}:{}'.format(username, password)
 
         else: #fail
-            data_response['success'] = False
-            data_response['output'] = utils.prYellow('UNKNOWN_RESPONSE_CODE: {} => {}:{}'.format(resp.status_code, username, password))
+            data_response['result'] = "potential"
+            data_response['output'] = '[?] UNKNOWN_RESPONSE_CODE: {} => {}:{}'.format(resp.status_code, username, password)
 
 
     except Exception as ex:

