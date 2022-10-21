@@ -14,13 +14,7 @@ For detection tips, see the blogpost and detection section.
 1. git clone the repo down
 2. If unsure how to create correct keys see this [blog](https://bond-o.medium.com/aws-pass-through-proxy-84f1f7fa4b4b).
 3. `pip install -r requirements.txt`
-4. [Optional] Add your slack webhook URL into config-vars.json if you want to use a webhook for when credentials are successfully guessed! (thanks to Ian for the function for notifications)
-
-```
-{
-	"slack_webhook":"YOURURLHERE"
-}
-```
+4. Fill out the config file with desired options, or provide through CLI
 
 
 ## Benefits & Features ##
@@ -76,7 +70,6 @@ PRs welcome :)
 * Automatic logging of valid users
 * Stop on success flag
 * Spray profile overhaul
-* Config file overhaul
 * Development notes
 
 
