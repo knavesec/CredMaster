@@ -2,3 +2,5 @@ aws.config
 venv/
 env/
 __pycache__/
+plugins/.DS_Store
+.DS_Store

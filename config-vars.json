@@ -1,3 +1,8 @@
 {
-	"slack_webhook":"YOURURLHERE"
+	"slack_webhook":"YOURURLHERE",
+	"discord_webhook":"DISCORDWEBHOOK",
+	"access_key":"null",
+	"secret_access_key":"null",
+	"session_token":"null",
+	"profile_name":"null"
 }

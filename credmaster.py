@@ -3,6 +3,7 @@
 import threading, queue, argparse, datetime, json, importlib, random, os, time
 from fire import FireProx
 import utils.utils as utils
+from utils.json_helper import read_json
 
 credentials = { 'accounts':[] }
 regions = [
@@ -58,13 +59,17 @@ def main(args,pargs):
 	# AWS Key parsing & Handling
 	if args.config != None:
 		log_entry("Loading AWS configuration details from file: {}".format(args.config))
-		aws_dict = json.loads(open(args.config).read())
-		access_key = aws_dict['access_key']
-		secret_access_key = aws_dict['secret_access_key']
-		profile_name = aws_dict['profile_name']
-		session_token = aws_dict['session_token']
+		config_dict = read_json(args.config)
+		access_key = config_dict['access_key']
+		secret_access_key = config_dict['secret_access_key']
+		profile_name = config_dict['profile_name']
+		session_token = config_dict['session_token']
+		webhook_url = config_dict['slack_webhook'] or config_dict['discord_webhook']
 	if access_key is None and secret_access_key is None and session_token is None and profile_name is None:
 		log_entry("No FireProx access arguments settings configured, add access keys/session token or fill out config file")
+		return
+	if webhook_url is None:
+		log_entry("No webhook provided, please add slack or discord webhook to config-vars.json")
 		return
 
 	# Utility handling
@@ -560,7 +565,7 @@ if __name__ == '__main__':
 	fp_args.add_argument('--access_key', type=str, default=None, help='AWS Access Key')
 	fp_args.add_argument('--secret_access_key', type=str, default=None, help='AWS Secret Access Key')
 	fp_args.add_argument('--session_token', type=str, default=None, help='AWS Session Token')
-	fp_args.add_argument('--config', type=str, default=None, help='Authenticate to AWS using config file aws.config')
+	fp_args.add_argument('--config', type=str, default=None, help='Authenticate to AWS and add in webhooks too plus other config if wanted')
 
 	fpu_args = parser.add_argument_group(title='Fireprox Utility Options')
 	fpu_args.add_argument('--clean', default=False, action="store_true", help='Clean up all fireprox AWS APIs from every region, warning irreversible')
