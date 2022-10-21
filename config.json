@@ -1,0 +1,25 @@
+{
+  "plugin" : null,
+  "userfile" : null,
+  "passwordfile" : null,
+  "userpassfile" : null,
+  "useragentfile" : null,
+
+  "outfile" : null,
+  "threads" : null,
+  "jitter" : null,
+  "jitter_min" : null,
+  "delay" : null,
+  "passwordsperdelay" : null,
+  "randomize" : false,
+  "header" : null,
+  "weekday_warrior" : null,
+  "color" : false,
+
+  "slack_webhook" : null,
+
+  "access_key" : null,
+  "secret_access_key" : null,
+  "session_token" : null,
+  "profile_name" : null
+}

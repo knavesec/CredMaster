@@ -109,8 +109,8 @@ def azuresso_authenticate(url, username, password, useragent, pluginargs):
             # utils.slacklog("Alert: Username valid but max pass-through authentication time exceeded")
 
         elif "AADSTS50053" in xmlresponse:
-            data_response['output'] = "[?] FAILURE: SMART LOCKOUT DETECTED - Unable to enumerate: {}".format(creds)
-            data_response['result'] = "failure"
+            data_response['output'] = "[?] WARNING: SMART LOCKOUT DETECTED - Unable to enumerate: {}".format(creds)
+            data_response['result'] = "potential"
             # utils.slacklog("Alert: SMART LOCKOUT DETECTED")
 
         else:

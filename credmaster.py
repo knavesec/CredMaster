@@ -33,28 +33,31 @@ def main(args,pargs):
 
 	# assign variables
 	# TOO MANY MF VARIABLES THIS HAS GOTTEN OUT OF CONTROL
-	thread_count = args.threads
-	plugin = args.plugin
-	username_file = args.userfile
-	password_file = args.passwordfile
-	userpass_file = args.userpassfile
-	profile_name = args.profile_name
-	access_key = args.access_key
-	secret_access_key = args.secret_access_key
-	session_token = args.session_token
-	useragent_file = args.useragentfile
-	delay = args.delay
-	outfile = args.outfile
-	passwordsperdelay = args.passwordsperdelay
-	jitter = args.jitter
-	jitter_min = args.jitter_min
-	randomize = args.randomize
-	headers = args.header
-	weekdaywarrior = args.weekday_warrior
-	color = args.color
+	parsed_args = parse_all_args(args)
+
+	thread_count = parsed_args['threads']
+	plugin = parsed_args['plugin']
+	username_file = parsed_args['userfile']
+	password_file = parsed_args['passwordfile']
+	userpass_file = parsed_args['userpassfile']
+	profile_name = parsed_args['profile_name']
+	access_key = parsed_args['access_key']
+	secret_access_key = parsed_args['secret_access_key']
+	session_token = parsed_args['session_token']
+	useragent_file = parsed_args['useragentfile']
+	delay = parsed_args['delay']
+	outfile = parsed_args['outfile']
+	passwordsperdelay = parsed_args['passwordsperdelay']
+	jitter = parsed_args['jitter']
+	jitter_min = parsed_args['jitter_min']
+	randomize = parsed_args['randomize']
+	headers = parsed_args['header']
+	weekdaywarrior = parsed_args['weekday_warrior']
+	color = parsed_args['color']
 	notify_obj = {
-		"slack_webhook" : args.slack_webhook
+		"slack_webhook" : parsed_args['slack_webhook']
 	}
+
 
 	# input exception handling
 	if outfile != None:
@@ -63,14 +66,7 @@ def main(args,pargs):
 			log_entry("File {} already exists, try again with a unique file name".format(outfile))
 			return
 
-	# AWS Key parsing & Handling
-	if args.config != None:
-		log_entry("Loading AWS configuration details from file: {}".format(args.config))
-		aws_dict = json.loads(open(args.config).read())
-		access_key = aws_dict['access_key']
-		secret_access_key = aws_dict['secret_access_key']
-		profile_name = aws_dict['profile_name']
-		session_token = aws_dict['session_token']
+	# AWS Key Handling
 	if access_key is None and secret_access_key is None and session_token is None and profile_name is None:
 		log_entry("No FireProx access arguments settings configured, add access keys/session token or fill out config file")
 		return
@@ -406,18 +402,12 @@ def spray_thread(api_key, api_dict, plugin, pluginargs, jitter=None, jitter_min=
 			# if "debug" in response.keys():
 			# 	print(response["debug"])
 
-			# if not response['error']:
-			# 	log_entry("{}: {}".format(api_key,response['output']))
-			# else:
-			# 	log_entry("ERROR: {}: {} - {}".format(api_key,cred['username'],response['output']))
-
 			if response['error']:
 				log_entry("ERROR: {}: {} - {}".format(api_key,cred['username'],response['output']))
 
 			if response['result'].lower() == "success" and ('userenum' not in pluginargs):
 				results.append( {'username' : cred['username'], 'password' : cred['password']} )
 				notify.notify_success(cred['username'], cred['password'], notify_obj)
-
 
 			if color:
 
@@ -564,6 +554,78 @@ def log_entry(entry):
 	lock.release()
 
 
+def parse_all_args(args):
+	#
+	# this function will parse both config files and CLI args
+	# If a value is specified in both config and CLI, the CLI value will be preferred
+	# Reason: if someone wants to take a standard config from client to client, they can override a value
+	#
+
+	return_args = {
+	  "plugin" : None,
+	  "userfile" : None,
+	  "passwordfile" : None,
+	  "userpassfile" : None,
+	  "useragentfile" : None,
+
+	  "outfile" : None,
+	  "threads" : None,
+	  "jitter" : None,
+	  "jitter_min" : None,
+	  "delay" : None,
+	  "passwordsperdelay" : None,
+	  "randomize" : None,
+	  "header" : None,
+	  "weekday_warrior" : None,
+	  "color" : None,
+
+	  "slack_webhook" : None,
+
+	  "access_key" : None,
+	  "secret_access_key" : None,
+	  "session_token" : None,
+	  "profile_name" : None,
+	}
+
+	config_dict = None
+	if args.config != None:
+		config_dict = json.loads(open(args.config).read())
+
+	return_args["plugin"] = args.plugin or config_dict["plugin"]
+	return_args["userfile"] = args.userfile or config_dict["userfile"]
+	return_args["passwordfile"] = args.passwordfile or config_dict["passwordfile"]
+	return_args["userpassfile"] = args.userpassfile or config_dict["userpassfile"]
+	return_args["useragentfile"] = args.useragentfile or config_dict["useragentfile"]
+
+	return_args["outfile"] = args.outfile or config_dict["outfile"]
+
+	return_args["threads"] = args.threads or config_dict["threads"]
+	if return_args["threads"] == None:
+		return_args["threads"] = 1
+
+	return_args["jitter"] = args.jitter or config_dict["jitter"]
+	return_args["jitter_min"] = args.jitter_min or config_dict["jitter_min"]
+	return_args["delay"] = args.delay or config_dict["delay"]
+
+	return_args["passwordsperdelay"] = args.passwordsperdelay or config_dict["passwordsperdelay"]
+	if return_args["passwordsperdelay"] == None:
+		return_args["passwordsperdelay"] = 1
+
+	return_args["randomize"] = args.randomize or config_dict["randomize"]
+	return_args["header"] = args.header or config_dict["header"]
+	return_args["weekday_warrior"] = args.weekday_warrior or config_dict["weekday_warrior"]
+	return_args["color"] = args.color or config_dict["color"]
+
+	return_args["slack_webhook"] = args.slack_webhook or config_dict["slack_webhook"]
+
+	return_args["access_key"] = args.access_key or config_dict["access_key"]
+	return_args["secret_access_key"] = args.secret_access_key or config_dict["secret_access_key"]
+	return_args["session_token"] = args.session_token or config_dict["session_token"]
+	return_args["profile_name"] = args.profile_name or config_dict["profile_name"]
+
+	return return_args
+
+
 if __name__ == '__main__':
 
 	parser = argparse.ArgumentParser()
@@ -577,12 +639,12 @@ if __name__ == '__main__':
 
 	adv_args = parser.add_argument_group(title='Advanced Inputs')
 	adv_args.add_argument('-o', '--outfile', default=None, required=False, help='Output file to write contents (omit extension)')
-	adv_args.add_argument('-t', '--threads', type=int, default=1, help='Thread count (default 1, max 15)')
+	adv_args.add_argument('-t', '--threads', type=int, default=None, help='Thread count (default 1, max 15)')
 	adv_args.add_argument('-j', '--jitter', type=int, default=None, required=False, help='Jitter delay between requests in seconds (applies per-thread)')
 	adv_args.add_argument('-m', '--jitter_min', type=int, default=None, required=False, help='Minimum jitter time in seconds, defaults to 0')
-	adv_args.add_argument('-d', '--delay', type=int, required=False, help='Delay between unique passwords, in minutes')
+	adv_args.add_argument('-d', '--delay', type=int, default=None, required=False, help='Delay between unique passwords, in minutes')
 	adv_args.add_argument('--passwordsperdelay', type=int, default=1, required=False, help='Number of passwords to be tested per delay cycle')
-	adv_args.add_argument('-r', '--randomize', required=False, action="store_true", help='Randomize the input list of usernames to spray (will remain the same password)')
+	adv_args.add_argument('-r', '--randomize', default=False, required=False, action="store_true", help='Randomize the input list of usernames to spray (will remain the same password)')
 	adv_args.add_argument('--header', default=None, required=False, help='Add a custom header to each request for attribution, specify "X-Header: value"')
 	adv_args.add_argument('--weekday-warrior', default=None, required=False, help="If you don't know what this is don't use it, input is timezone UTC offset")
 	adv_args.add_argument('--color', default=False, action="store_true", required=False, help="Output spray results in Green/Yellow/Red colors")
