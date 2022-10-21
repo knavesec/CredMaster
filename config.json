@@ -7,6 +7,7 @@
 
   "outfile" : null,
   "threads" : null,
+  "region" : null,
   "jitter" : null,
   "jitter_min" : null,
   "delay" : null,

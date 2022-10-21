@@ -29,7 +29,7 @@ notify_obj = {}
 
 def main(args,pargs):
 
-	global start_time, end_time, time_lapse, outfile, cancelled, color, notify_obj
+	global start_time, end_time, time_lapse, outfile, cancelled, color, notify_obj, regions
 
 	# assign variables
 	# TOO MANY MF VARIABLES THIS HAS GOTTEN OUT OF CONTROL
@@ -48,6 +48,7 @@ def main(args,pargs):
 	delay = parsed_args['delay']
 	outfile = parsed_args['outfile']
 	passwordsperdelay = parsed_args['passwordsperdelay']
+	region = parsed_args['region']
 	jitter = parsed_args['jitter']
 	jitter_min = parsed_args['jitter_min']
 	randomize = parsed_args['randomize']
@@ -80,6 +81,11 @@ def main(args,pargs):
 		return
 	elif args.api_list:
 		list_apis(access_key, secret_access_key, profile_name, session_token)
+		return
+
+	# Region handling
+	if region is not None and region not in regions:
+		log_entry("Input region {region} not a supported AWS region, {regions}".format(region=region, regions=regions))
 		return
 
 	# Jitter handling
@@ -139,11 +145,11 @@ def main(args,pargs):
 
 	try:
 		# Create lambdas based on thread count
-		apis = load_apis(access_key, secret_access_key, profile_name, session_token, thread_count, url)
+		apis = load_apis(access_key, secret_access_key, profile_name, session_token, thread_count, url, region=region)
 
 		# do test connection / fingerprint
 		useragent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0"
-		connect_success, testconnect_output, pluginargs = validator.testconnect(pluginargs, args, apis['us-east-2'], useragent)
+		connect_success, testconnect_output, pluginargs = validator.testconnect(pluginargs, args, apis[0], useragent)
 		log_entry(testconnect_output)
 
 		if not connect_success:
@@ -195,8 +201,8 @@ def main(args,pargs):
 
 			# Start Spray
 			threads = []
-			for api_key in apis:
-				t = threading.Thread(target = spray_thread, args = (api_key, apis[api_key], plugin, pluginargs, jitter, jitter_min) )
+			for api in apis:
+				t = threading.Thread(target = spray_thread, args = (api['region'], api, plugin, pluginargs, jitter, jitter_min) )
 				threads.append(t)
 				t.start()
 
@@ -246,7 +252,7 @@ def main(args,pargs):
 	display_stats(apis, False)
 
 
-def load_apis(access_key, secret_access_key, profile_name, session_token, thread_count, url):
+def load_apis(access_key, secret_access_key, profile_name, session_token, thread_count, url, region=None):
 	threads = thread_count
 
 	if thread_count > len(regions):
@@ -255,12 +261,15 @@ def load_apis(access_key, secret_access_key, profile_name, session_token, thread
 
 	log_entry('Creating {} API Gateways for {}'.format(threads, url))
 
-	apis = {}
+	apis = []
 
 	# slow but multithreading this causes errors in boto3 for some reason :(
 	for x in range(0,threads):
-		apis[regions[x]] = create_api(access_key, secret_access_key, profile_name,	session_token, regions[x], url.strip())
-		log_entry('Created API - Region: {} ID: ({}) - {} => {}'.format(regions[x], apis[regions[x]]['api_gateway_id'], apis[regions[x]]['proxy_url'], url))
+		reg = regions[x]
+		if region is not None:
+			reg = region
+		apis.append(create_api(access_key, secret_access_key, profile_name,	session_token, reg, url.strip()))
+		log_entry('Created API - Region: {} ID: ({}) - {} => {}'.format(reg, apis[x]['api_gateway_id'], apis[x]['proxy_url'], url))
 
 	return apis
 
@@ -270,7 +279,7 @@ def create_api(access_key, secret_access_key, profile_name, session_token, regio
 	args, help_str = get_fireprox_args(access_key, secret_access_key, profile_name, session_token, "create", region, url=url)
 	fp = FireProx(args, help_str)
 	resource_id, proxy_url = fp.create_api(url)
-	return { "api_gateway_id" : resource_id, "proxy_url" : proxy_url }
+	return { "api_gateway_id" : resource_id, "proxy_url" : proxy_url, "region" : region }
 
 
 def get_fireprox_args(access_key, secret_access_key, profile_name, session_token, command, region, url = None, api_id = None):
@@ -292,13 +301,8 @@ def get_fireprox_args(access_key, secret_access_key, profile_name, session_token
 
 def display_stats(apis, start=True):
 	if start:
-		api_count = 0
-		for lc, val in apis.items():
-			if val:
-				api_count += 1
-
 		log_entry('Total Regions Available: {}'.format(len(regions)))
-		log_entry('Total API Gateways: {}'.format(api_count))
+		log_entry('Total API Gateways: {}'.format(len(apis)))
 
 
 	if end_time and not start:
@@ -344,11 +348,11 @@ def destroy_single_api(api, access_key, secret_access_key, profile_name, session
 
 def destroy_apis(apis, access_key, secret_access_key, profile_name, session_token):
 
-	for api_key in apis:
+	for api in apis:
 
-		args, help_str = get_fireprox_args(access_key, secret_access_key, profile_name, session_token, "delete", api_key, api_id = apis[api_key]['api_gateway_id'])
+		args, help_str = get_fireprox_args(access_key, secret_access_key, profile_name, session_token, "delete", api["region"], api_id = api['api_gateway_id'])
 		fp = FireProx(args, help_str)
-		log_entry('Destroying API ({}) in region {}'.format(args['api_id'], api_key))
+		log_entry('Destroying API ({}) in region {}'.format(args['api_id'], api['region']))
 		fp.delete_api(args["api_id"])
 
 
@@ -570,6 +574,7 @@ def parse_all_args(args):
 
 	  "outfile" : None,
 	  "threads" : None,
+	  "region" : None,
 	  "jitter" : None,
 	  "jitter_min" : None,
 	  "delay" : None,
@@ -603,6 +608,7 @@ def parse_all_args(args):
 	if return_args["threads"] == None:
 		return_args["threads"] = 1
 
+	return_args["region"] = args.region or config_dict["region"]
 	return_args["jitter"] = args.jitter or config_dict["jitter"]
 	return_args["jitter_min"] = args.jitter_min or config_dict["jitter_min"]
 	return_args["delay"] = args.delay or config_dict["delay"]
@@ -640,6 +646,7 @@ if __name__ == '__main__':
 	adv_args = parser.add_argument_group(title='Advanced Inputs')
 	adv_args.add_argument('-o', '--outfile', default=None, required=False, help='Output file to write contents (omit extension)')
 	adv_args.add_argument('-t', '--threads', type=int, default=None, help='Thread count (default 1, max 15)')
+	adv_args.add_argument('--region', default=None, required=False, help='Specify AWS Region to create API Gateways in')
 	adv_args.add_argument('-j', '--jitter', type=int, default=None, required=False, help='Jitter delay between requests in seconds (applies per-thread)')
 	adv_args.add_argument('-m', '--jitter_min', type=int, default=None, required=False, help='Minimum jitter time in seconds, defaults to 0')
 	adv_args.add_argument('-d', '--delay', type=int, default=None, required=False, help='Delay between unique passwords, in minutes')
