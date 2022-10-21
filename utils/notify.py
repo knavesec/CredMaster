@@ -4,20 +4,18 @@ from datetime import datetime
 
 def notify_success(username, password, notify_obj):
 
-    type = notify_obj['type'].lower()
-    webhook = notify_obj['webhook']
+    slack_webhook = notify_obj['slack_webhook']
 
-    if type == "slack":
-        slack_notify(username, password, webhook)
+    if slack_webhook is not None:
+        slack_notify(username, password, slack_webhook)
 
 
 def notify_update(message, notify_obj):
 
-    type = notify_obj['type'].lower()
-    webhook = notify_obj['webhook']
+    slack_webhook = notify_obj['slack_webhook']
 
-    if type == "slack":
-        slack_update(message, webhook)
+    if slack_webhook is not None:
+        slack_update(message, slack_webhook)
 
 
 # Function for posting username/password to slack channel

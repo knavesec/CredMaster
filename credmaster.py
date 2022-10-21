@@ -53,8 +53,7 @@ def main(args,pargs):
 	weekdaywarrior = args.weekday_warrior
 	color = args.color
 	notify_obj = {
-		"type" : args.notify,
-		"webhook" : args.webhook
+		"slack_webhook" : args.slack_webhook
 	}
 
 	# input exception handling
@@ -93,17 +92,6 @@ def main(args,pargs):
 		return
 	elif jitter_min is not None and jitter is not None and jitter_min >= jitter:
 		log_entry("--jitter flag must be greater than --jitter-min flag")
-		return
-
-	# Notify options
-	if notify_obj['type'] is not None and notify_obj['webhook'] is None:
-		log_entry("--notify flag must have corresponding --webhook flag entry")
-		return
-	elif notify_obj['type'] is not None and notify_obj['type'].lower() not in ["slack"]:
-		log_entry("--notify flag must be of type {type}".format(type=["slack"]))
-		return
-	elif notify_obj['type'] is None and notify_obj['webhook'] is not None:
-		log_entry("--webhook flag must have corresponding --notify flag entry")
 		return
 
 	# Weekday Warrior options
@@ -180,15 +168,14 @@ def main(args,pargs):
 		for password in passwords:
 
 			time_count += 1
-			if notify_obj['type'] is not None:
-				if time_count == 1:
-					if userenum:
-						notify.notify_update("Info: Starting Userenum.", notify_obj)
-					else:
-						notify.notify_update("Info: Starting Spray.\nPass: " + password, notify_obj)
-
+			if time_count == 1:
+				if userenum:
+					notify.notify_update("Info: Starting Userenum.", notify_obj)
 				else:
-					notify.notify_update("Info: Spray Continuing.\nPass: " + password, notify_obj)
+					notify.notify_update("Info: Starting Spray.\nPass: " + password, notify_obj)
+
+			else:
+				notify.notify_update("Info: Spray Continuing.\nPass: " + password, notify_obj)
 
 			if weekdaywarrior is not None:
 				spray_days = {
@@ -429,9 +416,7 @@ def spray_thread(api_key, api_dict, plugin, pluginargs, jitter=None, jitter_min=
 
 			if response['result'].lower() == "success" and ('userenum' not in pluginargs):
 				results.append( {'username' : cred['username'], 'password' : cred['password']} )
-
-				if notify_obj['type'] is not None:
-					notify.notify_success(cred['username'], cred['password'], notify_obj)
+				notify.notify_success(cred['username'], cred['password'], notify_obj)
 
 
 			if color:
@@ -603,8 +588,7 @@ if __name__ == '__main__':
 	adv_args.add_argument('--color', default=False, action="store_true", required=False, help="Output spray results in Green/Yellow/Red colors")
 
 	notify_args = parser.add_argument_group(title='Notification Inputs')
-	notify_args.add_argument('--notify', type=str, default=None, help='Type of backend notification system {slack}')
-	notify_args.add_argument('--webhook', type=str, default=None, help='Webhook link for applicable service')
+	notify_args.add_argument('--slack_webhook', type=str, default=None, help='Webhook link for Slack notifications')
 
 	fp_args = parser.add_argument_group(title='Fireprox Connection Inputs')
 	fp_args.add_argument('--profile_name', type=str, default=None, help='AWS Profile Name to store/retrieve credentials')
