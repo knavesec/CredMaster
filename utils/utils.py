@@ -1,7 +1,5 @@
-import random, requests
+import random, requests, json
 from utils.ntlmdecode import ntlmdecode
-import json
-from utils.json_helper import read_json
 from datetime import datetime
 
 # We can set anything up here for easy parsing and access later, for the moment this only houses the slack webhook, can probably add discord and other platforms at a later date as parsing isn't an issue.

