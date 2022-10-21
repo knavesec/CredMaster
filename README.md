@@ -14,7 +14,7 @@ For detection tips, see the blogpost and detection section.
 1. git clone the repo down
 2. If unsure how to create correct keys see this [blog](https://bond-o.medium.com/aws-pass-through-proxy-84f1f7fa4b4b).
 3. `pip install -r requirements.txt`
-4. Fill out the config file with desired options, or provide through CLI
+4. Fill out the config file ([wiki](https://github.com/knavesec/CredMaster/wiki/Config-File))with desired options, or provide through CLI
 
 
 ## Benefits & Features ##
@@ -24,6 +24,7 @@ For detection tips, see the blogpost and detection section.
 * Spoofs API tracking numbers, forwarded-for IPs, and other proxy tracking headers
 * Multi-threaded processing
 * Password delay counters & configuration for lockout policy evasion
+* Easily configuation via config file
 * Easily add new plugins
 * [WeekdayWarrior](https://github.com/knavesec/CredMaster/wiki/Weekday-Warrior) setting for timed spraying and SOC evasion
 * Fully [anonymous](https://github.com/knavesec/CredMaster/wiki/Anonymity)
@@ -66,7 +67,7 @@ PRs welcome :)
 * "Resume" functionality for paused/cancelled scans. Ideally storing data for APIs used, if they were destroyed and what user/pwd the spray was on
 * Password file read dynamically so you can add/delete pwds mid-scan and it will perform as desired
 * Method to reliably determine if an auth attempt was throttled, so the username could be re-queued and tried again later for full cover (would have to be per-plugin, return "throttled" boolean value in plugin script, requeue if throttled)
-* Notification system for webhooks
+* Notification system for webhooks (Discord/Teams/Pushover TODO)
 * Automatic logging of valid users
 * Stop on success flag
 * Spray profile overhaul
