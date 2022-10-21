@@ -406,7 +406,7 @@ def spray_thread(api_key, api_dict, plugin, pluginargs, jitter=None, jitter_min=
 			if response['error']:
 				log_entry("ERROR: {}: {} - {}".format(api_key,cred['username'],response['output']))
 
-			if response['result'].lower() == "success":
+			if response['result'].lower() == "success" and ('userenum' not in pluginargs):
 				results.append( {'username' : cred['username'], 'password' : cred['password']} )
 
 			if color:
