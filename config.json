@@ -18,6 +18,8 @@
   "color" : false,
 
   "slack_webhook" : null,
+  "pushover_token" : null,
+  "pushover_user" : null,
 
   "access_key" : null,
   "secret_access_key" : null,

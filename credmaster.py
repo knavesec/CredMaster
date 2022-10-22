@@ -56,7 +56,9 @@ def main(args,pargs):
 	weekdaywarrior = parsed_args['weekday_warrior']
 	color = parsed_args['color']
 	notify_obj = {
-		"slack_webhook" : parsed_args['slack_webhook']
+		"slack_webhook" : parsed_args['slack_webhook'],
+		"pushover_token" : parsed_args['pushover_token'],
+		"pushover_user" : parsed_args['pushover_user']
 	}
 
 
@@ -94,6 +96,14 @@ def main(args,pargs):
 		return
 	elif jitter_min is not None and jitter is not None and jitter_min >= jitter:
 		log_entry("--jitter flag must be greater than --jitter-min flag")
+		return
+
+	# Notification Error handlng
+	if notify_obj["pushover_user"] is not None and notify_obj["pushover_token"] is None:
+		log_entry("pushover_user input requires pushover_token input")
+		return
+	elif notify_obj["pushover_user"] is None and notify_obj["pushover_token"] is not None:
+		log_entry("pushover_token input requires pushover_user input")
 		return
 
 	# Weekday Warrior options
@@ -585,6 +595,8 @@ def parse_all_args(args):
 	  "color" : None,
 
 	  "slack_webhook" : None,
+	  "pushover_token" : None,
+	  "pushover_user" : None,
 
 	  "access_key" : None,
 	  "secret_access_key" : None,
@@ -623,6 +635,8 @@ def parse_all_args(args):
 	return_args["color"] = args.color or config_dict["color"]
 
 	return_args["slack_webhook"] = args.slack_webhook or config_dict["slack_webhook"]
+	return_args["pushover_token"] = args.pushover_token or config_dict["pushover_token"]
+	return_args["pushover_user"] = args.pushover_user or config_dict["pushover_user"]
 
 	return_args["access_key"] = args.access_key or config_dict["access_key"]
 	return_args["secret_access_key"] = args.secret_access_key or config_dict["secret_access_key"]
@@ -658,6 +672,8 @@ if __name__ == '__main__':
 
 	notify_args = parser.add_argument_group(title='Notification Inputs')
 	notify_args.add_argument('--slack_webhook', type=str, default=None, help='Webhook link for Slack notifications')
+	notify_args.add_argument('--pushover_token', type=str, default=None, help='Token for Pushover notifications')
+	notify_args.add_argument('--pushover_user', type=str, default=None, help='User for Pushover notifications')
 
 	fp_args = parser.add_argument_group(title='Fireprox Connection Inputs')
 	fp_args.add_argument('--profile_name', type=str, default=None, help='AWS Profile Name to store/retrieve credentials')

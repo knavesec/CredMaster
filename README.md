@@ -28,7 +28,8 @@ For detection tips, see the blogpost and detection section.
 * Easily add new plugins
 * [WeekdayWarrior](https://github.com/knavesec/CredMaster/wiki/Weekday-Warrior) setting for timed spraying and SOC evasion
 * Fully [anonymous](https://github.com/knavesec/CredMaster/wiki/Anonymity)
-* Colourised output & slack notifications
+* Colourised output
+* Notification systems for Slack & Pushover
 
 ![general](https://raw.githubusercontent.com/whynotsecurity/whynotsecurity.github.io/master/assests/images/credmaster-screenshots/credmaster-default.png)
 
@@ -67,7 +68,7 @@ PRs welcome :)
 * "Resume" functionality for paused/cancelled scans. Ideally storing data for APIs used, if they were destroyed and what user/pwd the spray was on
 * Password file read dynamically so you can add/delete pwds mid-scan and it will perform as desired
 * Method to reliably determine if an auth attempt was throttled, so the username could be re-queued and tried again later for full cover (would have to be per-plugin, return "throttled" boolean value in plugin script, requeue if throttled)
-* Notification system for webhooks (Discord/Teams/Pushover TODO)
+* Notification system for webhooks (Discord/Teams TODO)
 * Automatic logging of valid users
 * Stop on success flag
 * Spray profile overhaul
