@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # from zipfile import *
 import threading, queue, argparse, datetime, json, importlib, random, os, time
-from fire import FireProx
+from utils.fire import FireProx
 import utils.utils as utils
 import utils.notify as notify
 
@@ -33,6 +33,7 @@ def main(args,pargs):
 
 	# assign variables
 	# TOO MANY MF VARIABLES THIS HAS GOTTEN OUT OF CONTROL
+	# This is fine ;)
 	parsed_args = parse_all_args(args)
 
 	thread_count = parsed_args['threads']

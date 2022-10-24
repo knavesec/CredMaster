@@ -18,6 +18,7 @@ def notify_success(username, password, notify_obj):
 def notify_update(message, notify_obj):
 
     slack_webhook = notify_obj['slack_webhook']
+    discord_webhook = notify_obj['discord_webhook']
     pushover_token = notify_obj['pushover_token']
     pushover_user = notify_obj['pushover_user']
 
@@ -26,6 +27,9 @@ def notify_update(message, notify_obj):
 
     if pushover_token is not None and pushover_user is not None:
         pushover_update(message, pushover_token, pushover_user)
+    
+    if discord_webhook is not None:
+        discord_notify(message, discord_webhook)
 
 
 # Function for posting username/password to slack channel
@@ -58,7 +62,7 @@ def slack_update(message, webhook):
     time=now.strftime("%H:%M:%S")
 
     text = ("```[Log Entry]\n"
-            f"{slacklog_msg}\n"
+            f"{message}\n"
             f"Date: {date}\n"
             f"Time: {time}```")
 
@@ -70,6 +74,20 @@ def slack_update(message, webhook):
         headers={'Content-Type': 'application/json'}
     )
 
+# Discord notify message
+def discord_notify(message, webhook):
+    url = webhook
+    data = {
+    "content" : f"{message}",
+    "username" : "CredMaster-Bot"
+    }
+    result = requests.post(url, json = data)
+    try:
+        result.raise_for_status()
+    except requests.exceptions.HTTPError as err:
+        print(err)
+    else:
+        print("Payload delivered successfully, code {}.".format(result.status_code))
 
 # Pushover notify of valid creds
 def pushover_notify(username, password, token, user):
