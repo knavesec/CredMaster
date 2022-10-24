@@ -21,6 +21,7 @@
   "pushover_token" : null,
   "pushover_user" : null,
   "discord_webhook": null,
+  "teams_webhook": null,
 
   "access_key" : null,
   "secret_access_key" : null,
