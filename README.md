@@ -39,16 +39,30 @@ For detection tips, see the blogpost and detection section.
 The following plugins are currently supported:
 
 * [OWA](https://github.com/knavesec/CredMaster/wiki/OWA) - Outlook Web Access
+  * `--plugin owa`
 * [EWS](https://github.com/knavesec/CredMaster/wiki/EWS) - Exchange Web Services
+  * `--plugin ews`
 * [O365](https://github.com/knavesec/CredMaster/wiki/O365) - Office365
-* [O365Enum](https://github.com/knavesec/CredMaster/wiki/O365Enum) - Office365 User Enum (No Authentication Request)
-* [MSOL](https://github.com/knavesec/CredMaster/wiki/MSOL) - Microsoft Online
-* [Okta](https://github.com/knavesec/CredMaster/wiki/Okta) - Okta Authentication Portal
-* [FortinetVPN](https://github.com/knavesec/CredMaster/wiki/FortinetVPN) - Fortinet VPN Client
-* [HTTPBrute](https://github.com/knavesec/CredMaster/wiki/HTTPBrute) - Generic HTTP Brute Methods (Basic/Digest/NTLM)
+  * `--plugin o365`
 * [ADFS](https://github.com/knavesec/CredMaster/wiki/ADFS) - Active Directory Federation Services
+  * `--plugin adfs`
+* [O365Enum](https://github.com/knavesec/CredMaster/wiki/O365Enum) - Office365 User Enum (No Authentication Request)
+  * `--plugin o365enum`
+* [MSOL](https://github.com/knavesec/CredMaster/wiki/MSOL) - Microsoft Online
+  * `--plugin msol`
+* [Okta](https://github.com/knavesec/CredMaster/wiki/Okta) - Okta Authentication Portal
+  * `--plugin okta`
+* [FortinetVPN](https://github.com/knavesec/CredMaster/wiki/FortinetVPN) - Fortinet VPN Client
+  * `--plugin fortinetvpn`
+* [HTTPBrute](https://github.com/knavesec/CredMaster/wiki/HTTPBrute) - Generic HTTP Brute Methods (Basic/Digest/NTLM)
+  * `--plugin httpbrute`
+* [GMailEnum](https://github.com/knavesec/CredMaster/wiki/GmailEnum) - GSuite/Gmail enumeration
+  * `--plugin gmailenum`
 * [AzureSSO](https://github.com/knavesec/CredMaster/wiki/AzureSSO) - Azure AD Seamless SSO Endpoint
-* [GmailEnum](https://github.com/knavesec/CredMaster/wiki/GmailEnum) - Gmail User Enumeration (No Authentication Request)
+  * `--plugin azuresso`
+* [AzVault](https://github.com/knavesec/CredMaster/wiki/AzureVault) - AzVault Module, Azure SSO spray point, different to msol/azuresso, takes just user/pass list or singular input
+  * `--plugin azvault`
+
 
 Example Use:
 ```
@@ -68,7 +82,7 @@ PRs welcome :)
 * "Resume" functionality for paused/cancelled scans. Ideally storing data for APIs used, if they were destroyed and what user/pwd the spray was on
 * Password file read dynamically so you can add/delete pwds mid-scan and it will perform as desired
 * Method to reliably determine if an auth attempt was throttled, so the username could be re-queued and tried again later for full cover (would have to be per-plugin, return "throttled" boolean value in plugin script, requeue if throttled)
-* Notification system for webhooks (Discord/Teams TODO)
+* Notification system for webhooks (Discord[Work in progress]/Teams TODO)
 * Automatic logging of valid users
 * Stop on success flag
 * Spray profile overhaul
@@ -91,7 +105,7 @@ PRs welcome :)
 - x0rz - GmailEnum technique
 - Kole Swesey ([0xPanic_](https://twitter.com/0xPanic_)) - Assorted PR
 - Logan ([TheToddLuci0](https://twitter.com/TheToddLuci0)) - Assorted PRs
-- Andy Gill ([ZephrFish](https://twitter.com/ZephrFish)) - Colour functions + Tweaks/Notifications
+- Andy Gill ([ZephrFish](https://twitter.com/ZephrFish)) - Colour functions + Tweaks/Notifications, helping on dev rewrite, azvault module
 
 
 Feel free to drop me a line
