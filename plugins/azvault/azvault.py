@@ -5,7 +5,7 @@ def azvault_authenticate(url, username, password, useragent, pluginargs):
 
     data_response = {
         'result': None,    # Can be "success", "failure" or "potential"
-		'error' : False,
+        'error' : False,
         'output' : ""
     }
 
