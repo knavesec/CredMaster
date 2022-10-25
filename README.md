@@ -30,6 +30,7 @@ For detection tips, see the blogpost and detection section.
 * Fully [anonymous](https://github.com/knavesec/CredMaster/wiki/Anonymity)
 * Colourised output
 * Notification systems for Slack & Pushover
+  * Operator option within notify function to allow multiple users to use same webhook or instance, operator ID to differentiate users.
 
 ![general](https://raw.githubusercontent.com/whynotsecurity/whynotsecurity.github.io/master/assests/images/credmaster-screenshots/credmaster-default.png)
 
