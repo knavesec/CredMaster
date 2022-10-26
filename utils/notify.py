@@ -1,7 +1,7 @@
 import requests, json
 from datetime import datetime
 
-operator = 'CHANGEME'
+
 
 def notify_success(username, password, notify_obj):
 
@@ -10,6 +10,7 @@ def notify_success(username, password, notify_obj):
     teams_webhook = notify_obj['teams_webhook']
     pushover_token = notify_obj['pushover_token']
     pushover_user = notify_obj['pushover_user']
+    operator = notify_obj['operator_id']
 
     if slack_webhook is not None:
         slack_notify(username, password, slack_webhook)
@@ -31,9 +32,10 @@ def notify_update(message, notify_obj):
     teams_webhook = notify_obj['teams_webhook']
     pushover_token = notify_obj['pushover_token']
     pushover_user = notify_obj['pushover_user']
+    operator = notify_obj['operator_id']
 
     if slack_webhook is not None:
-        slack_update(message, slack_webhook)
+        slack_update(message, slack_webhook, operator)
 
     if pushover_token is not None and pushover_user is not None:
         pushover_update(message, pushover_token, pushover_user)
@@ -70,7 +72,7 @@ def slack_notify(username, password, webhook):
 
 
 # Function for debug messages
-def slack_update(message, webhook):
+def slack_update(message, webhook, operator):
 
     now = datetime.now()
     date=now.strftime("%d-%m-%Y")
