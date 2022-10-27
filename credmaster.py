@@ -59,7 +59,10 @@ def main(args,pargs):
 	notify_obj = {
 		"slack_webhook" : parsed_args['slack_webhook'],
 		"pushover_token" : parsed_args['pushover_token'],
-		"pushover_user" : parsed_args['pushover_user']
+		"pushover_user" : parsed_args['pushover_user'],
+		"discord_webhook" : parsed_args['discord_webhook'],
+		"teams_webhook" : parsed_args['teams_webhook'],
+		"operator_id" : parsed_args['operator_id']
 	}
 
 
@@ -577,32 +580,35 @@ def parse_all_args(args):
 	#
 
 	return_args = {
-	  "plugin" : None,
-	  "userfile" : None,
-	  "passwordfile" : None,
-	  "userpassfile" : None,
-	  "useragentfile" : None,
+		"plugin" : None,
+		"userfile" : None,
+		"passwordfile" : None,
+		"userpassfile" : None,
+		"useragentfile" : None,
 
-	  "outfile" : None,
-	  "threads" : None,
-	  "region" : None,
-	  "jitter" : None,
-	  "jitter_min" : None,
-	  "delay" : None,
-	  "passwordsperdelay" : None,
-	  "randomize" : None,
-	  "header" : None,
-	  "weekday_warrior" : None,
-	  "color" : None,
+		"outfile" : None,
+		"threads" : None,
+		"region" : None,
+		"jitter" : None,
+		"jitter_min" : None,
+		"delay" : None,
+		"passwordsperdelay" : None,
+		"randomize" : None,
+		"header" : None,
+		"weekday_warrior" : None,
+		"color" : None,
 
-	  "slack_webhook" : None,
-	  "pushover_token" : None,
-	  "pushover_user" : None,
+		"slack_webhook" : None,
+		"pushover_token" : None,
+		"pushover_user" : None,
+		"discord_webhook": None,
+		"teams_webhook": None,
+		"operator_id": None,
 
-	  "access_key" : None,
-	  "secret_access_key" : None,
-	  "session_token" : None,
-	  "profile_name" : None,
+		"access_key" : None,
+		"secret_access_key" : None,
+		"session_token" : None,
+		"profile_name" : None
 	}
 
 	config_dict = None
@@ -638,6 +644,9 @@ def parse_all_args(args):
 	return_args["slack_webhook"] = args.slack_webhook or config_dict["slack_webhook"]
 	return_args["pushover_token"] = args.pushover_token or config_dict["pushover_token"]
 	return_args["pushover_user"] = args.pushover_user or config_dict["pushover_user"]
+	return_args["discord_webhook"] = args.discord_webhook or config_dict["discord_webhook"]
+	return_args["teams_webhook"] = args.teams_webhook or config_dict["teams_webhook"]
+	return_args["operator_id"] = args.operator_id or config_dict["operator_id"]
 
 	return_args["access_key"] = args.access_key or config_dict["access_key"]
 	return_args["secret_access_key"] = args.secret_access_key or config_dict["secret_access_key"]
@@ -675,6 +684,9 @@ if __name__ == '__main__':
 	notify_args.add_argument('--slack_webhook', type=str, default=None, help='Webhook link for Slack notifications')
 	notify_args.add_argument('--pushover_token', type=str, default=None, help='Token for Pushover notifications')
 	notify_args.add_argument('--pushover_user', type=str, default=None, help='User for Pushover notifications')
+	notify_args.add_argument('--discord_webhook', type=str, default=None, help='Webhook link for Discord notifications')
+	notify_args.add_argument('--teams_webhook', type=str, default=None, help='Webhook link for Teams notifications')
+	notify_args.add_argument('--operator_id', type=str, default=None, help='Optional Operator ID for notifications')
 
 	fp_args = parser.add_argument_group(title='Fireprox Connection Inputs')
 	fp_args.add_argument('--profile_name', type=str, default=None, help='AWS Profile Name to store/retrieve credentials')
