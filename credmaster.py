@@ -31,6 +31,11 @@ def main(args,pargs):
 
 	global start_time, end_time, time_lapse, outfile, cancelled, color, notify_obj, regions
 
+	# check if config file exists before parsing
+	if args.config is not None and not os.path.exists(args.config):
+		log_entry("Config file {} cannot be found".format(args.config))
+		return
+
 	# assign variables
 	# TOO MANY MF VARIABLES THIS HAS GOTTEN OUT OF CONTROL
 	# This is fine ;)
@@ -72,6 +77,23 @@ def main(args,pargs):
 		if os.path.exists(outfile):
 			log_entry("File {} already exists, try again with a unique file name".format(outfile))
 			return
+
+	# File handling
+	if username_file is not None and not os.path.exists(username_file):
+		log_entry("Username file {} cannot be found".format(username_file))
+		return
+
+	if password_file is not None and not os.path.exists(password_file):
+		log_entry("Password file {} cannot be found".format(password_file))
+		return
+
+	if userpass_file is not None and not os.path.exists(userpass_file):
+		log_entry("User-pass file {} cannot be found".format(userpass_file))
+		return
+
+	if useragent_file is not None and not os.path.exists(useragent_file):
+		log_entry("Useragent file {} cannot be found".format(useragent_file))
+		return
 
 	# AWS Key Handling
 	if access_key is None and secret_access_key is None and session_token is None and profile_name is None:
