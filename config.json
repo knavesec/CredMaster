@@ -20,9 +20,10 @@
   "slack_webhook" : null,
   "pushover_token" : null,
   "pushover_user" : null,
-  "discord_webhook": null,
-  "teams_webhook": null,
-  "operator_id": null,
+  "discord_webhook" : null,
+  "teams_webhook" : null,
+  "operator_id" : null,
+  "exclude_password" : false,
 
   "access_key" : null,
   "secret_access_key" : null,
