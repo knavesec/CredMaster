@@ -255,6 +255,8 @@ def main(args,pargs):
 					log_entry('Completed userenum at {}'.format(datetime.datetime.utcnow()))
 				else:
 					log_entry('Completed spray with password {} at {}'.format(password, datetime.datetime.utcnow()))
+
+				notify.notify_update("Info: Spray complete.", notify_obj)
 				continue
 			elif count != passwordsperdelay:
 				log_entry('Completed spray with password {} at {}, moving on to next password...'.format(password, datetime.datetime.utcnow()))
