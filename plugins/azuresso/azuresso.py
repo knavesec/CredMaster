@@ -6,8 +6,9 @@ def azuresso_authenticate(url, username, password, useragent, pluginargs):
 
     data_response = {
         'result': None,    # Can be "success", "failure" or "potential"
-		'error' : False,
-        'output' : ""
+        'error': False,
+        'output' : "",
+        'valid_user' : False
     }
 
     if "@" not in username:
@@ -89,10 +90,12 @@ def azuresso_authenticate(url, username, password, useragent, pluginargs):
         elif "AADSTS50126" in xmlresponse:
             data_response['output'] = "[!] VALID_USERNAME - {} (invalid password)".format(creds)
             data_response['result'] = "failure"
+            data_response['valid_user'] = True
 
         elif "DesktopSsoToken" in xmlresponse:
             data_response['output'] = "[+] SUCCESS: {}".format(creds)
             data_response['result'] = "success"
+            data_response['valid_user'] = True
 
             token = re.findall(r"<DesktopSsoToken>.{1,}</DesktopSsoToken>", xmlresponse)
             if (token):
@@ -101,17 +104,16 @@ def azuresso_authenticate(url, username, password, useragent, pluginargs):
         elif "AADSTS50056" in xmlresponse:
             data_response['output'] = "[!] VALID_USERNAME - {} (no password in AzureAD)".format(creds)
             data_response['result'] = "failure"
-            # utils.slacklog("Alert: Username valid but password is not in AzureAD")
+            data_response['valid_user'] = True
 
         elif "AADSTS80014" in xmlresponse:
             data_response['output'] = "[!] VALID_USERNAME - {} (max pass-through authentication time exceeded)".format(creds)
             data_response['result'] = "failure"
-            # utils.slacklog("Alert: Username valid but max pass-through authentication time exceeded")
+            data_response['valid_user'] = True
 
         elif "AADSTS50053" in xmlresponse:
             data_response['output'] = "[?] WARNING: SMART LOCKOUT DETECTED - Unable to enumerate: {}".format(creds)
             data_response['result'] = "potential"
-            # utils.slacklog("Alert: SMART LOCKOUT DETECTED")
 
         else:
             data_response['output'] = "[?] Unknown Response : {}".format(creds)

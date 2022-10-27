@@ -7,8 +7,9 @@ def ews_authenticate(url, username, password, useragent, pluginargs):
 
     data_response = {
         'result': None,    # Can be "success", "failure" or "potential"
-		'error' : False,
-        'output' : ""
+        'error': False,
+        'output' : "",
+        'valid_user' : False
     }
 
     spoofed_ip = utils.generate_ip()
@@ -33,14 +34,17 @@ def ews_authenticate(url, username, password, useragent, pluginargs):
         if resp.status_code != 401:
             data_response['result'] = "success"
             data_response['output'] = f"[+] SUCCESS: {username}:{password}"
-
+            data_response['valid_user'] = True
+            
         elif resp.status_code == 500:
             data_response['output'] = f"[*] POTENTIAL: Found credentials, but server returned 500: {username}:{password}"
             data_response['result'] = "potential"
+            data_response['valid_user'] = True
 
         elif resp.status_code == 504:
             data_response['output'] = f"[*] POTENTIAL: Found credentials, but server returned 504: {username}:{password}"
             data_response['result'] = "potential"
+            data_response['valid_user'] = True
 
         else:
             data_response['result'] = "failure"

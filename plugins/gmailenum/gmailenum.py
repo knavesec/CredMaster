@@ -5,8 +5,9 @@ def gmailenum_authenticate(url, username, password, useragent, pluginargs):
 
     data_response = {
         'result': None,    # Can be "success", "failure" or "potential"
-		'error' : False,
-        'output' : ""
+        'error': False,
+        'output' : "",
+        'valid_user' : False
     }
 
     spoofed_ip = utils.generate_ip()
@@ -29,7 +30,8 @@ def gmailenum_authenticate(url, username, password, useragent, pluginargs):
         if "Set-Cookie" in resp.headers.keys():
             data_response['result'] = "success"
             data_response['output'] = '[!] VALID_USERNAME: {} - Status: {}'.format(username, resp.status_code)
-
+            data_response['valid_user'] = True
+            
         else:
             data_response['result'] = "failure"
             data_response['output'] = '[-] UNKNOWN_USERNAME: {} - Status: {}'.format(username, resp.status_code)

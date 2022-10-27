@@ -14,6 +14,7 @@ regions = [
 ]
 
 lock = threading.Lock()
+lock_userenum = threading.Lock()
 q_spray = queue.Queue()
 
 outfile = None
@@ -74,9 +75,9 @@ def main(args,pargs):
 
 	# input exception handling
 	if outfile != None:
-		outfile = outfile + "-credmaster.txt"
-		if os.path.exists(outfile):
-			log_entry("File {} already exists, try again with a unique file name".format(outfile))
+		outfile = outfile
+		if os.path.exists(outfile + "-credmaster.txt"):
+			log_entry("File {} already exists, try again with a unique file name".format(outfile + "-credmaster.txt"))
 			return
 
 	# File handling
@@ -452,6 +453,9 @@ def spray_thread(api_key, api_dict, plugin, pluginargs, jitter=None, jitter_min=
 				results.append( {'username' : cred['username'], 'password' : cred['password']} )
 				notify.notify_success(cred['username'], cred['password'], notify_obj)
 
+			if response['valid_user'] or response['result'] == "success":
+				log_valid(cred['username'], plugin)
+
 			if color:
 
 				if response['result'].lower() == "success":
@@ -589,12 +593,27 @@ def log_entry(entry):
 	print('[{}] {}'.format(ts, entry))
 
 	if outfile is not None:
-		with open(outfile, 'a+') as file:
+		with open(outfile + "-credmaster.txt", 'a+') as file:
 			file.write('[{}] {}'.format(ts, entry))
 			file.write('\n')
 			file.close()
 
 	lock.release()
+
+
+def log_valid(username, plugin):
+
+	global lock_userenum
+
+	lock_userenum.acquire()
+
+	if outfile is not None:
+		with open(outfile + "-userenum-credmaster.txt", 'a+') as file:
+			file.write(username)
+			file.write('\n')
+			file.close()
+
+	lock_userenum.release()
 
 
 def parse_all_args(args):

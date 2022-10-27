@@ -6,8 +6,9 @@ def httpbrute_authenticate(url, username, password, useragent, pluginargs):
 
     data_response = {
         'result': None,    # Can be "success", "failure" or "potential"
-		'error' : False,
-        'output' : ""
+        'error': False,
+        'output' : "",
+        'valid_user' : False
     }
 
     spoofed_ip = utils.generate_ip()
@@ -46,7 +47,8 @@ def httpbrute_authenticate(url, username, password, useragent, pluginargs):
         if resp.status_code == 200:
             data_response['result'] = "success"
             data_response['output'] = '[+] SUCCESS: => {}:{}'.format(username, password)
-
+            data_response['valid_user'] = True
+            
         elif resp.status_code == 401:
             data_response['result'] = "failure"
             data_response['output'] = '[-] FAILURE: => {}:{}'.format(username, password)

@@ -6,7 +6,8 @@ def o365enum_authenticate(url, username, password, useragent, pluginargs):
     data_response = {
         'result': None,    # Can be "success", "failure" or "potential"
 		'error' : False,
-        'output' : ""
+        'output' : "",
+        'valid_user' : False
     }
 
     spoofed_ip = utils.generate_ip()
@@ -58,6 +59,7 @@ def o365enum_authenticate(url, username, password, useragent, pluginargs):
             if "VALID_USER" in if_exists_result_response:
                 sign = "[!]"
                 data_response["result"] = "success"
+                data_response['valid_user'] = True
             data_response['output'] = "{sign} {if_exists_result_response}: {username}".format(sign=sign, if_exists_result_response=if_exists_result_response, username=username)
 
     except Exception as ex:

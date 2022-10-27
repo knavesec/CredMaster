@@ -8,10 +8,12 @@ def template_authenticate(url, username, password, useragent, pluginargs): # CHA
     # error
     # output
     # success
+    # valid_user
     data_response = {
         'result': None,    # Can be "success", "failure" or "potential"
-		'error' : False,
-        'output' : ""
+        'error': False,
+        'output' : "",
+        'valid_user' : False
     }
 
     spoofed_ip = utils.generate_ip()
@@ -33,27 +35,30 @@ def template_authenticate(url, username, password, useragent, pluginargs): # CHA
         resp = requests.post("{}/uri".format(url),headers=headers)
 
         if Success:
-            data_response['success'] = "success"
+            data_response['result'] = "success"
             data_response['output'] = '[+] SUCCESS: => {}:{}'.format(username, password)
+            data_response['valid_user'] = True
 
         elif Success_but_2fa:
-            data_response['success'] = "success"
+            data_response['result'] = "success"
             data_response['output'] = '[+] SUCCESS: 2FA Required => {}:{}'.format(username, password)
+            data_response['valid_user'] = True
 
         elif lockout_or_pwd_expired_or_other:
-            data_response['success'] = "potential"
+            data_response['result'] = "potential"
             data_response['output'] = '[*] POTENTIAL: {} => {}:{}'.format(resp.status_code, username, password)
 
         elif assorted_issue:
-            data_response['success'] = "potential"
+            data_response['result'] = "potential"
             data_response['output'] = '[?] WARNING: issue_description {} => {}:{}'.format(resp.status_code, username, password)
 
         elif valid_user:
-            data_response['success'] = "failure"
+            data_response['result'] = "failure"
             data_response['output'] = '[!] VALID_USERNAME: {} => {}:{}'.format(resp.status_code, username, password)
+            data_response['valid_user'] = True
 
         else: #fail
-            data_response['success'] = "failure"
+            data_response['result'] = "failure"
             data_response['output'] = '[-] FAILURE: {} => {}:{}'.format(resp.status_code, username, password)
 
     except Exception as ex:

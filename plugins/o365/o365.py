@@ -7,7 +7,8 @@ def o365_authenticate(url, username, password, useragent, pluginargs):
     data_response = {
         'result': None,    # Can be "success", "failure" or "potential"
 		'error' : False,
-        'output' : ""
+        'output' : "",
+        'valid_user' : False
     }
 
     spoofed_ip = utils.generate_ip()
@@ -31,10 +32,12 @@ def o365_authenticate(url, username, password, useragent, pluginargs):
         if r.status_code == 200:
             data_response['output'] = "[+] SUCCESS: {username}:{password}".format(username=username,password=password)
             data_response['result'] = "success"
+            data_response['valid_user'] = True
 
         elif r.status_code == 456:
             data_response['output'] = "[+] SUCCESS: {username}:{password} - 2FA or Locked".format(username=username,password=password)
             data_response['result'] = "success"
+            data_response['valid_user'] = True
 
         else:
             data_response['output'] = "[-] FAILURE: {username}:{password}".format(username=username,password=password)
