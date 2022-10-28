@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# from zipfile import *
 import threading, queue, argparse, datetime, json, importlib, random, os, time
 from utils.fire import FireProx
 import utils.utils as utils
@@ -14,12 +13,11 @@ regions = [
 ]
 
 lock = threading.Lock()
-lock_userenum = threading.Lock()
 q_spray = queue.Queue()
 
 outfile = None
 color = None
-
+utc_now = datetime.datetime.utcnow()
 start_time = None
 end_time = None
 time_lapse = None
@@ -33,8 +31,9 @@ def main(args,pargs):
 	global start_time, end_time, time_lapse, outfile, cancelled, color, notify_obj, regions
 
 	# check if config file exists before parsing
-	if args.config is not None and not os.path.exists(args.config):
-		log_entry("Config file {} cannot be found".format(args.config))
+	conf_file = args.config
+	if conf_file is not None and not os.path.exists(conf_file):
+		log_entry(f"Config file {conf_file} cannot be found")
 		return
 
 	# assign variables
@@ -75,26 +74,26 @@ def main(args,pargs):
 
 	# input exception handling
 	if outfile != None:
-		outfile = outfile
-		if os.path.exists(outfile + "-credmaster.txt"):
-			log_entry("File {} already exists, try again with a unique file name".format(outfile + "-credmaster.txt"))
+		outfile = outfile + "-credmaster.txt"
+		if os.path.exists(outfile):
+			log_entry(f"File {outfile} already exists, try again with a unique file name")
 			return
 
 	# File handling
 	if username_file is not None and not os.path.exists(username_file):
-		log_entry("Username file {} cannot be found".format(username_file))
+		log_entry(f"Username file {username_file} cannot be found")
 		return
 
 	if password_file is not None and not os.path.exists(password_file):
-		log_entry("Password file {} cannot be found".format(password_file))
+		log_entry(f"Password file {password_file} cannot be found")
 		return
 
 	if userpass_file is not None and not os.path.exists(userpass_file):
-		log_entry("User-pass file {} cannot be found".format(userpass_file))
+		log_entry(f"User-pass file {userpass_file} cannot be found")
 		return
 
 	if useragent_file is not None and not os.path.exists(useragent_file):
-		log_entry("Useragent file {} cannot be found".format(useragent_file))
+		log_entry(f"Useragent file {useragent_file} cannot be found")
 		return
 
 	# AWS Key Handling
@@ -115,7 +114,7 @@ def main(args,pargs):
 
 	# Region handling
 	if region is not None and region not in regions:
-		log_entry("Input region {region} not a supported AWS region, {regions}".format(region=region, regions=regions))
+		log_entry(f"Input region {region} not a supported AWS region, {regions}")
 		return
 
 	# Jitter handling
@@ -148,18 +147,18 @@ def main(args,pargs):
 		key = pargs[i].replace("--","")
 		pluginargs[key] = pargs[i+1]
 
-	start_time = datetime.datetime.utcnow()
-	log_entry('Execution started at: {}'.format(start_time))
+	start_time = utc_now
+	log_entry(f'Execution started at: {start_time}')
 
 	# Check with plugin to make sure it has the data that it needs
-	validator = importlib.import_module('plugins.{}'.format(plugin))
+	validator = importlib.import_module(f'plugins.{plugin}')
 	if getattr(validator,"validate",None) is not None:
 		valid, errormsg, pluginargs = validator.validate(pluginargs, args)
 		if not valid:
 			log_entry(errormsg)
 			return
 	else:
-		log_entry("No validate function found for plugin: {}".format(plugin))
+		log_entry(f"No validate function found for plugin: {plugin}")
 
 	userenum = False
 	if 'userenum' in pluginargs and pluginargs['userenum']:
@@ -171,7 +170,7 @@ def main(args,pargs):
 
 	# Custom header handling
 	if headers is not None:
-		log_entry("Adding custom header \"{}\" to requests".format(headers))
+		log_entry(f"Adding custom header \"{headers}\" to requests")
 		head = headers.split(":")[0].strip()
 		val = headers.split(":")[1].strip()
 		pluginargs["custom-headers"] = {head : val}
@@ -230,8 +229,8 @@ def main(args,pargs):
 
 				weekdaywarrior = int(weekdaywarrior)
 				sleep_time = ww_calc_next_spray_delay(weekdaywarrior)
-				next_time = datetime.datetime.utcnow() + datetime.timedelta(hours=weekdaywarrior) + datetime.timedelta(minutes=sleep_time)
-				log_entry("Weekday Warrior, sleeping {delay} minutes until {time} on {day} in UTC {utc}".format(delay=sleep_time,time=next_time.strftime("%H:%M"),day=spray_days[next_time.weekday()], utc=weekdaywarrior))
+				next_time = utc_now + datetime.timedelta(hours=weekdaywarrior) + datetime.timedelta(minutes=sleep_time)
+				log_entry(f"Weekday Warrior, sleeping {sleep_time} minutes until {next_time.strftime('%H:%M')} on {spray_days[next_time.weekday()]} in UTC {weekdaywarrior}")
 				time.sleep(sleep_time*60)
 
 
@@ -251,22 +250,22 @@ def main(args,pargs):
 
 			if delay is None or len(passwords) == 1 or password == passwords[len(passwords)-1]:
 				if userpass_file != None:
-					log_entry('Completed spray with user-pass file {} at {}'.format(userpass_file, datetime.datetime.utcnow()))
+					log_entry(f"Completed spray with user-pass file {userpass_file} at {utc_now}")
 				elif userenum:
-					log_entry('Completed userenum at {}'.format(datetime.datetime.utcnow()))
+					log_entry(f"Completed userenum at {utc_now}")
 				else:
-					log_entry('Completed spray with password {} at {}'.format(password, datetime.datetime.utcnow()))
+					log_entry(f"Completed spray with password {password} at {utc_now}")
 
 				notify.notify_update("Info: Spray complete.", notify_obj)
 				continue
 			elif count != passwordsperdelay:
-				log_entry('Completed spray with password {} at {}, moving on to next password...'.format(password, datetime.datetime.utcnow()))
+				log_entry(f"Completed spray with password {password} at {utc_now}, moving on to next password...")
 				continue
 			else:
-				log_entry('Completed spray with password {} at {}, sleeping for {} minutes before next password spray'.format(password, datetime.datetime.utcnow(), delay))
-				log_entry('Valid credentials discovered: {}'.format(len(results)))
+				log_entry(f"Completed spray with password {password} at {utc_now}, sleeping for {delay} minutes before next password spray")
+				log_entry(f"Valid credentials discovered: {results}")
 				for success in results:
-					log_entry('Valid: {}:{}'.format(success['username'], success['password']))
+					log_entry(f"Valid: {success['username']}:{success['password']}")
 				count = 0
 				time.sleep(delay * 60)
 
@@ -285,7 +284,7 @@ def main(args,pargs):
 			log_entry("Second KeyboardInterrupt detected, unable to clean up APIs :( try the --clean option")
 
 	# Capture duration
-	end_time = datetime.datetime.utcnow()
+	end_time = utc_now
 	time_lapse = (end_time-start_time).total_seconds()
 
 	# Print stats
@@ -299,7 +298,7 @@ def load_apis(access_key, secret_access_key, profile_name, session_token, thread
 		log_entry("Thread count over maximum, reducing to 15")
 		threads = len(regions)
 
-	log_entry('Creating {} API Gateways for {}'.format(threads, url))
+	log_entry(f"Creating {threads} API Gateways for {url}")
 
 	apis = []
 
@@ -309,7 +308,7 @@ def load_apis(access_key, secret_access_key, profile_name, session_token, thread
 		if region is not None:
 			reg = region
 		apis.append(create_api(access_key, secret_access_key, profile_name,	session_token, reg, url.strip()))
-		log_entry('Created API - Region: {} ID: ({}) - {} => {}'.format(reg, apis[x]['api_gateway_id'], apis[x]['proxy_url'], url))
+		log_entry(f"Created API - Region: {reg} ID: ({apis[x]['api_gateway_id']}) - {apis[x]['proxy_url']} => {url}")
 
 	return apis
 
@@ -341,17 +340,17 @@ def get_fireprox_args(access_key, secret_access_key, profile_name, session_token
 
 def display_stats(apis, start=True):
 	if start:
-		log_entry('Total Regions Available: {}'.format(len(regions)))
-		log_entry('Total API Gateways: {}'.format(len(apis)))
+		log_entry(f"Total Regions Available: {len(regions)}")
+		log_entry(f"Total API Gateways: {len(apis)}")
 
 
 	if end_time and not start:
-		log_entry('End Time: {}'.format(end_time))
-		log_entry('Total Execution: {} seconds'.format(time_lapse))
-		log_entry('Valid credentials identified: {}'.format(len(results)))
+		log_entry(f"End Time: {end_time}")
+		log_entry(f"Total Execution: {time_lapse} seconds")
+		log_entry(f"Valid credentials identified: {len(results)}")
 
 		for cred in results:
-			log_entry('VALID - {}:{}'.format(cred['username'],cred['password']))
+			log_entry(f"VALID - {cred['username']}:{cred['password']}")
 
 
 def list_apis(access_key, secret_access_key, profile_name, session_token):
@@ -361,11 +360,11 @@ def list_apis(access_key, secret_access_key, profile_name, session_token):
 		args, help_str = get_fireprox_args(access_key, secret_access_key, profile_name, session_token, "list", region)
 		fp = FireProx(args, help_str)
 		active_apis = fp.list_api()
-		log_entry("Region: {} - total APIs: {}".format(region, len(active_apis)))
+		log_entry(f"Region: {region} - total APIs: {len(active_apis)}")
 
 		if len(active_apis) != 0:
 			for api in active_apis:
-				log_entry("API Info --  ID: {}, Name: {}, Created Date: {}".format(api['id'], api['name'], api['createdDate']))
+				log_entry(f"API Info --  ID: {api['id']}, Name: {api['name']}, Created Date: {api['createdDate']}")
 
 
 def destroy_single_api(api, access_key, secret_access_key, profile_name, session_token):
@@ -379,7 +378,7 @@ def destroy_single_api(api, access_key, secret_access_key, profile_name, session
 
 		for api1 in active_apis:
 			if api1['id'] == api:
-				log_entry("API found in region {}, destroying...".format(region))
+				log_entry(f"API found in region {region}, destroying...")
 				fp.delete_api(api)
 				return
 
@@ -392,7 +391,7 @@ def destroy_apis(apis, access_key, secret_access_key, profile_name, session_toke
 
 		args, help_str = get_fireprox_args(access_key, secret_access_key, profile_name, session_token, "delete", api["region"], api_id = api['api_gateway_id'])
 		fp = FireProx(args, help_str)
-		log_entry('Destroying API ({}) in region {}'.format(args['api_id'], api['region']))
+		log_entry(f"Destroying API ({args['api_id']}) in region {api['region']}")
 		fp.delete_api(args["api_id"])
 
 
@@ -410,14 +409,14 @@ def clear_all_apis(access_key, secret_access_key, profile_name, session_token):
 		err = "skipping"
 		if count != 0:
 			err = "removing"
-		log_entry("Region: {}, found {} APIs configured, {}".format(region, count, err))
+		log_entry(f"Region: {region}, found {count} APIs configured, {err}")
 
 		for api in active_apis:
 			if "fireprox" in api['name']:
 				fp.delete_api(api['id'])
 				clear_count += 1
 
-	log_entry("APIs removed: {}".format(clear_count))
+	log_entry(f"APIs removed: {clear_count}")
 
 
 def spray_thread(api_key, api_dict, plugin, pluginargs, jitter=None, jitter_min=None):
@@ -425,10 +424,10 @@ def spray_thread(api_key, api_dict, plugin, pluginargs, jitter=None, jitter_min=
 	global results, color, notify_obj
 
 	try:
-		plugin_authentiate = getattr(importlib.import_module('plugins.{}.{}'.format(plugin, plugin)), '{}_authenticate'.format(plugin))
+		plugin_authentiate = getattr(importlib.import_module(f'plugins.{plugin}.{plugin}'), f'{plugin}_authenticate')
 	except Exception as ex:
 		log_entry("Error: Failed to import plugin with exception")
-		log_entry("Error: {}".format(ex))
+		log_entry(f"Error: {ex}")
 		exit()
 
 	while not q_spray.empty() and not cancelled:
@@ -443,36 +442,30 @@ def spray_thread(api_key, api_dict, plugin, pluginargs, jitter=None, jitter_min=
 
 			response = plugin_authentiate(api_dict['proxy_url'], cred['username'], cred['password'], cred['useragent'], pluginargs)
 
-			# if "debug" in response.keys():
-			# 	print(response["debug"])
-
 			if response['error']:
-				log_entry("ERROR: {}: {} - {}".format(api_key,cred['username'],response['output']))
+				log_entry(f"ERROR: {api_key}: {cred['username']} - {response['output']}")
 
 			if response['result'].lower() == "success" and ('userenum' not in pluginargs):
 				results.append( {'username' : cred['username'], 'password' : cred['password']} )
 				notify.notify_success(cred['username'], cred['password'], notify_obj)
 
-			if response['valid_user'] or response['result'] == "success":
-				log_valid(cred['username'], plugin)
-
 			if color:
 
 				if response['result'].lower() == "success":
-					log_entry(utils.prGreen("{}: {}".format(api_key,response['output'])))
+					log_entry(utils.prGreen(f"{api_key}: {response['output']}"))
 
 				elif response['result'].lower() == "potential":
-					log_entry(utils.prYellow("{}: {}".format(api_key,response['output'])))
+					log_entry(utils.prYellow(f"{api_key}: {response['output']}"))
 
 				elif response['result'].lower() == "failure":
-					log_entry(utils.prRed("{}: {}".format(api_key,response['output'])))
+					log_entry(utils.prRed(f"{api_key}: {response['output']}"))
 
 			else:
-				log_entry("{}: {}".format(api_key,response['output']))
+				log_entry(f"{api_key}: {response['output']}")
 
 			q_spray.task_done()
 		except Exception as ex:
-			log_entry("ERROR: {}: {} - {}".format(api_key,cred['username'],ex))
+			log_entry(f"ERROR: {api_key}: {cred['username']} - {ex}")
 
 
 def load_credentials(user_file, password, userenum, useragent_file=None, userpass=None, randomize=False):
@@ -483,13 +476,13 @@ def load_credentials(user_file, password, userenum, useragent_file=None, userpas
 
 	users = []
 	if userenum:
-		log_entry('Loading users and useragents{}'.format(r))
+		log_entry(f'Loading users and useragents{r}')
 		users = load_file(user_file)
 	elif userpass is None:
-		log_entry('Loading credentials from {} with password {}{}'.format(user_file, password, r))
+		log_entry(f'Loading credentials from {user_file} with password {password}{r}')
 		users = load_file(user_file)
 	else:
-		log_entry('Loading credentials from {} as user-pass file{}'.format(userpass, r))
+		log_entry(f'Loading credentials from {userpass} as user-pass file{r}')
 		users = load_file(userpass)
 
 
@@ -541,7 +534,7 @@ def ww_calc_next_spray_delay(offset):
 
 	spray_times = [7,11,15] # launch sprays at 7AM, 11AM and 3PM
 
-	now = datetime.datetime.utcnow() + datetime.timedelta(hours=offset)
+	now = utc_now + datetime.timedelta(hours=offset)
 	hour_cur = int(now.strftime("%H"))
 	minutes_cur = int(now.strftime("%M"))
 	day_cur = int(now.weekday())
@@ -589,31 +582,16 @@ def log_entry(entry):
 
 	lock.acquire()
 
-	ts = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
-	print('[{}] {}'.format(ts, entry))
+	ts = utc_now.strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+	print(f"[{ts}] {entry}")
 
 	if outfile is not None:
-		with open(outfile + "-credmaster.txt", 'a+') as file:
-			file.write('[{}] {}'.format(ts, entry))
-			file.write('\n')
+		with open(outfile, 'a+') as file:
+			file.write(f"[{ts}] {entry}")
+			file.write("\n")
 			file.close()
 
 	lock.release()
-
-
-def log_valid(username, plugin):
-
-	global lock_userenum
-
-	lock_userenum.acquire()
-
-	if outfile is not None:
-		with open(outfile + "-userenum-credmaster.txt", 'a+') as file:
-			file.write(username)
-			file.write('\n')
-			file.close()
-
-	lock_userenum.release()
 
 
 def parse_all_args(args):

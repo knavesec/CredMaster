@@ -124,9 +124,7 @@ class FireProx(object):
         if url[-1] == '/':
             url = url[:-1]
 
-        title = 'fireprox_{}'.format(
-            tldextract.extract(url).domain
-        )
+        title = f'fireprox_{tldextract.extract(url).domain}'
         version_date = f'{datetime.datetime.now():%Y-%m-%dT%XZ}'
         template = '''
         {

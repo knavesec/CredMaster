@@ -27,20 +27,20 @@ def o365_authenticate(url, username, password, useragent, pluginargs):
     headers = utils.add_custom_headers(pluginargs, headers)
 
     try:
-        r = requests.get("{}/autodiscover/autodiscover.xml".format(url), auth=(username, password), headers=headers, verify=False, timeout=30)
+        r = requests.get(f"{url}/autodiscover/autodiscover.xml", auth=(username, password), headers=headers, verify=False, timeout=30)
 
         if r.status_code == 200:
-            data_response['output'] = "[+] SUCCESS: {username}:{password}".format(username=username,password=password)
+            data_response['output'] = f"[+] SUCCESS: {username}:{password}"
             data_response['result'] = "success"
             data_response['valid_user'] = True
 
         elif r.status_code == 456:
-            data_response['output'] = "[+] SUCCESS: {username}:{password} - 2FA or Locked".format(username=username,password=password)
+            data_response['output'] = f"[+] SUCCESS: {username}:{password} - 2FA or Locked"
             data_response['result'] = "success"
             data_response['valid_user'] = True
 
         else:
-            data_response['output'] = "[-] FAILURE: {username}:{password}".format(username=username,password=password)
+            data_response['output'] = f"[-] FAILURE: {username}:{password}"
             data_response['result'] = "failure"
 
     except Exception as ex:

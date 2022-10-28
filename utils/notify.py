@@ -158,6 +158,7 @@ def teams_notify(username, password, operator, exclude_password, webhook):
         f"{pwd_insert}"
         f"Date: {date}\n"
         f"Time: {time}"),
+        
         headers={"Content-Type": "application/json"},
         json={
             "summary": "[Valid Credentials Obtained!]",

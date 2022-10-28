@@ -45,7 +45,7 @@ def get_owa_domain(url, uri, useragent):
         "X-My-X-Amzn-Trace-Id" : generate_trace_id(),
     }
 
-    r = requests.post("{url}{uri}".format(url=url,uri=uri), headers=auth_header, verify=False)
+    r = requests.post(f"{url}{uri}", headers=auth_header, verify=False)
     if r.status_code == 401:
         ntlm_info = ntlmdecode(r.headers["x-amzn-Remapped-WWW-Authenticate"])
         return ntlm_info["NetBIOS_Domain_Name"]
@@ -55,10 +55,10 @@ def get_owa_domain(url, uri, useragent):
 
 # Colour Functions - ZephrFish
 def prRed(skk):
-    return "\033[91m{}\033[00m" .format(skk)
+    return f"\033[91m{skk}\033[00m" 
 
 def prGreen(skk):
-    return "\033[92m{}\033[00m" .format(skk)
+    return f"\033[92m{skk}\033[00m"
 
 def prYellow(skk):
-    return "\033[93m{}\033[00m" .format(skk)
+    return f"\033[93m{skk}\033[00m"

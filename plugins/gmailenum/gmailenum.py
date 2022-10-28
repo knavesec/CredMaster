@@ -5,7 +5,7 @@ def gmailenum_authenticate(url, username, password, useragent, pluginargs):
 
     data_response = {
         'result': None,    # Can be "success", "failure" or "potential"
-        'error': False,
+		'error' : False,
         'output' : "",
         'valid_user' : False
     }
@@ -25,16 +25,16 @@ def gmailenum_authenticate(url, username, password, useragent, pluginargs):
 
     try:
 
-        resp = requests.get("{}/mail/gxlu".format(url),params={"email":username},headers=headers)
+        resp = requests.get(f"{url}/mail/gxlu",params={"email":username},headers=headers)
 
         if "Set-Cookie" in resp.headers.keys():
             data_response['result'] = "success"
-            data_response['output'] = '[!] VALID_USERNAME: {} - Status: {}'.format(username, resp.status_code)
+            data_response['output'] = f"[!] VALID_USERNAME: {username} - Status: {resp.status_code}"
             data_response['valid_user'] = True
-            
+
         else:
             data_response['result'] = "failure"
-            data_response['output'] = '[-] UNKNOWN_USERNAME: {} - Status: {}'.format(username, resp.status_code)
+            data_response['output'] = f"[-] UNKNOWN_USERNAME: {username} - Status: {resp.status_code}"
 
 
     except Exception as ex:
