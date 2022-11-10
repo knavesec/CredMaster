@@ -1,23 +1,25 @@
 import requests
 import utils.utils as utils
+requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
+
 
 def azvault_authenticate(url, username, password, useragent, pluginargs):
 
     data_response = {
-        'result': None,    # Can be "success", "failure" or "potential"
-        'error': False,
+        'result' : None,    # Can be "success", "failure" or "potential"
+        'error' : False,
         'output' : "",
         'valid_user' : False
     }
 
     body = {
-        'resource': 'https://vault.azure.net',
-        'client_id': '1b730954-1685-4b74-9bfd-dac224a7b894',
-        'client_info': '1',
-        'grant_type': 'password',
-        'username': username,
-        'password': password,
-        'scope': 'openid',
+        'resource' : 'https://vault.azure.net',
+        'client_id' : '1b730954-1685-4b74-9bfd-dac224a7b894',
+        'client_info' : '1',
+        'grant_type' : 'password',
+        'username' : username,
+        'password' : password,
+        'scope' : 'openid',
     }
 
     spoofed_ip = utils.generate_ip()
@@ -30,14 +32,14 @@ def azvault_authenticate(url, username, password, useragent, pluginargs):
         "X-My-X-Amzn-Trace-Id" : trace_id,
         "User-Agent" : useragent,
 
-        'Accept': 'application/json',
-        'Content-Type': 'application/x-www-form-urlencoded'
+        'Accept' : 'application/json',
+        'Content-Type' : 'application/x-www-form-urlencoded'
     }
 
     headers = utils.add_custom_headers(pluginargs, headers)
 
     try:
-        resp = requests.post("{}/common/oauth2/token".format(url), headers=headers, data=body)
+        resp = requests.post(f"{url}/common/oauth2/token", headers=headers, data=body)
 
         if resp.status_code == 200:
             data_response['result'] = "success"

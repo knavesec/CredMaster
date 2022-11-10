@@ -2,11 +2,12 @@ import requests, requests_ntlm
 import utils.utils as utils
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
+
 def httpbrute_authenticate(url, username, password, useragent, pluginargs):
 
     data_response = {
-        'result': None,    # Can be "success", "failure" or "potential"
-        'error': False,
+        'result' : None,    # Can be "success", "failure" or "potential"
+        'error' : False,
         'output' : "",
         'valid_user' : False
     }
@@ -17,7 +18,7 @@ def httpbrute_authenticate(url, username, password, useragent, pluginargs):
 
     # CHANGEME: Add more if necessary
     headers = {
-        'User-Agent': useragent,
+        'User-Agent' : useragent,
         "X-My-X-Forwarded-For" : spoofed_ip,
         "x-amzn-apigateway-api-id" : amazon_id,
         "X-My-X-Amzn-Trace-Id" : trace_id,
@@ -29,7 +30,7 @@ def httpbrute_authenticate(url, username, password, useragent, pluginargs):
 
         resp = None
 
-        full_url = "{}/{}".format(url,pluginargs['uri'])
+        full_url = f"{url}/{pluginargs['uri']}"
 
         if pluginargs['auth'] == 'basic':
             auth = requests.auth.HTTPBasicAuth(username, password)
@@ -46,16 +47,16 @@ def httpbrute_authenticate(url, username, password, useragent, pluginargs):
 
         if resp.status_code == 200:
             data_response['result'] = "success"
-            data_response['output'] = '[+] SUCCESS: => {}:{}'.format(username, password)
+            data_response['output'] = f"[+] SUCCESS: => {username}:{password}"
             data_response['valid_user'] = True
-            
+
         elif resp.status_code == 401:
             data_response['result'] = "failure"
-            data_response['output'] = '[-] FAILURE: => {}:{}'.format(username, password)
+            data_response['output'] = f"[-] FAILURE: => {username}:{password}"
 
         else: #fail
             data_response['result'] = "potential"
-            data_response['output'] = '[?] UNKNOWN_RESPONSE_CODE: {} => {}:{}'.format(resp.status_code, username, password)
+            data_response['output'] = f"[?] UNKNOWN_RESPONSE_CODE: {resp.status_code} => {username}:{password}"
 
 
     except Exception as ex:

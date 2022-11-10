@@ -1,10 +1,12 @@
 import requests
 import utils.utils as utils
+requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
+
 
 def o365enum_authenticate(url, username, password, useragent, pluginargs):
 
     data_response = {
-        'result': None,    # Can be "success", "failure" or "potential"
+        'result' : None,    # Can be "success", "failure" or "potential"
 		'error' : False,
         'output' : "",
         'valid_user' : False
@@ -16,7 +18,7 @@ def o365enum_authenticate(url, username, password, useragent, pluginargs):
 
 
     headers = {
-        'User-Agent': useragent,
+        'User-Agent' : useragent,
         "X-My-X-Forwarded-For" : spoofed_ip,
         "x-amzn-apigateway-api-id" : amazon_id,
         "X-My-X-Amzn-Trace-Id" : trace_id,
@@ -30,14 +32,29 @@ def o365enum_authenticate(url, username, password, useragent, pluginargs):
         # https://github.com/BarrelTit0r/o365enum/blob/master/o365enum.py
         # https://github.com/dievus/Oh365UserFinder/blob/main/oh365userfinder.py
 
-        if_exists_result_codes = {"-1": "UNKNOWN_ERROR", "0": "VALID_USERNAME", "1": "UNKNOWN_USERNAME", "2": "THROTTLE", "4": "ERROR", "5": "VALID_USERNAME_DIFFERENT_IDP", "6": "VALID_USERNAME"}
-        domainType = {"1": "UNKNOWN", "2": "COMMERCIAL", "3": "MANAGED", "4": "FEDERATED", "5": "CLOUD_FEDERATED"}
+        if_exists_result_codes = {
+            "-1" : "UNKNOWN_ERROR",
+            "0" : "VALID_USERNAME",
+            "1" : "UNKNOWN_USERNAME",
+            "2" : "THROTTLE",
+            "4" : "ERROR",
+            "5" : "VALID_USERNAME_DIFFERENT_IDP",
+            "6" : "VALID_USERNAME"
+        }
+
+        domainType = {
+            "1" : "UNKNOWN",
+            "2" : "COMMERCIAL",
+            "3" : "MANAGED",
+            "4" : "FEDERATED",
+            "5" : "CLOUD_FEDERATED"
+        }
 
         body = '{"Username":"%s"}' % username
 
         sess = requests.session()
 
-        response = sess.post("{}/common/GetCredentialType".format(url), headers=headers, data=body)
+        response = sess.post(f"{url}/common/GetCredentialType", headers=headers, data=body)
 
         throttle_status = int(response.json()['ThrottleStatus'])
         if_exists_result = str(response.json()['IfExistsResult'])
@@ -47,10 +64,10 @@ def o365enum_authenticate(url, username, password, useragent, pluginargs):
 
         if domain_type != "MANAGED":
             data_response["result"] = "failure"
-            data_response['output'] = "[-] FAILURE: {username} Domain type {domaintype} not supported for user enum".format(username=username,domaintype=domain_type)
+            data_response['output'] = f"[-] FAILURE: {username} Domain type {domain_type} not supported for user enum"
 
         elif throttle_status != 0 or if_exists_result_response == "THROTTLE":
-            data_response['output'] = "[?] WARNING: Throttle detected on user {}".format(username=username)
+            data_response['output'] = f"[?] WARNING: Throttle detected on user {username}"
             data_response['result'] = "failure"
 
         else:
@@ -60,7 +77,7 @@ def o365enum_authenticate(url, username, password, useragent, pluginargs):
                 sign = "[!]"
                 data_response["result"] = "success"
                 data_response['valid_user'] = True
-            data_response['output'] = "{sign} {if_exists_result_response}: {username}".format(sign=sign, if_exists_result_response=if_exists_result_response, username=username)
+            data_response['output'] = f"{sign} {if_exists_result_response}: {username}"
 
     except Exception as ex:
         data_response['error'] = True

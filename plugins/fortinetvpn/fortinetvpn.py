@@ -1,11 +1,13 @@
 import requests
 import utils.utils as utils
+requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
+
 
 def fortinetvpn_authenticate(url, username, password, useragent, pluginargs):
 
     data_response = {
-        'result': None,    # Can be "success", "failure" or "potential"
-        'error': False,
+        'result' : None,    # Can be "success", "failure" or "potential"
+        'error' : False,
         'output' : "",
         'valid_user' : False
     }
@@ -15,7 +17,7 @@ def fortinetvpn_authenticate(url, username, password, useragent, pluginargs):
 
     # CHANGEME: Add more if necessary
     headers = {
-        'User-Agent': useragent,
+        'User-Agent' : useragent,
         "X-My-X-Forwarded-For" : spoofed_ip,
         "x-amzn-apigateway-api-id" : amazon_id,
         "X-My-X-Amzn-Trace-Id" : trace_id,
@@ -43,7 +45,7 @@ def fortinetvpn_authenticate(url, username, password, useragent, pluginargs):
             data_response['result'] = "success"
             data_response['output'] = '[+] SUCCESS: => {}:{}'.format(username, password)
             data_response['valid_user'] = True
-            
+
             if 'domain' in pluginargs.keys():
                 data_response['output'] = data_response['output'] + " Domain: {}".format(pluginargs['domain'])
 
