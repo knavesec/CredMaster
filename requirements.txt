@@ -4,3 +4,4 @@ tzlocal
 bs4
 lxml
 datetime
+discordwebhook

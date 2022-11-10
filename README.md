@@ -29,8 +29,7 @@ For detection tips, see the blogpost and detection section.
 * [WeekdayWarrior](https://github.com/knavesec/CredMaster/wiki/Weekday-Warrior) setting for timed spraying and SOC evasion
 * Fully [anonymous](https://github.com/knavesec/CredMaster/wiki/Anonymity)
 * Colourised output
-* Notification systems for Slack & Pushover
-  * Operator option within notify function to allow multiple users to use same webhook or instance, operator ID to differentiate users.
+* Notification systems for Slack, Discord, Teams & Pushover
 
 ![general](https://raw.githubusercontent.com/whynotsecurity/whynotsecurity.github.io/master/assests/images/credmaster-screenshots/credmaster-default.png)
 
@@ -61,13 +60,19 @@ The following plugins are currently supported:
   * `--plugin gmailenum`
 * [AzureSSO](https://github.com/knavesec/CredMaster/wiki/AzureSSO) - Azure AD Seamless SSO Endpoint
   * `--plugin azuresso`
-* [AzVault](https://github.com/knavesec/CredMaster/wiki/AzureVault) - AzVault Module, Azure SSO spray point, different to msol/azuresso, takes just user/pass list or singular input
+* [AzVault](https://github.com/knavesec/CredMaster/wiki/AzureVault) - AzVault Module, Azure spray point different to MSOL/AzureSSO
   * `--plugin azvault`
 
 
 Example Use:
 ```
 python3 credmaster.py --plugin {pluginname} --access_key {key} --secret_access_key {key} -u userfile -p passwordfile -a useragentfile {otherargs}
+```
+
+or
+
+```
+python3 credmaster.py --config config.json
 ```
 
 This tool requires AWS API access keys, a walkthrough on how to acquire these keys can be found here: https://bond-o.medium.com/aws-pass-through-proxy-84f1f7fa4b4b
@@ -81,10 +86,8 @@ PRs welcome :)
 
 * New Plugin: [Optiv's Go365 Method](https://github.com/optiv/Go365) - Includes Office365 auth and userenum capabilities via SOAP
 * "Resume" functionality for paused/cancelled scans. Ideally storing data for APIs used, if they were destroyed and what user/pwd the spray was on
-* Password file read dynamically so you can add/delete pwds mid-scan and it will perform as desired
 * Method to reliably determine if an auth attempt was throttled, so the username could be re-queued and tried again later for full cover (would have to be per-plugin, return "throttled" boolean value in plugin script, requeue if throttled)
-* Notification system for webhooks (Discord[Work in progress]/Teams TODO)
-* Automatic logging of valid users
+* Notification system for webhooks (Teams TODO)
 * Stop on success flag
 * Spray profile overhaul
 * Development notes
@@ -106,7 +109,7 @@ PRs welcome :)
 - x0rz - GmailEnum technique
 - Kole Swesey ([0xPanic_](https://twitter.com/0xPanic_)) - Assorted PR
 - Logan ([TheToddLuci0](https://twitter.com/TheToddLuci0)) - Assorted PRs
-- Andy Gill ([ZephrFish](https://twitter.com/ZephrFish)) - Colour functions + Tweaks/Notifications, helping on dev rewrite, azvault module
+- Andy Gill ([ZephrFish](https://twitter.com/ZephrFish)) - Colour functions + Tweaks/Notifications, helping on dev rewrite, AzVault module
 
 
 Feel free to drop me a line

