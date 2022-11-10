@@ -1,5 +1,6 @@
 import requests
 import utils.utils as utils
+requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
 
 def validate(pluginargs, args):
