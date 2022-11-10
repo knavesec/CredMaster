@@ -448,6 +448,9 @@ def spray_thread(api_key, api_dict, plugin, pluginargs, jitter=None, jitter_min=
 			if response['result'].lower() == "success" and ('userenum' not in pluginargs):
 				results.append( {'username' : cred['username'], 'password' : cred['password']} )
 				notify.notify_success(cred['username'], cred['password'], notify_obj)
+			
+			if response['valid_user'] or response['result'] == "success":
+				log_valid(cred['username'], plugin)
 
 			if color:
 
@@ -586,13 +589,26 @@ def log_entry(entry):
 	print(f"[{ts}] {entry}")
 
 	if outfile is not None:
-		with open(outfile, 'a+') as file:
+		with open(outfile + "-credmaster.txt", 'a+') as file:
 			file.write(f"[{ts}] {entry}")
 			file.write("\n")
 			file.close()
 
 	lock.release()
 
+def log_valid(username, plugin):
+    
+	global lock_userenum
+
+	lock_userenum.acquire()
+
+	if outfile is not None:
+		with open(outfile + "-userenum-credmaster.txt", 'a+') as file:
+			file.write(username)
+			file.write('\n')
+			file.close()
+
+	lock_userenum.release()
 
 def parse_all_args(args):
 	#

@@ -8,6 +8,7 @@ def template_authenticate(url, username, password, useragent, pluginargs): # CHA
     # error
     # output
     # success
+    # valid_user
     data_response = {
         'result': None,    # Can be "success", "failure" or "potential"
 		'error' : False,
@@ -60,6 +61,7 @@ def template_authenticate(url, username, password, useragent, pluginargs): # CHA
         else: #fail
             data_response['result'] = "failure"
             data_response['output'] = f"[-] FAILURE: {resp.status_code} => {username}:{password}"
+            data_response['valid_user'] = True
 
     except Exception as ex:
         data_response['error'] = True
