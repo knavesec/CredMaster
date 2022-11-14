@@ -68,50 +68,50 @@ class CredMaster(object):
 		# TOO MANY MF VARIABLES THIS HAS GOTTEN OUT OF CONTROL
 		# This is fine ;)
 
-		config_dict = None
+		config_dict = {}
 		if args.config != None:
 			config_dict = json.loads(open(args.config).read())
 
-		self.plugin = args.plugin or config_dict["plugin"]
-		self.userfile = args.userfile or config_dict["userfile"]
-		self.passwordfile = args.passwordfile or config_dict["passwordfile"]
-		self.userpassfile = args.userpassfile or config_dict["userpassfile"]
-		self.useragentfile = args.useragentfile or config_dict["useragentfile"]
+		self.plugin = args.plugin or config_dict.get("plugin")
+		self.userfile = args.userfile or config_dict.get("userfile")
+		self.passwordfile = args.passwordfile or config_dict.get("passwordfile")
+		self.userpassfile = args.userpassfile or config_dict.get("userpassfile")
+		self.useragentfile = args.useragentfile or config_dict.get("useragentfile")
 
-		self.outfile = args.outfile or config_dict["outfile"]
+		self.outfile = args.outfile or config_dict.get("outfile")
 
-		self.thread_count = args.threads or config_dict["threads"]
+		self.thread_count = args.threads or config_dict.get("threads")
 		if self.thread_count == None:
 			self.thread_count = 1
 
-		self.region = args.region or config_dict["region"]
-		self.jitter = args.jitter or config_dict["jitter"]
-		self.jitter_min = args.jitter_min or config_dict["jitter_min"]
-		self.delay = args.delay or config_dict["delay"]
+		self.region = args.region or config_dict.get("region")
+		self.jitter = args.jitter or config_dict.get("jitter")
+		self.jitter_min = args.jitter_min or config_dict.get("jitter_min")
+		self.delay = args.delay or config_dict.get("delay")
 
-		self.passwordsperdelay = args.passwordsperdelay or config_dict["passwordsperdelay"]
+		self.passwordsperdelay = args.passwordsperdelay or config_dict.get("passwordsperdelay")
 		if self.passwordsperdelay == None:
 			self.passwordsperdelay = 1
 
-		self.randomize = args.randomize or config_dict["randomize"]
-		self.header = args.header or config_dict["header"]
-		self.weekdaywarrior = args.weekday_warrior or config_dict["weekday_warrior"]
-		self.color = args.color or config_dict["color"]
+		self.randomize = args.randomize or config_dict.get("randomize")
+		self.header = args.header or config_dict.get("header")
+		self.weekdaywarrior = args.weekday_warrior or config_dict.get("weekday_warrior")
+		self.color = args.color or config_dict.get("color")
 
 		self.notify_obj = {
-			"slack_webhook" : args.slack_webhook or config_dict["slack_webhook"],
-			"pushover_token" : args.pushover_token or config_dict["pushover_token"],
-			"pushover_user" : args.pushover_user or config_dict["pushover_user"],
-			"discord_webhook" : args.discord_webhook or config_dict["discord_webhook"],
-			"teams_webhook" : args.teams_webhook or config_dict["teams_webhook"],
-			"operator_id" : args.operator_id or config_dict["operator_id"],
-			"exclude_password" : args.exclude_password or config_dict["exclude_password"]
+			"slack_webhook" : args.slack_webhook or config_dict.get("slack_webhook"),
+			"pushover_token" : args.pushover_token or config_dict.get("pushover_token"),
+			"pushover_user" : args.pushover_user or config_dict.get("pushover_user"),
+			"discord_webhook" : args.discord_webhook or config_dict.get("discord_webhook"),
+			"teams_webhook" : args.teams_webhook or config_dict.get("teams_webhook"),
+			"operator_id" : args.operator_id or config_dict.get("operator_id"),
+			"exclude_password" : args.exclude_password or config_dict.get("exclude_password")
 		}
 
-		self.access_key = args.access_key or config_dict["access_key"]
-		self.secret_access_key = args.secret_access_key or config_dict["secret_access_key"]
-		self.session_token = args.session_token or config_dict["session_token"]
-		self.profile_name = args.profile_name or config_dict["profile_name"]
+		self.access_key = args.access_key or config_dict.get("access_key")
+		self.secret_access_key = args.secret_access_key or config_dict.get("secret_access_key")
+		self.session_token = args.session_token or config_dict.get("session_token")
+		self.profile_name = args.profile_name or config_dict.get("profile_name")
 
 
 	def do_input_error_handling(self):
