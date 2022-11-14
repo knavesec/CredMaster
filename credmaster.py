@@ -267,7 +267,7 @@ class CredMaster(object):
 					self.weekdaywarrior = int(self.weekdaywarrior)
 					sleep_time = self.ww_calc_next_spray_delay(self.weekdaywarrior)
 					next_time = datetime.datetime.utcnow() + datetime.timedelta(hours=self.weekdaywarrior) + datetime.timedelta(minutes=sleep_time)
-					self.log_entry(f"Weekday Warrior, sleeping {sleep_time} minutes until {next_time.strftime("%H:%M")} on {spray_days[next_time.weekday()]} in UTC {self.weekdaywarrior}")
+					self.log_entry(f"Weekday Warrior, sleeping {sleep_time} minutes until {next_time.strftime('%H:%M')} on {spray_days[next_time.weekday()]} in UTC {self.weekdaywarrior}")
 					time.sleep(sleep_time*60)
 
 				self.load_credentials(password)
@@ -301,7 +301,7 @@ class CredMaster(object):
 					self.log_entry(f"Completed spray with password {password} at {datetime.datetime.utcnow()}, sleeping for {self.delay} minutes before next password spray")
 					self.log_entry(f"Valid credentials discovered: {len(self.results)}")
 					for success in self.results:
-						self.log_entry(f"Valid: {success["username"]}:{success["password"]}")
+						self.log_entry(f"Valid: {success['username']}:{success['password']}")
 					count = 0
 					time.sleep(self.delay * 60)
 
@@ -343,7 +343,7 @@ class CredMaster(object):
 			if region is not None:
 				reg = region
 			self.apis.append(self.create_api(reg, url.strip()))
-			self.log_entry(f"Created API - Region: {reg} ID: ({self.apis[x]["api_gateway_id"]}) - {self.apis[x]["proxy_url"]} => {url}")
+			self.log_entry(f"Created API - Region: {reg} ID: ({self.apis[x]['api_gateway_id']}) - {self.apis[x]['proxy_url']} => {url}")
 
 
 	def create_api(self, region, url):
@@ -382,7 +382,7 @@ class CredMaster(object):
 			self.log_entry(f"Valid credentials identified: {len(self.results)}")
 
 			for cred in self.results:
-				self.log_entry(f"VALID - {cred["username"]}:{cred["password"]}")
+				self.log_entry(f"VALID - {cred['username']}:{cred['password']}")
 
 
 	def list_apis(self):
@@ -396,7 +396,7 @@ class CredMaster(object):
 
 			if len(active_apis) != 0:
 				for api in active_apis:
-					self.log_entry(f"API Info --  ID: {api["id"]}, Name: {api["name"]}, Created Date: {api["createdDate"]}")
+					self.log_entry(f"API Info --  ID: {api['id']}, Name: {api['name']}, Created Date: {api['createdDate']}")
 
 
 	def destroy_single_api(self, api):
@@ -423,7 +423,7 @@ class CredMaster(object):
 
 			args, help_str = self.get_fireprox_args("delete", api["region"], api_id = api["api_gateway_id"])
 			fp = FireProx(args, help_str)
-			self.log_entry(f"Destroying API ({args["api_id"]}) in region {api["region"]}")
+			self.log_entry(f"Destroying API ({args['api_id']}) in region {api['region']}")
 			fp.delete_api(args["api_id"])
 
 
@@ -454,7 +454,7 @@ class CredMaster(object):
 	def spray_thread(self, api_key, api_dict, pluginargs):
 
 		try:
-			plugin_authentiate = getattr(importlib.import_module(f"plugins.{self.plugin}.{self.plugin}", f"{self.plugin}_authenticate"))
+			plugin_authentiate = getattr(importlib.import_module(f"plugins.{self.plugin}.{self.plugin}"), f"{self.plugin}_authenticate")
 		except Exception as ex:
 			self.log_entry("Error: Failed to import plugin with exception")
 			self.log_entry(f"Error: {ex}")
@@ -476,7 +476,7 @@ class CredMaster(object):
 				# 	print(response["debug"])
 
 				if response["error"]:
-					self.log_entry(f"ERROR: {api_key}: {cred["username"]} - {response["output"]}")
+					self.log_entry(f"ERROR: {api_key}: {cred['username']} - {response['output']}")
 
 				if response["result"].lower() == "success" and ("userenum" not in pluginargs):
 					self.results.append( {"username" : cred["username"], "password" : cred["password"]} )
@@ -488,20 +488,20 @@ class CredMaster(object):
 				if self.color:
 
 					if response["result"].lower() == "success":
-						self.log_entry(utils.prGreen(f"{api_key}: {response["output"]}"))
+						self.log_entry(utils.prGreen(f"{api_key}: {response['output']}"))
 
 					elif response["result"].lower() == "potential":
-						self.log_entry(utils.prYellow(f"{api_key}: {response["output"]}"))
+						self.log_entry(utils.prYellow(f"{api_key}: {response['output']}"))
 
 					elif response["result"].lower() == "failure":
-						self.log_entry(utils.prRed(f"{api_key}: {response["output"]}"))
+						self.log_entry(utils.prRed(f"{api_key}: {response['output']}"))
 
 				else:
-					self.log_entry(f"{api_key}: {response["output"]}")
+					self.log_entry(f"{api_key}: {response['output']}")
 
 				self.q_spray.task_done()
 			except Exception as ex:
-				self.log_entry(f"ERROR: {api_key}: {cred["username"]} - {ex}")
+				self.log_entry(f"ERROR: {api_key}: {cred['username']} - {ex}")
 
 
 	def load_credentials(self, password):
