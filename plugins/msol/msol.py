@@ -1,4 +1,4 @@
-import requests
+import requests, random
 import utils.utils as utils
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
@@ -12,9 +12,15 @@ def msol_authenticate(url, username, password, useragent, pluginargs):
         'valid_user' : False
     }
 
+    client_ids = [
+        "4345a7b9-9a63-4910-a426-35363201d503",
+        "1b730954-1685-4b74-9bfd-dac224a7b894"
+    ]
+    client_id = random.choice(client_ids)
+
     body = {
         'resource' : 'https://graph.windows.net',
-        'client_id' : '1b730954-1685-4b74-9bfd-dac224a7b894',
+        'client_id' : client_id,
         'client_info' : '1',
         'grant_type' : 'password',
         'username' : username,
