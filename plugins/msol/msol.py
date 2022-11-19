@@ -13,7 +13,7 @@ def msol_authenticate(url, username, password, useragent, pluginargs):
     }
 
     client_ids = [
-        "4345a7b9-9a63-4910-a426-35363201d503",
+        "4345a7b9-9a63-4910-a426-35363201d503", # alternate client_id taken from Optiv's Go365
         "1b730954-1685-4b74-9bfd-dac224a7b894"
     ]
     client_id = random.choice(client_ids)
