@@ -20,6 +20,7 @@ class CredMaster(object):
 
 		self.lock = threading.Lock()
 		self.lock_userenum = threading.Lock()
+		self.lock_success = threading.Lock()
 		self.q_spray = queue.Queue()
 
 		self.outfile = None
@@ -481,6 +482,7 @@ class CredMaster(object):
 				if response["result"].lower() == "success" and ("userenum" not in pluginargs):
 					self.results.append( {"username" : cred["username"], "password" : cred["password"]} )
 					notify.notify_success(cred["username"], cred["password"], self.notify_obj)
+					self.log_success(cred["username"], cred["password"])
 
 				if response["valid_user"] or response["result"] == "success":
 					self.log_valid(cred["username"], self.plugin)
@@ -627,6 +629,18 @@ class CredMaster(object):
 				file.close()
 
 		self.lock_userenum.release()
+
+
+	def log_success(self, username, password):
+
+		self.lock_success.acquire()
+
+		with open("credmaster-success.txt", 'a+') as file:
+			file.write(username + ":" + password)
+			file.write('\n')
+			file.close()
+
+		self.lock_success.release()
 
 
 if __name__ == '__main__':

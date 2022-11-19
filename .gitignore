@@ -1,4 +1,6 @@
 aws.config
+config.json
+credmaster-success.txt
 venv/
 env/
 __pycache__/
