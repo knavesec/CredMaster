@@ -4,3 +4,4 @@ credmaster-success.txt
 venv/
 env/
 __pycache__/
+.DS_Store

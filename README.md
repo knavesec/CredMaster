@@ -62,6 +62,8 @@ The following plugins are currently supported:
   * `--plugin azuresso`
 * [AzVault](https://github.com/knavesec/CredMaster/wiki/AzureVault) - AzVault Module, Azure spray point different to MSOL/AzureSSO
   * `--plugin azvault`
+* [MSGraph](https://github.com/knavesec/CredMaster/wiki/MSGraph) - MSGraph Module, msgraph spray point for azure and MSOL credentials
+  * `--plugin msgraph`
 
 
 Example Use:

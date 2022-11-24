@@ -1,4 +1,4 @@
-import requests
+import requests, random
 import utils.utils as utils
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
@@ -12,9 +12,20 @@ def msol_authenticate(url, username, password, useragent, pluginargs):
         'valid_user' : False
     }
 
+    client_ids = [
+        "4345a7b9-9a63-4910-a426-35363201d503", # alternate client_id taken from Optiv's Go365
+        "1b730954-1685-4b74-9bfd-dac224a7b894",
+        "0a7bdc5c-7b57-40be-9939-d4c5fc7cd417",
+        "1950a258-227b-4e31-a9cf-717495945fc2",
+        "00000002-0000-0000-c000-000000000000",
+        "872cd9fa-d31f-45e0-9eab-6e460a02d1f1",
+        "04b07795-8ddb-461a-bbee-02f9e1bf7b46"
+    ]
+    client_id = random.choice(client_ids)
+
     body = {
         'resource' : 'MSURLHERE',
-        'client_id' : '1b730954-1685-4b74-9bfd-dac224a7b894',
+        'client_id' : client_id,
         'client_info' : '1',
         'grant_type' : 'password',
         'username' : username,
