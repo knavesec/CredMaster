@@ -21,15 +21,14 @@ For detection tips, see the blogpost and detection section.
 
 * Rotates the requesting IP address for every request
 * Automatically generates APIs for proxy passthru
-* Spoofs API tracking numbers, forwarded-for IPs, and other proxy tracking headers
+* Spoofs API tracking numbers, forwarded-for IPs, and other proxy tracking headers = fully [anonymous](https://github.com/knavesec/CredMaster/wiki/Anonymity)
+* Easily configuation via config file
 * Multi-threaded processing
 * Password delay counters & configuration for lockout policy evasion
-* Easily configuation via config file
 * Easily add new plugins
-* [WeekdayWarrior](https://github.com/knavesec/CredMaster/wiki/Weekday-Warrior) setting for timed spraying and SOC evasion
-* Fully [anonymous](https://github.com/knavesec/CredMaster/wiki/Anonymity)
 * Colourised output
 * Notification systems for Slack, Discord, Teams & Pushover
+* [WeekdayWarrior](https://github.com/knavesec/CredMaster/wiki/Weekday-Warrior) setting for timed spraying and SOC evasion
 
 ![general](https://raw.githubusercontent.com/whynotsecurity/whynotsecurity.github.io/master/assests/images/credmaster-screenshots/credmaster-default.png)
 
@@ -50,6 +49,12 @@ The following plugins are currently supported:
   * `--plugin o365enum`
 * [MSOL](https://github.com/knavesec/CredMaster/wiki/MSOL) - Microsoft Online
   * `--plugin msol`
+* [MSGraph](https://github.com/knavesec/CredMaster/wiki/MSGraph) - MSGraph Module, msgraph spray point for azure and MSOL credentials
+  * `--plugin msgraph`
+* [AzureSSO](https://github.com/knavesec/CredMaster/wiki/AzureSSO) - Azure AD Seamless SSO Endpoint
+  * `--plugin azuresso`
+* [AzVault](https://github.com/knavesec/CredMaster/wiki/AzureVault) - AzVault Module, Azure spray point different to MSOL/AzureSSO
+  * `--plugin azvault`
 * [Okta](https://github.com/knavesec/CredMaster/wiki/Okta) - Okta Authentication Portal
   * `--plugin okta`
 * [FortinetVPN](https://github.com/knavesec/CredMaster/wiki/FortinetVPN) - Fortinet VPN Client
@@ -58,12 +63,6 @@ The following plugins are currently supported:
   * `--plugin httpbrute`
 * [GMailEnum](https://github.com/knavesec/CredMaster/wiki/GmailEnum) - GSuite/Gmail enumeration
   * `--plugin gmailenum`
-* [AzureSSO](https://github.com/knavesec/CredMaster/wiki/AzureSSO) - Azure AD Seamless SSO Endpoint
-  * `--plugin azuresso`
-* [AzVault](https://github.com/knavesec/CredMaster/wiki/AzureVault) - AzVault Module, Azure spray point different to MSOL/AzureSSO
-  * `--plugin azvault`
-* [MSGraph](https://github.com/knavesec/CredMaster/wiki/MSGraph) - MSGraph Module, msgraph spray point for azure and MSOL credentials
-  * `--plugin msgraph`
 
 
 Example Use:
@@ -79,7 +78,7 @@ python3 credmaster.py --config config.json
 
 This tool requires AWS API access keys, a walkthrough on how to acquire these keys can be found here: https://bond-o.medium.com/aws-pass-through-proxy-84f1f7fa4b4b
 
-All other usage details can be found [here](https://github.com/knavesec/CredMaster/wiki/Usage)
+All other usage details can be found [on the wiki](https://github.com/knavesec/CredMaster/wiki/Usage)
 
 
 ## TODO ##
