@@ -128,7 +128,7 @@ class CredMaster(object):
 			self.log_entry("secret_access_key requires access_key")
 			return
 		if self.access_key is None and self.secret_access_key is None and self.session_token is None and self.profile_name is None:
-			self.log_entry("--config passed, but the file contains no valid configuration!")
+			self.log_entry("Cannot derive valid AWS authentication from passed options!")
 			return
 
 
