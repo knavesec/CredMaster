@@ -1,6 +1,8 @@
-import random, requests
+import random, requests, json
 from utils.ntlmdecode import ntlmdecode
+from datetime import datetime
 
+# We can set anything up here for easy parsing and access later, for the moment this only houses the slack webhook, can probably add discord and other platforms at a later date as parsing isn't an issue.
 
 def generate_ip():
 
@@ -49,3 +51,14 @@ def get_owa_domain(url, uri, useragent):
         return ntlm_info["NetBIOS_Domain_Name"]
     else:
         return "NOTFOUND"
+
+
+# Colour Functions - ZephrFish
+def prRed(skk):
+    return "\033[91m{}\033[00m" .format(skk)
+
+def prGreen(skk):
+    return "\033[92m{}\033[00m" .format(skk)
+
+def prYellow(skk):
+    return "\033[93m{}\033[00m" .format(skk)

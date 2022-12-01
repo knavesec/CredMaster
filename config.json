@@ -1,0 +1,32 @@
+{
+  "plugin" : null,
+  "userfile" : null,
+  "passwordfile" : null,
+  "userpassfile" : null,
+  "useragentfile" : null,
+
+  "outfile" : null,
+  "threads" : null,
+  "region" : null,
+  "jitter" : null,
+  "jitter_min" : null,
+  "delay" : null,
+  "passwordsperdelay" : null,
+  "randomize" : false,
+  "header" : null,
+  "weekday_warrior" : null,
+  "color" : false,
+
+  "slack_webhook" : null,
+  "pushover_token" : null,
+  "pushover_user" : null,
+  "discord_webhook" : null,
+  "teams_webhook" : null,
+  "operator_id" : null,
+  "exclude_password" : false,
+
+  "access_key" : null,
+  "secret_access_key" : null,
+  "session_token" : null,
+  "profile_name" : null
+}

