@@ -39,6 +39,6 @@ def testconnect(pluginargs, args, api_dict, useragent):
     elif "fortinet" in resp.text:
         output = "Testconnect: Verified Fortinet instance, connected"
     else:
-        output = "Testconnect: Warning, Fortinet client not indicated, continuting"
+        output = "Testconnect: Warning, Fortinet client not indicated, continuing"
 
     return success, output, pluginargs
