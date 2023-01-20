@@ -622,11 +622,10 @@ class CredMaster(object):
 
 		self.lock_userenum.acquire()
 
-		if self.outfile is not None:
-			with open(self.outfile + "-userenum-credmaster.txt", 'a+') as file:
-				file.write(username)
-				file.write('\n')
-				file.close()
+		with open("credmaster-validusers.txt", 'a+') as file:
+			file.write(username)
+			file.write('\n')
+			file.close()
 
 		self.lock_userenum.release()
 
