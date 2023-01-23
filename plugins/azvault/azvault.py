@@ -3,7 +3,7 @@ import utils.utils as utils
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
 
-def msol_authenticate(url, username, password, useragent, pluginargs):
+def azvault_authenticate(url, username, password, useragent, pluginargs):
 
     data_response = {
         'result' : None,    # Can be "success", "failure" or "potential"
@@ -24,7 +24,7 @@ def msol_authenticate(url, username, password, useragent, pluginargs):
     client_id = random.choice(client_ids)
 
     body = {
-        'resource' : 'https://graph.windows.net',
+        'resource' : 'https://vault.azure.net',
         'client_id' : client_id,
         'client_info' : '1',
         'grant_type' : 'password',
@@ -89,6 +89,7 @@ def msol_authenticate(url, username, password, useragent, pluginargs):
                 # Locked out account or Smart Lockout in place
                 data_response['result'] = "potential"
                 data_response['output'] = f"[?] WARNING! The account {username} appears to be locked."
+                data_response['valid_user'] = True
 
             elif "AADSTS50055" in error:
                 # User password is expired

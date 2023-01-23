@@ -4,18 +4,8 @@ requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.
 
 
 def validate(pluginargs, args):
-    #
-    # Plugin Args
-    #
-    # --domain tenant.com         ->  tenant domain of the
-    #
-    pluginargs['url'] = "https://autologon.microsoftazuread-sso.com"
-
-    if 'domain' in pluginargs.keys():
-        return True, None, pluginargs
-    else:
-        error = "Missing domain argument, specify as --domain tenantdomain.com"
-        return False, error, None
+    pluginargs = {'url' : "https://login.microsoft.com"}
+    return True, None, pluginargs
 
 
 def testconnect(pluginargs, args, api_dict, useragent):
@@ -36,6 +26,6 @@ def testconnect(pluginargs, args, api_dict, useragent):
         output = "Testconnect: Connection failed, endpoint timed out, exiting"
         success = False
     else:
-        output = "Testconnect: Connection success, continuing"
+        output = "Testconnect: Connection success, continuting"
 
     return success, output, pluginargs

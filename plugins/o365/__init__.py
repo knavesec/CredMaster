@@ -12,7 +12,7 @@ def testconnect(pluginargs, args, api_dict, useragent):
 
     success = True
     headers = {
-        'User-Agent': useragent,
+        'User-Agent' : useragent,
         "X-My-X-Forwarded-For" : utils.generate_ip(),
         "x-amzn-apigateway-api-id" : utils.generate_id(),
         "X-My-X-Amzn-Trace-Id" : utils.generate_trace_id(),

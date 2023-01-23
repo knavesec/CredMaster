@@ -7,7 +7,7 @@ def msol_authenticate(url, username, password, useragent, pluginargs):
 
     data_response = {
         'result' : None,    # Can be "success", "failure" or "potential"
-        'error' : False,
+        'error': False,
         'output' : "",
         'valid_user' : False
     }
@@ -19,12 +19,12 @@ def msol_authenticate(url, username, password, useragent, pluginargs):
         "1950a258-227b-4e31-a9cf-717495945fc2",
         "00000002-0000-0000-c000-000000000000",
         "872cd9fa-d31f-45e0-9eab-6e460a02d1f1",
-        "30cad7ca-797c-4dba-81f6-8b01f6371013"
+        "04b07795-8ddb-461a-bbee-02f9e1bf7b46"
     ]
     client_id = random.choice(client_ids)
 
     body = {
-        'resource' : 'https://graph.windows.net',
+        'resource' : 'MSURLHERE',
         'client_id' : client_id,
         'client_info' : '1',
         'grant_type' : 'password',
@@ -89,6 +89,7 @@ def msol_authenticate(url, username, password, useragent, pluginargs):
                 # Locked out account or Smart Lockout in place
                 data_response['result'] = "potential"
                 data_response['output'] = f"[?] WARNING! The account {username} appears to be locked."
+
 
             elif "AADSTS50055" in error:
                 # User password is expired

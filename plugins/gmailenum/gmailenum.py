@@ -1,28 +1,15 @@
-import datetime, requests
+import requests
 import utils.utils as utils
+requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
 
 def gmailenum_authenticate(url, username, password, useragent, pluginargs):
 
-    ts = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
-
     data_response = {
-        'timestamp': ts,
-        'username': username,
-        'password': password,
-        'success': False,
-        'change': False,
-        '2fa_enabled': False,
-        'type': None,
-        'code': None,
-        'name': None,
-        'action': None,
-        'headers': [],
-        'cookies': [],
-        'sourceip' : None,
-        'throttled' : False,
+        'result' : None,    # Can be "success", "failure" or "potential"
         'error' : False,
-        'output' : ""
+        'output' : "",
+        'valid_user' : False
     }
 
     spoofed_ip = utils.generate_ip()
@@ -30,7 +17,7 @@ def gmailenum_authenticate(url, username, password, useragent, pluginargs):
     trace_id = utils.generate_trace_id()
 
     headers = {
-        'User-Agent': useragent,
+        'User-Agent' : useragent,
         "X-My-X-Forwarded-For" : spoofed_ip,
         "x-amzn-apigateway-api-id" : amazon_id,
         "X-My-X-Amzn-Trace-Id" : trace_id,
@@ -40,15 +27,16 @@ def gmailenum_authenticate(url, username, password, useragent, pluginargs):
 
     try:
 
-        resp = requests.get("{}/mail/gxlu".format(url),params={"email":username},headers=headers)
+        resp = requests.get(f"{url}/mail/gxlu",params={"email":username},headers=headers)
 
         if "Set-Cookie" in resp.headers.keys():
-            data_response['success'] = False
-            data_response['output'] = 'VALID USER: {} - Status: {}'.format(username, resp.status_code)
+            data_response['result'] = "success"
+            data_response['output'] = f"[!] VALID_USERNAME: {username} - Status: {resp.status_code}"
+            data_response['valid_user'] = True
 
         else:
-            data_response['success'] = False
-            data_response['output'] = 'INVALID USER: {} - Status: {}'.format(username, resp.status_code)
+            data_response['result'] = "failure"
+            data_response['output'] = f"[-] UNKNOWN_USERNAME: {username} - Status: {resp.status_code}"
 
 
     except Exception as ex:
