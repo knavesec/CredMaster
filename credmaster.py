@@ -285,7 +285,7 @@ class CredMaster(object):
 					self.weekdaywarrior = int(self.weekdaywarrior)
 					sleep_time = self.ww_calc_next_spray_delay(self.weekdaywarrior)
 					next_time = datetime.datetime.utcnow() + datetime.timedelta(hours=self.weekdaywarrior) + datetime.timedelta(minutes=sleep_time)
-					self.log_entry(f"Weekday Warrior, sleeping {sleep_time} minutes until {next_time.strftime('%H:%M')} on {spray_days[next_time.weekday()]} in UTC {self.weekdaywarrior}")
+					self.log_entry(f"Weekday Warrior: sleeping {sleep_time} minutes until {next_time.strftime('%H:%M')} on {spray_days[next_time.weekday()]} in UTC {self.weekdaywarrior}")
 					time.sleep(sleep_time*60)
 
 				self.load_credentials(password)
@@ -575,7 +575,7 @@ class CredMaster(object):
 
 	def ww_calc_next_spray_delay(self, offset):
 
-		spray_times = [7,11,15] # launch sprays at 7AM, 11AM and 3PM
+		spray_times = [8,12,14] # launch sprays at 7AM, 11AM and 3PM
 
 		now = datetime.datetime.utcnow() + datetime.timedelta(hours=offset)
 		hour_cur = int(now.strftime("%H"))
@@ -681,7 +681,7 @@ if __name__ == '__main__':
 	adv_args.add_argument('--passwordsperdelay', type=int, default=1, required=False, help='Number of passwords to be tested per delay cycle')
 	adv_args.add_argument('-r', '--randomize', default=False, required=False, action="store_true", help='Randomize the input list of usernames to spray (will remain the same password)')
 	adv_args.add_argument('--header', default=None, required=False, help='Add a custom header to each request for attribution, specify "X-Header: value"')
-	adv_args.add_argument('--weekday-warrior', default=None, required=False, help="If you don't know what this is don't use it, input is timezone UTC offset")
+	adv_args.add_argument('--weekday_warrior', default=None, required=False, help="If you don't know what this is don't use it, input is timezone UTC offset")
 	adv_args.add_argument('--color', default=False, action="store_true", required=False, help="Output spray results in Green/Yellow/Red colors")
 
 	notify_args = parser.add_argument_group(title='Notification Inputs')
