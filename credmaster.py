@@ -669,6 +669,7 @@ if __name__ == '__main__':
 	basic_args.add_argument('-p', '--passwordfile', default=None, required=False, help='Password file')
 	basic_args.add_argument('-f', '--userpassfile', default=None, required=False, help='Username-Password file (one-to-one map, colon separated)')
 	basic_args.add_argument('-a', '--useragentfile', default=None, required=False, help='Useragent file')
+	basic_args.add_argument('--config', type=str, default=None, help='Configure CredMaster using config file config.json')
 
 	adv_args = parser.add_argument_group(title='Advanced Inputs')
 	adv_args.add_argument('-o', '--outfile', default=None, required=False, help='Output file to write contents (omit extension)')
@@ -697,7 +698,6 @@ if __name__ == '__main__':
 	fp_args.add_argument('--access_key', type=str, default=None, help='AWS Access Key')
 	fp_args.add_argument('--secret_access_key', type=str, default=None, help='AWS Secret Access Key')
 	fp_args.add_argument('--session_token', type=str, default=None, help='AWS Session Token')
-	fp_args.add_argument('--config', type=str, default=None, help='Authenticate to AWS using config file aws.config')
 
 	fpu_args = parser.add_argument_group(title='Fireprox Utility Options')
 	fpu_args.add_argument('--clean', default=False, action="store_true", help='Clean up all fireprox AWS APIs from every region, warning irreversible')
