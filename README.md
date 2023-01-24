@@ -83,9 +83,17 @@ If you are spraying against microsoft endpoints you can add an additional flag f
 python3 credmaster.py --plugin msgraph ---config config.json -u email.txt -p passwords.txt -a useragents.txt --mfasweep
 ```
 
+
+
+![image](https://user-images.githubusercontent.com/5783068/214191444-bea0fdb3-8df4-4fed-9ddd-823cdf2e39f3.png)
+
 There are several key pieces of information that this module outputs, if it is set as a CLI arg or in config it will output successful MFA-less login attempts to an output file with a prefixed filename of `CredMaster_MFASweep` followed by the run time of the script. If it is successful the log will also have a token that has been retrieved! 
 
-![](https://user-images.githubusercontent.com/5783068/196560119-e6ba397c-b2f5-4822-9717-40ea09d7fcdc.png)
+![image](https://user-images.githubusercontent.com/5783068/214191356-5b2887fb-7914-4fc6-9919-0d5d887a547c.png)
+
+If MFA is found to be enabled on MFA Check you'll get a yellow output in MFASweep but if it's successful you'll get green:
+
+![image](https://user-images.githubusercontent.com/5783068/214191414-5fa02538-2831-4cf6-9358-c51aee644854.png)
 
 
 This tool requires AWS API access keys, a walkthrough on how to acquire these keys can be found here: https://bond-o.medium.com/aws-pass-through-proxy-84f1f7fa4b4b
