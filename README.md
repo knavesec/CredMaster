@@ -1,4 +1,4 @@
-# CredMaster #
+# CredMaster 2.0 #
 
 Launch a password spray / brute force attach via Amazon AWS passthrough proxies, shifting the requesting IP address for every authentication attempt. This dynamically creates FireProx APIs for more evasive password sprays.  
 
@@ -76,6 +76,18 @@ or
 python3 credmaster.py --config config.json
 ```
 
+### MFASweep Module/Flag
+If you are spraying against microsoft endpoints you can add an additional flag for MFA sweep, the output will look similar to shown below;
+
+```
+python3 credmaster.py --plugin msgraph ---config config.json -u email.txt -p passwords.txt -a useragents.txt --mfasweep
+```
+
+There are several key pieces of information that this module outputs, if it is set as a CLI arg or in config it will output successful MFA-less login attempts to an output file with a prefixed filename of `CredMaster_MFASweep` followed by the run time of the script. If it is successful the log will also have a token that has been retrieved! 
+
+![](https://user-images.githubusercontent.com/5783068/196560119-e6ba397c-b2f5-4822-9717-40ea09d7fcdc.png)
+
+
 This tool requires AWS API access keys, a walkthrough on how to acquire these keys can be found here: https://bond-o.medium.com/aws-pass-through-proxy-84f1f7fa4b4b
 
 All other usage details can be found [on the wiki](https://github.com/knavesec/CredMaster/wiki/Usage)
@@ -88,10 +100,11 @@ PRs welcome :)
 * New Plugin: [Optiv's Go365 Method](https://github.com/optiv/Go365) - Includes Office365 auth and userenum capabilities via SOAP
 * "Resume" functionality for paused/cancelled scans. Ideally storing data for APIs used, if they were destroyed and what user/pwd the spray was on
 * Method to reliably determine if an auth attempt was throttled, so the username could be re-queued and tried again later for full cover (would have to be per-plugin, return "throttled" boolean value in plugin script, requeue if throttled)
-* Notification system for webhooks (Teams TODO)
+* Notification system for webhooks (Always adding more)
 * Stop on success flag
 * Spray profile overhaul
 * Development notes
+* Limit MFA Sweep module to MSGraph/AZVault modules (Still Todo)
 
 
 ## Credits ##
@@ -110,7 +123,7 @@ PRs welcome :)
 - x0rz - GmailEnum technique
 - Kole Swesey ([0xPanic_](https://twitter.com/0xPanic_)) - Assorted PR
 - Logan ([TheToddLuci0](https://twitter.com/TheToddLuci0)) - Assorted PRs
-- Andy Gill ([ZephrFish](https://twitter.com/ZephrFish)) - Colour functions + Tweaks/Notifications, helping on dev rewrite, AzVault module
+- Andy Gill ([ZephrFish](https://twitter.com/ZephrFish)) - Various Modules, MFASweep plugin, Colour function, dev rewrite and some other bits and pieces :) 
 
 
 Feel free to drop me a line

@@ -2,6 +2,7 @@ import random, requests, json
 from utils.ntlmdecode import ntlmdecode
 from datetime import datetime
 
+
 # We can set anything up here for easy parsing and access later, for the moment this only houses the slack webhook, can probably add discord and other platforms at a later date as parsing isn't an issue.
 
 def generate_ip():

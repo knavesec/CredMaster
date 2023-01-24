@@ -4,4 +4,7 @@ tzlocal
 bs4
 lxml
 datetime
+requests_ntlm
 discordwebhook
+adal
+msal
