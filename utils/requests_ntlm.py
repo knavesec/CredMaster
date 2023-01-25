@@ -11,7 +11,7 @@ from cryptography.exceptions import UnsupportedAlgorithm
 from ntlm_auth import ntlm
 from requests.auth import AuthBase
 from requests.packages.urllib3.response import HTTPResponse
-from pprint import pprint
+
 
 class HttpNtlmAuth(AuthBase):
     """
