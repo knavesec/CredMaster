@@ -1,5 +1,5 @@
 import requests
-from requests_ntlm import HttpNtlmAuth
+from utils.requests_ntlm import HttpNtlmAuth
 import utils.utils as utils
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
