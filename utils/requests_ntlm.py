@@ -141,14 +141,20 @@ class HttpNtlmAuth(AuthBase):
         """The actual hook handler."""
         if r.status_code == 401:
             # Handle server auth.
+            plain_www_authenticate = True
+            www_authenticate = r.headers.get('www-authenticate', '').lower()
             # CredMaster fix: the original www-authenticate header will never be present 
             # when using AWS API Gateway
-            www_authenticate = r.headers.get('x-amzn-remapped-www-authenticate', '').lower()
+            if not www_authenticate:
+                www_authenticate = r.headers.get('x-amzn-remapped-www-authenticate', '').lower()
+                plain_www_authenticate = False
+                
             auth_type = _auth_type_from_header(www_authenticate)
 
             if auth_type is not None:
+                header_name = 'www_authenticate' if plain_www_authenticate else 'x-amzn-remapped-www-authenticate'
                 return self.retry_using_http_NTLM_auth(
-                    'x-amzn-remapped-www-authenticate',
+                    header_name,
                     'Authorization',
                     r,
                     auth_type,
