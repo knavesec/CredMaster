@@ -105,6 +105,12 @@ class HttpNtlmAuth(AuthBase):
 
         # get the challenge
         auth_header_value = response2.headers[auth_header_field]
+        if ',' in auth_header_value:
+            chunks = auth_header_value.split(',') 
+            for chunk in chunks:
+                if chunk.startswith(auth_type):
+                    auth_header_value = chunk
+
         print(f'\n{inspect.stack()[0][3]} challenge {auth_header_field}: {auth_header_value}')
 
         auth_strip = auth_type + ' '
