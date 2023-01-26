@@ -110,20 +110,13 @@ class HttpNtlmAuth(AuthBase):
 
         # get the challenge
         auth_header_value = response2.headers[auth_header_field]
-        if ',' in auth_header_value:
-            chunks = auth_header_value.split(',') 
-            for chunk in chunks:
-                if chunk.lower().startswith(auth_type.lower()):
-                    auth_header_value = chunk
-
-        DEBUG(f'challenge {auth_header_field}: {auth_header_value}')
-
         auth_strip = auth_type + ' '
 
         ntlm_header_value = next(
             s for s in (val.lstrip() for val in auth_header_value.split(','))
             if s.startswith(auth_strip)
         ).strip()
+        DEBUG(f'challenge: {ntlm_header_value}')
         # Parse the challenge in the ntlm context
         context.parse_challenge_message(ntlm_header_value[len(auth_strip):])
 
@@ -243,7 +236,6 @@ def _auth_type_from_header(header):
     suppports it.
     """
     if 'ntlm' in header:
-        DEBUG(f'ntlm')
         return 'NTLM'
     elif 'negotiate' in header:
         return 'Negotiate'
