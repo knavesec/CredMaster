@@ -12,6 +12,11 @@ from requests.auth import AuthBase
 from requests.packages.urllib3.response import HTTPResponse
 
 
+def DEBUG(msg: str):
+    DEBUG = True
+    if DEBUG:
+        print(f'[DEBUG][{inspect.stack()[1][3]}]: {msg}')
+
 class HttpNtlmAuth(AuthBase):
     """
     HTTP NTLM Authentication Handler for Requests.
@@ -51,11 +56,11 @@ class HttpNtlmAuth(AuthBase):
                                    response, auth_type, args):
         # Get the certificate of the server if using HTTPS for CBT
         server_certificate_hash = self._get_server_cert(response)
-        print(f'\n{inspect.stack()[0][3]} entering function')
+        DEBUG(f'entering function')
         
         """Attempt to authenticate using HTTP NTLM challenge/response."""
         if auth_header in response.request.headers:
-            print(f'\n{inspect.stack()[0][3]} found auth_header: {auth_header}')
+            print(f'{inspect.stack()[0][3]} found auth_header: {auth_header}')
             return response
 
         content_length = int(
@@ -78,7 +83,7 @@ class HttpNtlmAuth(AuthBase):
         negotiate_message = context.create_negotiate_message(self.domain).decode('ascii')
         auth = u'%s %s' % (auth_type, negotiate_message)
         request.headers[auth_header] = auth
-        print(f'\n{inspect.stack()[0][3]} negotiate message: {auth_header} has value {auth}')
+        DEBUG(f'negotiate message: {auth_header} has value {auth}')
 
         # A streaming response breaks authentication.
         # This can be fixed by not streaming this request, which is safe
@@ -111,7 +116,7 @@ class HttpNtlmAuth(AuthBase):
                 if chunk.startswith(auth_type):
                     auth_header_value = chunk
 
-        print(f'\n{inspect.stack()[0][3]} challenge {auth_header_field}: {auth_header_value}')
+        DEBUG(f'challenge {auth_header_field}: {auth_header_value}')
 
         auth_strip = auth_type + ' '
 
@@ -133,7 +138,7 @@ class HttpNtlmAuth(AuthBase):
         authenticate_message = authenticate_message.decode('ascii')
         auth = u'%s %s' % (auth_type, authenticate_message)
         request.headers[auth_header] = auth
-        print(f'\n{inspect.stack()[0][3]} challenge-response: {auth_header} has value {auth}')
+        DEBUG(f'challenge-response: {auth_header} has value {auth}')
 
         response3 = response2.connection.send(request, **args)
 
@@ -144,12 +149,11 @@ class HttpNtlmAuth(AuthBase):
         # Get the session_security object created by ntlm-auth for signing and sealing of messages
         self.session_security = context.session_security
 
-        print(f'\n{inspect.stack()[0][3]} final response status_code: {response3.status_code}')
+        DEBUG(f'final response status_code: {response3.status_code}')
         return response3
 
     def response_hook(self, r, **kwargs):
         """The actual hook handler."""
-        print(f'{inspect.stack()[0][3]} HOOKING RESPONSE')
         if r.status_code == 401:
             # Handle server auth.
             plain_www_authenticate = True
@@ -159,7 +163,7 @@ class HttpNtlmAuth(AuthBase):
                 plain_www_authenticate = False
 
             auth_type = _auth_type_from_header(www_authenticate)
-            #print(f'{inspect.stack()[0][3]} auth_type = {auth_type}')
+            DEBUG(f'auth_type = {auth_type}')
             if auth_type is not None:
                 header_name = 'www_authenticate' if plain_www_authenticate else 'x-amzn-remapped-www-authenticate'
                 return self.retry_using_http_NTLM_auth(
@@ -183,8 +187,8 @@ class HttpNtlmAuth(AuthBase):
                     auth_type,
                     kwargs
                 )
-        print(f'fail: status_code: {r.status_code}')
-        print(r.headers)
+        DEBUG(f'fail: status_code: {r.status_code}')
+        DEBUG(r.headers)
         return r
 
     def _get_server_cert(self, response):
@@ -239,7 +243,7 @@ def _auth_type_from_header(header):
     suppports it.
     """
     if 'ntlm' in header:
-        print('ntlm_auth: found ntlm header')
+        DEBUG(f'{inspect.stack()[0][3]} ntlm')
         return 'NTLM'
     elif 'negotiate' in header:
         return 'Negotiate'
