@@ -113,7 +113,7 @@ class HttpNtlmAuth(AuthBase):
         if ',' in auth_header_value:
             chunks = auth_header_value.split(',') 
             for chunk in chunks:
-                if chunk.startswith(auth_type):
+                if chunk.lower().startswith(auth_type.lower()):
                     auth_header_value = chunk
 
         DEBUG(f'challenge {auth_header_field}: {auth_header_value}')
