@@ -60,7 +60,7 @@ class HttpNtlmAuth(AuthBase):
         
         """Attempt to authenticate using HTTP NTLM challenge/response."""
         if auth_header in response.request.headers:
-            print(f'{inspect.stack()[0][3]} found auth_header: {auth_header}')
+            DEBUG(f'found auth_header: {auth_header}')
             return response
 
         content_length = int(
@@ -243,7 +243,7 @@ def _auth_type_from_header(header):
     suppports it.
     """
     if 'ntlm' in header:
-        DEBUG(f'{inspect.stack()[0][3]} ntlm')
+        DEBUG(f'ntlm')
         return 'NTLM'
     elif 'negotiate' in header:
         return 'Negotiate'
