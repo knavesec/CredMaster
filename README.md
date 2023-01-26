@@ -55,7 +55,7 @@ The following plugins are currently supported:
   * `--plugin azuresso`
 * [AzVault](https://github.com/knavesec/CredMaster/wiki/AzureVault) - AzVault Module, Azure spray point different to MSOL/AzureSSO
   * `--plugin azvault`
-* [Okta](https://github.com/knavesec/CredMaster/wiki/Okta) - Okta Authentication Portal
+* [Okta](https://github.com/knavesec/CredMaster/wiki/Okta) - Okta Authentication Portal (**note this module is limited to one thread therefore will error unless run with** `-t 1`)
   * `--plugin okta`
 * [FortinetVPN](https://github.com/knavesec/CredMaster/wiki/FortinetVPN) - Fortinet VPN Client
   * `--plugin fortinetvpn`
