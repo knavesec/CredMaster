@@ -104,6 +104,7 @@ class CredMaster(object):
 			"pushover_token" : args.pushover_token or config_dict.get("pushover_token"),
 			"pushover_user" : args.pushover_user or config_dict.get("pushover_user"),
 			"discord_webhook" : args.discord_webhook or config_dict.get("discord_webhook"),
+			"keybase_webhook" : args.keybase_webhook or config_dict.geT("keybase_webhook")
 			"teams_webhook" : args.teams_webhook or config_dict.get("teams_webhook"),
 			"operator_id" : args.operator_id or config_dict.get("operator_id"),
 			"exclude_password" : args.exclude_password or config_dict.get("exclude_password")
@@ -690,6 +691,7 @@ if __name__ == '__main__':
 	notify_args.add_argument('--pushover_user', type=str, default=None, help='User for Pushover notifications')
 	notify_args.add_argument('--discord_webhook', type=str, default=None, help='Webhook link for Discord notifications')
 	notify_args.add_argument('--teams_webhook', type=str, default=None, help='Webhook link for Teams notifications')
+	notify_args.add_argument('--keybase_webhook', type=str, default=None, help='Webhook for Keybase notifications')
 	notify_args.add_argument('--operator_id', type=str, default=None, help='Optional Operator ID for notifications')
 	notify_args.add_argument('--exclude_password', default=False, action="store_true", help='Exclude discovered password in Notification message')
 

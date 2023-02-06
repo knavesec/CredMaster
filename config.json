@@ -22,6 +22,7 @@
   "pushover_user" : null,
   "discord_webhook" : null,
   "teams_webhook" : null,
+  "keybase_webhook": null,
   "operator_id" : null,
   "exclude_password" : false,
 
