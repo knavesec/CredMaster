@@ -104,7 +104,7 @@ class CredMaster(object):
 			"pushover_token" : args.pushover_token or config_dict.get("pushover_token"),
 			"pushover_user" : args.pushover_user or config_dict.get("pushover_user"),
 			"discord_webhook" : args.discord_webhook or config_dict.get("discord_webhook"),
-			"keybase_webhook" : args.keybase_webhook or config_dict.geT("keybase_webhook")
+			"keybase_webhook" : args.keybase_webhook or config_dict.get("keybase_webhook"),
 			"teams_webhook" : args.teams_webhook or config_dict.get("teams_webhook"),
 			"operator_id" : args.operator_id or config_dict.get("operator_id"),
 			"exclude_password" : args.exclude_password or config_dict.get("exclude_password")
