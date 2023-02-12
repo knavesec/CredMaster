@@ -115,23 +115,6 @@ class CredMaster(object):
 		self.profile_name = args.profile_name or config_dict.get("profile_name")
 
 
-		if self.session_token is not None and (self.secret_access_key is None or self.access_key is None):
-			self.log_entry("Session token requires access_key and secret_access_key")
-			return
-		if self.profile_name is not None and (self.access_key is not None or self.secret_access_key is not None):
-			self.log_entry("Cannot use a passed profile and keys")
-			return
-		if self.access_key is not None and self.secret_access_key is None:
-			self.log_entry("access_key requires secret_access_key")
-			return
-		if self.access_key is None and self.secret_access_key is not None:
-			self.log_entry("secret_access_key requires access_key")
-			return
-		if self.access_key is None and self.secret_access_key is None and self.session_token is None and self.profile_name is None:
-			self.log_entry("Cannot derive valid AWS authentication from passed options!")
-			return
-
-
 	def do_input_error_handling(self):
 
 		# input exception handling
@@ -159,6 +142,18 @@ class CredMaster(object):
 			sys.exit()
 
 		# AWS Key Handling
+		if self.session_token is not None and (self.secret_access_key is None or self.access_key is None):
+			self.log_entry("Session token requires access_key and secret_access_key")
+			sys.exit()
+		if self.profile_name is not None and (self.access_key is not None or self.secret_access_key is not None):
+			self.log_entry("Cannot use a passed profile and keys")
+			sys.exit()
+		if self.access_key is not None and self.secret_access_key is None:
+			self.log_entry("access_key requires secret_access_key")
+			sys.exit()
+		if self.access_key is None and self.secret_access_key is not None:
+			self.log_entry("secret_access_key requires access_key")
+			sys.exit()
 		if self.access_key is None and self.secret_access_key is None and self.session_token is None and self.profile_name is None:
 			self.log_entry("No FireProx access arguments settings configured, add access keys/session token or fill out config file")
 			sys.exit()
