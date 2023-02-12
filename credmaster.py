@@ -673,7 +673,7 @@ if __name__ == '__main__':
 
 	adv_args = parser.add_argument_group(title='Advanced Inputs')
 	adv_args.add_argument('-o', '--outfile', default=None, required=False, help='Output file to write contents (omit extension)')
-	adv_args.add_argument('-t', '--threads', type=int, default=None, help='Thread count (default 1, max 15)')
+	adv_args.add_argument('-t', '--threads', type=int, default=1, help='Thread count (default 1, max 15)')
 	adv_args.add_argument('--region', default=None, required=False, help='Specify AWS Region to create API Gateways in')
 	adv_args.add_argument('-j', '--jitter', type=int, default=None, required=False, help='Jitter delay between requests in seconds (applies per-thread)')
 	adv_args.add_argument('-m', '--jitter_min', type=int, default=None, required=False, help='Minimum jitter time in seconds, defaults to 0')
