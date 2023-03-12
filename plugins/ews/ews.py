@@ -32,12 +32,7 @@ def ews_authenticate(url, username, password, useragent, pluginargs):
 
         resp = requests.post(f"{url}/ews/", headers=headers, auth=HttpNtlmAuth(username, password), verify=False)
 
-        if resp.status_code != 401:
-            data_response['result'] = "success"
-            data_response['output'] = f"[+] SUCCESS: {username}:{password}"
-            data_response['valid_user'] = True
-
-        elif resp.status_code == 500:
+        if resp.status_code == 500:
             data_response['output'] = f"[*] POTENTIAL: Found credentials, but server returned 500: {username}:{password}"
             data_response['result'] = "potential"
             data_response['valid_user'] = True
@@ -45,6 +40,11 @@ def ews_authenticate(url, username, password, useragent, pluginargs):
         elif resp.status_code == 504:
             data_response['output'] = f"[*] POTENTIAL: Found credentials, but server returned 504: {username}:{password}"
             data_response['result'] = "potential"
+            data_response['valid_user'] = True
+
+        elif resp.status_code != 401:
+            data_response['result'] = "success"
+            data_response['output'] = f"[+] SUCCESS: {username}:{password}"
             data_response['valid_user'] = True
 
         else:
