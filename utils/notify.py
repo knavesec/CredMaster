@@ -2,7 +2,6 @@ import requests, json
 from datetime import datetime
 from discordwebhook import Discord
 
-
 def notify_success(username, password, notify_obj):
 
     slack_webhook = notify_obj['slack_webhook']
@@ -51,7 +50,7 @@ def notify_update(message, notify_obj):
 
     if teams_webhook is not None:
         teams_update(message, operator, teams_webhook)
-    
+
     if keybase_webhook is not None:
         keybase_update(message, operator, keybase_webhook)
 
@@ -71,12 +70,12 @@ def keybase_notify(username, password, operator, exclude_password, webhook):
     if exclude_password:
         pwd_insert = ""
 
-    text = ("```[Valid Credentials Obtained!]\n"
-            f"{op_insert}"
-            f"User: {username}\n"
-            f"{pwd_insert}"
-            f"Date: {date}\n"
-            f"Time: {time}```")
+    text = "```[Valid Credentials Obtained!]\n" + \
+            f"{op_insert}" + \
+            f"User: {username}\n" + \
+            f"{pwd_insert}" + \
+            f"Date: {date}\n" + \
+            f"Time: {time}```"
 
     message = {
         "msg" : text
@@ -86,6 +85,11 @@ def keybase_notify(username, password, operator, exclude_password, webhook):
         webhook, data=json.dumps(message),
         headers={'Content-Type': 'application/json'}
     )
+    if response.status_code == 200:
+        print('Notification successfully sent to Keybase.')
+    else:
+        print('Notification attempt to Keybase failed.')
+        print('Error:', response.text)
 
 
 # Function for debug messages
@@ -99,11 +103,11 @@ def keybase_update(message, operator, webhook):
     if operator is not None:
         op_insert = f"Operator: {operator}\n"
 
-    text = ("```[Log Entry]\n"
-            f"{op_insert}"
-            f"{message}\n"
-            f"Date: {date}\n"
-            f"Time: {time}```")
+    text = "```[Log Entry]\n" + \
+            f"{op_insert}" + \
+            f"{message}\n" + \
+            f"Date: {date}\n" + \
+            f"Time: {time}```"
 
     message = {
         "msg" : text
@@ -112,7 +116,11 @@ def keybase_update(message, operator, webhook):
         webhook, data=json.dumps(message),
         headers={'Content-Type': 'application/json'}
     )
-
+    if response.status_code == 200:
+        print('Notification successfully sent to Keybase.')
+    else:
+        print('Notification attempt to Keybase failed.')
+        print('Error:', response.text)
 
 
 # Function for posting username/password to slack channel
@@ -130,12 +138,12 @@ def slack_notify(username, password, operator, exclude_password, webhook):
     if exclude_password:
         pwd_insert = ""
 
-    text = ("```[Valid Credentials Obtained!]\n"
-            f"{op_insert}"
-            f"User: {username}\n"
-            f"{pwd_insert}"
-            f"Date: {date}\n"
-            f"Time: {time}```")
+    text = "```[Valid Credentials Obtained!]\n" + \
+            f"{op_insert}" + \
+            f"User: {username}\n" + \
+            f"{pwd_insert}" + \
+            f"Date: {date}\n" + \
+            f"Time: {time}```"
 
     message = {
         "text" : text
@@ -145,6 +153,11 @@ def slack_notify(username, password, operator, exclude_password, webhook):
         webhook, data=json.dumps(message),
         headers={'Content-Type': 'application/json'}
     )
+    if response.status_code == 200:
+        print('Notification successfully sent to Slack.')
+    else:
+        print('Notification attempt to Slack failed.')
+        print('Error:', response.text)
 
 
 # Function for debug messages
@@ -158,11 +171,11 @@ def slack_update(message, operator, webhook):
     if operator is not None:
         op_insert = f"Operator: {operator}\n"
 
-    text = ("```[Log Entry]\n"
-            f"{op_insert}"
-            f"{message}\n"
-            f"Date: {date}\n"
-            f"Time: {time}```")
+    text = "```[Log Entry]\n" + \
+            f"{op_insert}" + \
+            f"{message}\n" + \
+            f"Date: {date}\n" + \
+            f"Time: {time}```"
 
     message = {
         "text" : text
@@ -171,6 +184,11 @@ def slack_update(message, operator, webhook):
         webhook, data=json.dumps(message),
         headers={'Content-Type': 'application/json'}
     )
+    if response.status_code == 200:
+        print('Notification successfully sent to Slack.')
+    else:
+        print('Notification attempt to Slack failed.')
+        print('Error:', response.text)
 
 
 # Function for posting username/password to Discord
@@ -235,14 +253,15 @@ def teams_notify(username, password, operator, exclude_password, webhook):
     if exclude_password:
         pwd_insert = ""
 
+    content = "[Valid Credentials Obtained!]\n" + \
+        f"{op_insert}" + \
+        f"User: {username}\n" + \
+        f"{pwd_insert}" + \
+        f"Date: {date}\n" + \
+        f"Time: {time}"
+
     response = requests.post(
         url=webhook,
-        content = ("[Valid Credentials Obtained!]\n"
-        f"{op_insert}"
-        f"User: {username}\n"
-        f"{pwd_insert}"
-        f"Date: {date}\n"
-        f"Time: {time}"),
         headers={"Content-Type": "application/json"},
         json={
             "summary": "[Valid Credentials Obtained!]",
@@ -252,6 +271,12 @@ def teams_notify(username, password, operator, exclude_password, webhook):
             }],
         },
     )
+    if response.status_code == 200:
+        print('Notification successfully sent to Teams.')
+    else:
+        print('Notification attempt to Teams failed.')
+        print('Error:', response.text)
+
 
 # Teams message notify function
 def teams_update(message, operator, webhook):
@@ -264,13 +289,14 @@ def teams_update(message, operator, webhook):
     if operator is not None:
         op_insert = f"Operator: {operator}\n"
 
+    content = "[Log Entry]\n" + \
+        f"{op_insert}" + \
+        f"Message: {message}\n" + \
+        f"Date: {date}\n" + \
+        f"Time: {time}"
+
     response = requests.post(
         url=webhook,
-        content = ("[Log Entry]\n"
-        f"{op_insert}"
-        f"Message: {message}\n"
-        f"Date: {date}\n"
-        f"Time: {time}"),
         headers={"Content-Type": "application/json"},
         json={
             "summary": "[Log Entry!]",
@@ -280,6 +306,11 @@ def teams_update(message, operator, webhook):
             }],
         },
     )
+    if response.status_code == 200:
+        print('Notification successfully sent to Teams.')
+    else:
+        print('Notification attempt to Teams failed.')
+        print('Error:', response.text)
 
 
 # Pushover notify of valid creds
@@ -299,11 +330,11 @@ def pushover_notify(username, password, operator, exclude_password, token, user)
     if exclude_password:
         pwd_insert = ""
 
-    text = (f"{op_insert}"
-            f"User: {username}\n"
-            f"{pwd_insert}"
-            f"Date: {date}\n"
-            f"Time: {time}")
+    text = f"{op_insert}" + \
+            f"User: {username}\n" + \
+            f"{pwd_insert}" + \
+            f"Date: {date}\n" + \
+            f"Time: {time}"
 
     data = {
         'token' : token,
@@ -314,6 +345,8 @@ def pushover_notify(username, password, operator, exclude_password, token, user)
     }
 
     r = requests.post('https://api.pushover.net/1/messages', headers=headers, data=data)
+    if r.status_code == 200:
+        print('[+] ')
 
 
 # Pushover generic update messages
@@ -329,10 +362,10 @@ def pushover_update(message, operator, token, user):
     if operator is not None:
         op_insert = f"Operator: {operator}\n"
 
-    text = (f"{op_insert}"
-            f"{message}\n"
-            f"Date: {date}\n"
-            f"Time: {time}")
+    text = f"{op_insert}" + \
+            f"{message}\n" + \
+            f"Date: {date}\n" + \
+            f"Time: {time}"
 
     data = {
         'token' : token,
@@ -342,4 +375,13 @@ def pushover_update(message, operator, token, user):
         'message' : text
     }
 
-    r = requests.post('https://api.pushover.net/1/messages', headers=headers, data=data)
+    response = requests.post(
+        'https://api.pushover.net/1/messages',
+        headers=headers,
+        data=data
+    )
+    if response.status_code == 200:
+        print('Notification successfully sent to Pushover.')
+    else:
+        print('Notification attempt to Pushover failed.')
+        print('Error:', response.text)
