@@ -240,7 +240,6 @@ def teams_notify(username, password, operator, exclude_password, webhook):
             f"{pwd_insert}"
             f"Date: {date}\n"
             f"Time: {time}")
-    print(content)
     response = requests.post(
         url=webhook,
         headers={"Content-Type": "application/json"},
@@ -269,7 +268,6 @@ def teams_update(message, operator, webhook):
         f"Message: {message}\n"
         f"Date: {date}\n"
         f"Time: {time}")
-    print(content)
     response = requests.post(
         url=webhook,
         headers={"Content-Type": "application/json"},
