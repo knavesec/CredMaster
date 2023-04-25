@@ -27,7 +27,7 @@ For detection tips, see the blogpost and detection section.
 * Password delay counters & configuration for lockout policy evasion
 * Easily add new plugins
 * Colourised output
-* Notification systems for Slack, Discord, Teams & Pushover
+* Notification systems for Keybase, Slack, Discord, Teams & Pushover
 * [WeekdayWarrior](https://github.com/knavesec/CredMaster/wiki/Weekday-Warrior) setting for timed spraying and SOC evasion
 
 ![general](https://raw.githubusercontent.com/whynotsecurity/whynotsecurity.github.io/master/assests/images/credmaster-screenshots/credmaster-default.png)
@@ -109,7 +109,7 @@ PRs welcome :)
 - Max Gruenberg ([Max_Gruenberg](https://twitter.com/Max_Gruenberg)) - o365enum plugin
 - [x0rz](https://twitter.com/x0rz) - GmailEnum technique
 - Kole Swesey ([0xPanic_](https://twitter.com/0xPanic_)) - Assorted PR
-- Logan ([TheToddLuci0](https://twitter.com/TheToddLuci0)) - Assorted PRs
+- Logan ([TheToddLuci0](https://twitter.com/TheToddLuci0)) - Assorted bug squashing, AWS authing, and Keybase notifying
 - Andy Gill ([ZephrFish](https://twitter.com/ZephrFish)) - Colour functions + Tweaks/Notifications, helping on dev rewrite, AzVault module
 
 
