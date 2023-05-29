@@ -85,6 +85,11 @@ def msol_authenticate(url, username, password, useragent, pluginargs):
                 data_response['output'] = f"[+] SUCCESS: {username}:{password} - NOTE: The response indicates conditional access (MFA: DUO or other) is in use."
                 data_response['valid_user'] = True
 
+            elif "AADSTS53003" in error and not "AADSTS530034" in error:
+                # Conditional Access response as per https://github.com/dafthack/MSOLSpray/issues/5
+                print(f"SUCCESS! {username} : {password} - NOTE: The response indicates a conditional access policy is in place and the policy blocks token issuance.")
+                results += f"{username} : {password}\n"
+
             elif "AADSTS50053" in error:
                 # Locked out account or Smart Lockout in place
                 data_response['result'] = "potential"
