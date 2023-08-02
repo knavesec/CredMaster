@@ -1,6 +1,7 @@
 from multiprocessing import Pool
 import tldextract
 import boto3
+from botocore.config import Config
 import os
 import sys
 import datetime
@@ -42,11 +43,15 @@ class FireProx(object):
         """
         try:
             if not self.region:
-                self.client = boto3.client('apigateway')
+                self.client = boto3.client(
+                    'apigateway',
+                    config=Config(retries = dict(max_attempts = 10))
+                )
             else:
                 self.client = boto3.client(
                     'apigateway',
-                    region_name=self.region
+                    region_name=self.region,
+                    config=Config(retries = dict(max_attempts = 10))
                 )
             self.client.get_account()
             self.region = self.client._client_config.region_name
@@ -75,7 +80,7 @@ class FireProx(object):
                 return False
             self.region = config[config_profile_section].get('region', 'us-east-1')
             try:
-                self.client = boto3.session.Session(profile_name=self.profile_name).client('apigateway')
+                self.client = boto3.session.Session(profile_name=self.profile_name).client('apigateway', config=Config(retries = dict(max_attempts = 10)))
                 self.client.get_account()
                 return True
             except:
@@ -88,7 +93,8 @@ class FireProx(object):
                     aws_access_key_id=self.access_key,
                     aws_secret_access_key=self.secret_access_key,
                     aws_session_token=self.session_token,
-                    region_name=self.region
+                    region_name=self.region,
+                    config=Config(retries = dict(max_attempts = 10))
                 )
                 self.client.get_account()
                 self.region = self.client._client_config.region_name
