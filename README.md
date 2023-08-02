@@ -92,6 +92,7 @@ PRs welcome :)
 * Stop on success flag
 * Spray profile overhaul
 * Development notes
+* Spray username==password
 
 
 ## Credits ##
