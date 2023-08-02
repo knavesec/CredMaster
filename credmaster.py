@@ -78,6 +78,7 @@ class CredMaster(object):
 		self.passwordfile = args.passwordfile or config_dict.get("passwordfile")
 		self.userpassfile = args.userpassfile or config_dict.get("userpassfile")
 		self.useragentfile = args.useragentfile or config_dict.get("useragentfile")
+		self.trim = args.trim or config_dict.get("trim")
 
 		self.outfile = args.outfile or config_dict.get("outfile")
 
@@ -555,6 +556,11 @@ class CredMaster(object):
 				password = ":".join(user.split(':')[1:]).strip()
 				user = user.split(':')[0].strip()
 
+			if self.trim:
+				if any(k['username'] == user for k in self.results):
+					#We already found this one
+					continue
+
 			cred = {}
 			cred["username"] = user
 			cred["password"] = password
@@ -679,6 +685,7 @@ if __name__ == '__main__':
 	adv_args.add_argument('--header', default=None, required=False, help='Add a custom header to each request for attribution, specify "X-Header: value"')
 	adv_args.add_argument('--weekday_warrior', default=None, required=False, help="If you don't know what this is don't use it, input is timezone UTC offset")
 	adv_args.add_argument('--color', default=False, action="store_true", required=False, help="Output spray results in Green/Yellow/Red colors")
+	adv_args.add_argument('--trim', '--remove', action="store_true", help="Remove users with found credentials from future sprays")
 
 	notify_args = parser.add_argument_group(title='Notification Inputs')
 	notify_args.add_argument('--slack_webhook', type=str, default=None, help='Webhook link for Slack notifications')
