@@ -3,7 +3,9 @@ import utils.utils as utils
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
 
-def template_authenticate(url, username, password, useragent, pluginargs): # CHANGEME: replace template with plugin name
+def template_authenticate(api_dict, username, password, useragent, pluginargs): # CHANGEME: replace template with plugin name
+
+    url = api_dict["proxy_url"]
 
     # not all of these are used, provided for future dev if needed
     # Only ones necessary to return at the moment are:

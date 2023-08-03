@@ -2,7 +2,9 @@ import requests, random
 import utils.utils as utils
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
-def msgraph_authenticate(url, username, password,  useragent, pluginargs):
+def msgraph_authenticate(api_dict, username, password,  useragent, pluginargs):
+
+    url = api_dict["proxy_url"]
 
     data_response = {
         'result' : None,    # Can be "success", "failure" or "potential"

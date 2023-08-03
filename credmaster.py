@@ -115,6 +115,7 @@ class CredMaster(object):
 		self.secret_access_key = args.secret_access_key or config_dict.get("secret_access_key")
 		self.session_token = args.session_token or config_dict.get("session_token")
 		self.profile_name = args.profile_name or config_dict.get("profile_name")
+		self.postex = False
 
 
 	def do_input_error_handling(self):
@@ -215,6 +216,12 @@ class CredMaster(object):
 		if "userenum" in pluginargs and pluginargs["userenum"]:
 			self.userenum = True
 
+		if "postex" in pluginargs.keys() and pluginargs["postex"]:
+			self.postex = True
+			if self.userpassfile is None:
+				self.log_entry("Postex modules require user-pass files, designate credentials in a file and use --userpassfile")
+				sys.exit()
+
 		# file stuffs
 		if self.userpassfile is None and (self.userfile is None or (self.passwordfile is None and not self.userenum)):
 			self.log_entry("Please provide plugin & username/password information, or provide API utility options (api_list/api_destroy/clean)")
@@ -229,6 +236,8 @@ class CredMaster(object):
 
 		# this is the original URL, NOT the fireproxy one. Don't use this in your sprays!
 		url = pluginargs["url"]
+		if type(url) is not list:
+			url = [url]
 
 		threads = []
 
@@ -237,6 +246,7 @@ class CredMaster(object):
 			self.load_apis(url, region = self.region)
 
 			# do test connection / fingerprint
+			# TODO: this is sorta not working for postex modules
 			useragent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0"
 			connect_success, testconnect_output, pluginargs = validator.testconnect(pluginargs, args, self.apis[0], useragent)
 			self.log_entry(testconnect_output)
@@ -347,8 +357,16 @@ class CredMaster(object):
 		if self.thread_count > len(self.regions):
 			self.log_entry("Thread count over maximum, reducing to 15")
 			self.thread_count = len(self.regions)
+		
+		# TODO: Bug here, _in theory_ a postex module could have >15 URLs which would exceed the region list
+		# I think I might leave this bug here to prevent large-scale cred stuffing
+		if len(url) > self.thread_count: 
+			self.thread_count = len(url)
 
-		self.log_entry(f"Creating {self.thread_count} API Gateways for {url}")
+		if len(url) == 1:
+			self.log_entry(f"Creating {self.thread_count} API Gateways for {url[0]}")
+		else: 
+			self.log_entry(f"Creating {self.thread_count} API Gateways for {len(url)} urls")
 
 		self.apis = []
 
@@ -357,8 +375,8 @@ class CredMaster(object):
 			reg = self.regions[x]
 			if region is not None:
 				reg = region
-			self.apis.append(self.create_api(reg, url.strip()))
-			self.log_entry(f"Created API - Region: {reg} ID: ({self.apis[x]['api_gateway_id']}) - {self.apis[x]['proxy_url']} => {url}")
+			self.apis.append(self.create_api(reg, url[x].strip()))
+			self.log_entry(f"Created API - Region: {reg} ID: ({self.apis[x]['api_gateway_id']}) - {self.apis[x]['proxy_url']} => {self.apis[x]['original_url']}")
 
 
 	def create_api(self, region, url):
@@ -366,7 +384,7 @@ class CredMaster(object):
 		args, help_str = self.get_fireprox_args("create", region, url=url)
 		fp = FireProx(args, help_str)
 		resource_id, proxy_url = fp.create_api(url)
-		return { "api_gateway_id" : resource_id, "proxy_url" : proxy_url, "region" : region }
+		return { "api_gateway_id" : resource_id, "proxy_url" : proxy_url, "original_url" : url, "region" : region }
 
 
 	def get_fireprox_args(self, command, region, url = None, api_id = None):
@@ -469,7 +487,7 @@ class CredMaster(object):
 	def spray_thread(self, api_key, api_dict, pluginargs):
 
 		try:
-			plugin_authentiate = getattr(importlib.import_module(f"plugins.{self.plugin}.{self.plugin}"), f"{self.plugin}_authenticate")
+			plugin_authenticate = getattr(importlib.import_module(f"plugins.{self.plugin}.{self.plugin}"), f"{self.plugin}_authenticate")
 		except Exception as ex:
 			self.log_entry("Error: Failed to import plugin with exception")
 			self.log_entry(f"Error: {ex}")
@@ -485,7 +503,7 @@ class CredMaster(object):
 						self.jitter_min = 0
 					time.sleep(random.randint(self.jitter_min,self.jitter))
 
-				response = plugin_authentiate(api_dict["proxy_url"], cred["username"], cred["password"], cred["useragent"], pluginargs)
+				response = plugin_authenticate(api_dict, cred["username"], cred["password"], cred["useragent"], pluginargs)
 
 				# if "debug" in response.keys():
 				# 	print(response["debug"])
@@ -566,7 +584,14 @@ class CredMaster(object):
 			cred["password"] = password
 			cred["useragent"] = random.choice(useragents)
 
-			self.q_spray.put(cred)
+			# TODO: Bug here, multithreading issue
+			# if Postex has multiple users and one thread takes longer than others
+			# the thread will hang while other users are popped off the queue out of order
+			if self.postex: 
+				for i in range(0,len(self.apis)):
+					self.q_spray.put(cred)
+			else: 
+				self.q_spray.put(cred)
 
 
 	def load_file(self, filename):
