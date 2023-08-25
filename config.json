@@ -11,6 +11,8 @@
   "jitter" : null,
   "jitter_min" : null,
   "delay" : null,
+  "batch_size": null,
+  "batch_delay": null,
   "passwordsperdelay" : null,
   "randomize" : false,
   "header" : null,
