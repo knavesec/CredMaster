@@ -11,7 +11,7 @@ def validate(pluginargs, args):
     # --force                     ->  overrides a threadcount >1, since ratelimiting
     #
     if 'url' in pluginargs.keys():
-        if args.threads == 1 or (args.threads > 1 and 'force' in pluginargs.keys()):
+        if pluginargs["thread_count"] == 1 or (pluginargs["thread_count"] > 1 and 'force' in pluginargs.keys()):
             if not pluginargs['url'].startswith("https://") and not pluginargs['url'].startswith("http://"):
                 pluginargs['url'] = "https://" + pluginargs['url']
             return True, None, pluginargs

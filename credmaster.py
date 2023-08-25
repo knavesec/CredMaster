@@ -61,6 +61,8 @@ class CredMaster(object):
 		# Reason: if someone wants to take a standard config from client to client, they can override a value
 		#
 
+		self.args = args
+
 		if args.config is not None and not os.path.exists(args.config):
 			self.log_entry(f"Config file {args.config} cannot be found")
 			sys.exit()
@@ -198,13 +200,19 @@ class CredMaster(object):
 			key = self.pargs[i].replace("--","")
 			pluginargs[key] = self.pargs[i+1]
 
+		## 
+		## If any plugins require a special argument, set it here
+		##    Ex: Okta plugin requires the threadcount value for some checking, set it manually
+		##
+		pluginargs['thread_count'] = self.thread_count
+
 		self.start_time = datetime.datetime.utcnow()
 		self.log_entry(f"Execution started at: {self.start_time}")
 
 		# Check with plugin to make sure it has the data that it needs
 		validator = importlib.import_module(f"plugins.{self.plugin}")
 		if getattr(validator,"validate",None) is not None:
-			valid, errormsg, pluginargs = validator.validate(pluginargs, args)
+			valid, errormsg, pluginargs = validator.validate(pluginargs, self.args)
 			if not valid:
 				self.log_entry(errormsg)
 				return
@@ -238,7 +246,7 @@ class CredMaster(object):
 
 			# do test connection / fingerprint
 			useragent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0"
-			connect_success, testconnect_output, pluginargs = validator.testconnect(pluginargs, args, self.apis[0], useragent)
+			connect_success, testconnect_output, pluginargs = validator.testconnect(pluginargs, self.args, self.apis[0], useragent)
 			self.log_entry(testconnect_output)
 
 			if not connect_success:
