@@ -90,6 +90,12 @@ class CredMaster(object):
 		self.jitter = args.jitter or config_dict.get("jitter")
 		self.jitter_min = args.jitter_min or config_dict.get("jitter_min")
 		self.delay = args.delay or config_dict.get("delay")
+		
+		self.batch_size = args.batch_size or config_dict.get("batch_size")
+		self.batch_delay = args.batch_delay or config_dict.get("batch_delay")
+		if self.batch_size != None and self.batch_delay == None:
+			self.batch_delay = 1
+
 
 		self.passwordsperdelay = args.passwordsperdelay or config_dict.get("passwordsperdelay")
 		if self.passwordsperdelay == None:
@@ -475,10 +481,19 @@ class CredMaster(object):
 			self.log_entry(f"Error: {ex}")
 			sys.exit()
 
+		count = 0
+
 		while not self.q_spray.empty() and not self.cancelled:
 
 			try:
+
+				if self.batch_size and count != 0:
+					if count % self.batch_size == 0:
+						time.sleep(self.batch_delay * 60)
+
 				cred = self.q_spray.get_nowait()
+
+				count += 1
 
 				if self.jitter is not None:
 					if self.jitter_min is None:
@@ -681,6 +696,8 @@ if __name__ == '__main__':
 	adv_args.add_argument('-m', '--jitter_min', type=int, default=None, required=False, help='Minimum jitter time in seconds, defaults to 0')
 	adv_args.add_argument('-d', '--delay', type=int, default=None, required=False, help='Delay between unique passwords, in minutes')
 	adv_args.add_argument('--passwordsperdelay', type=int, default=None, required=False, help='Number of passwords to be tested per delay cycle')
+	adv_args.add_argument('--batch_size', type=int, default=None, required=False, help='Number of request to perform per thread')
+	adv_args.add_argument('--batch_delay', type=int, default=None, required=False, help='Delay between each thread batch, in minutes')
 	adv_args.add_argument('-r', '--randomize', default=False, required=False, action="store_true", help='Randomize the input list of usernames to spray (will remain the same password)')
 	adv_args.add_argument('--header', default=None, required=False, help='Add a custom header to each request for attribution, specify "X-Header: value"')
 	adv_args.add_argument('--weekday_warrior', default=None, required=False, help="If you don't know what this is don't use it, input is timezone UTC offset")
