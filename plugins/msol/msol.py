@@ -102,6 +102,12 @@ def msol_authenticate(url, username, password, useragent, pluginargs):
                 data_response['output'] = f"[+] SUCCESS: {username}:{password} - NOTE: The user's password is expired."
                 data_response['valid_user'] = True
 
+            elif "AADSTS50057" in error:
+                # The user account is disabled
+                data_response['result'] = "success"
+                data_response['output'] = f"[+] SUCCESS: {username}:{password} - NOTE: The user is disabled."
+                data_response['valid_user'] = True
+                
             else:
                 # Unknown errors
                 data_response['result'] = "failure"
