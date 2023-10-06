@@ -110,7 +110,7 @@ PRs welcome :)
 - Max Gruenberg ([Max_Gruenberg](https://twitter.com/Max_Gruenberg)) - o365enum plugin
 - [x0rz](https://twitter.com/x0rz) - GmailEnum technique
 - Kole Swesey ([0xPanic_](https://twitter.com/0xPanic_)) - Assorted PR
-- Logan ([TheToddLuci0](https://twitter.com/TheToddLuci0)) - Assorted bug squashing, AWS authing, and Keybase notifying
+- Logan ([TheToddLuci0](https://infosec.exchange/@TheToddLuci0)) - Assorted bug squashing, AWS authing, and Keybase notifying
 - Andy Gill ([ZephrFish](https://twitter.com/ZephrFish)) - Colour functions + Tweaks/Notifications, helping on dev rewrite, AzVault module
 
 
