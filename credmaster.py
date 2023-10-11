@@ -189,6 +189,12 @@ class CredMaster(object):
 			self.log_entry("pushover_token input requires pushover_user input")
 			sys.exit()
 
+		# batch handling
+		if self.batch_delay != None and self.batch_size == None:
+			self.log_entry("--batch_size flag must be set with --batch_delay flag")
+			sys.exit()
+
+
 
 	def Execute(self, args):
 
@@ -233,6 +239,11 @@ class CredMaster(object):
 		if self.userpassfile is None and (self.userfile is None or (self.passwordfile is None and not self.userenum)):
 			self.log_entry("Please provide plugin & username/password information, or provide API utility options (api_list/api_destroy/clean)")
 			sys.exit()
+
+		# batch login
+		if self.batch_size:
+			self.log_entry(f"Batching requests enabled: {self.batch_size} requests per thread, {self.batch_delay}s of delay between each batch.")
+
 
 		# Custom header handling
 		if self.header is not None:

@@ -112,6 +112,7 @@ PRs welcome :)
 - Kole Swesey ([0xPanic_](https://twitter.com/0xPanic_)) - Assorted PR
 - Logan ([TheToddLuci0](https://twitter.com/TheToddLuci0)) - Assorted bug squashing, AWS authing, and Keybase notifying
 - Andy Gill ([ZephrFish](https://twitter.com/ZephrFish)) - Colour functions + Tweaks/Notifications, helping on dev rewrite, AzVault module
+- Hugo VINCENT ([@hugow](https://twitter.com/hugow_vincent)) - Batch size / delay
 
 
 Feel free to drop me a line
