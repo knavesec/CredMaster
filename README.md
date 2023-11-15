@@ -113,6 +113,7 @@ PRs welcome :)
 - Logan ([TheToddLuci0](https://infosec.exchange/@TheToddLuci0)) - Assorted bug squashing, AWS authing, and Keybase notifying
 - Andy Gill ([ZephrFish](https://twitter.com/ZephrFish)) - Colour functions + Tweaks/Notifications, helping on dev rewrite, AzVault module
 - Hugo VINCENT ([@hugow](https://twitter.com/hugow_vincent)) - Batch size / delay
+- Dennis Herrmann ([dhn_](https://twitter.com/dhn_) from [CODE WHITE GmbH](https://twitter.com/codewhitesec)) - Ntfy notifying support
 
 
 Feel free to drop me a line

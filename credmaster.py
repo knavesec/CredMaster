@@ -112,6 +112,9 @@ class CredMaster(object):
 			"slack_webhook" : args.slack_webhook or config_dict.get("slack_webhook"),
 			"pushover_token" : args.pushover_token or config_dict.get("pushover_token"),
 			"pushover_user" : args.pushover_user or config_dict.get("pushover_user"),
+			"ntfy_topic" : args.ntfy_topic or config_dict.get("ntfy_topic"),
+			"ntfy_host" : args.ntfy_host or config_dict.get("ntfy_host"),
+			"ntfy_token" : args.ntfy_token or config_dict.get("ntfy_token"),
 			"discord_webhook" : args.discord_webhook or config_dict.get("discord_webhook"),
 			"keybase_webhook" : args.keybase_webhook or config_dict.get("keybase_webhook"),
 			"teams_webhook" : args.teams_webhook or config_dict.get("teams_webhook"),
@@ -187,6 +190,14 @@ class CredMaster(object):
 			sys.exit()
 		elif self.notify_obj["pushover_user"] is None and self.notify_obj["pushover_token"] is not None:
 			self.log_entry("pushover_token input requires pushover_user input")
+			sys.exit()
+
+		# Notification Error handlng - ntfy
+		if self.notify_obj["ntfy_topic"] is not None and self.notify_obj["ntfy_host"] is None:
+			self.log_entry("ntfy_topic input requires ntfy_host input")
+			sys.exit()
+		elif self.notify_obj["ntfy_topic"] is None and self.notify_obj["ntfy_host"] is not None:
+			self.log_entry("ntfy_host input requires ntfy_topic input")
 			sys.exit()
 
 		# batch handling
@@ -727,6 +738,9 @@ if __name__ == '__main__':
 	notify_args.add_argument('--slack_webhook', type=str, default=None, help='Webhook link for Slack notifications')
 	notify_args.add_argument('--pushover_token', type=str, default=None, help='Token for Pushover notifications')
 	notify_args.add_argument('--pushover_user', type=str, default=None, help='User for Pushover notifications')
+	notify_args.add_argument('--ntfy_topic', type=str, default=None, help='Topic for Ntfy notifications')
+	notify_args.add_argument('--ntfy_host', type=str, default=None, help='Ntfy host for notifications')
+	notify_args.add_argument('--ntfy_token', type=str, default=None, help='Ntfy token for private instances')
 	notify_args.add_argument('--discord_webhook', type=str, default=None, help='Webhook link for Discord notifications')
 	notify_args.add_argument('--teams_webhook', type=str, default=None, help='Webhook link for Teams notifications')
 	notify_args.add_argument('--keybase_webhook', type=str, default=None, help='Webhook for Keybase notifications')
