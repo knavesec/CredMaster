@@ -41,8 +41,8 @@ The following plugins are currently supported:
   * `--plugin owa`
 * [EWS](https://github.com/knavesec/CredMaster/wiki/EWS) - Exchange Web Services
   * `--plugin ews`
-* [O365](https://github.com/knavesec/CredMaster/wiki/O365) - Office365
-  * `--plugin o365`
+* [O365](https://github.com/knavesec/CredMaster/wiki/O365) - Office365 - DEPRECATED
+  * `plugin removed`
 * [ADFS](https://github.com/knavesec/CredMaster/wiki/ADFS) - Active Directory Federation Services
   * `--plugin adfs`
 * [O365Enum](https://github.com/knavesec/CredMaster/wiki/O365Enum) - Office365 User Enum (No Authentication Request)
