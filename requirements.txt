@@ -6,3 +6,4 @@ lxml
 datetime
 requests_ntlm
 discordwebhook
+db-sqlite3

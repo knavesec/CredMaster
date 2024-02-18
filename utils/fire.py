@@ -8,6 +8,7 @@ import datetime
 import argparse
 import configparser
 from typing import Tuple
+import urllib.parse
 
 
 class FireProx(object):
@@ -20,6 +21,7 @@ class FireProx(object):
         self.command = arguments["command"]
         self.api_id = arguments["api_id"]
         self.url = arguments["url"]
+        self.prefix = arguments["prefix"]
         self.client = None
         self.help = help_text
 
@@ -130,7 +132,8 @@ class FireProx(object):
         if url[-1] == '/':
             url = url[:-1]
 
-        title = 'fireprox_{}'.format(
+        title = '{}_{}'.format(
+            self.prefix,
             tldextract.extract(url).domain
         )
         version_date = f'{datetime.datetime.now():%Y-%m-%dT%XZ}'
@@ -334,7 +337,7 @@ class FireProx(object):
                 api_id = item['id']
                 name = item['name']
                 proxy_url = self.get_integration(api_id).replace('{proxy}', '')
-                url = f'https://{api_id}.execute-api.{self.region}.amazonaws.com/fireprox/'
+                url = f'https://{api_id}.execute-api.{self.region}.amazonaws.com/{urllib.parse.quote(self.prefix, safe="")}/'
                 # if not deleting: #not api_id == deleted_api_id:
                 #     print(f'[{created_dt}] ({api_id}) {name}: {url} => {proxy_url}')
             except:
@@ -355,13 +358,13 @@ class FireProx(object):
 
         response = self.client.create_deployment(
             restApiId=api_id,
-            stageName='fireprox',
-            stageDescription='FireProx Prod',
-            description='FireProx Production Deployment'
+            stageName=self.prefix,
+            stageDescription=f'{self.prefix} Prod',
+            description=f'{self.prefix} Production Deployment'
         )
         resource_id = response['id']
         return (resource_id,
-                f'https://{api_id}.execute-api.{self.region}.amazonaws.com/fireprox/')
+                f'https://{api_id}.execute-api.{self.region}.amazonaws.com/{self.prefix}/')
 
     def get_resource(self, api_id):
         if not api_id:
