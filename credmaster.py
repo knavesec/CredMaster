@@ -583,7 +583,7 @@ class CredMaster(object):
 			self.console_logger.info(f"Region: {region}, found {count} APIs configured, {err}")
 
 			for api in active_apis:
-				if "fireprox" in api["name"]:
+				if self.api_prefix in api["name"]:
 					fp.delete_api(api["id"])
 					clear_count += 1
 
@@ -637,7 +637,7 @@ class CredMaster(object):
 						elif response["result"].lower() == "failure":
 							self.console_logger.info(utils.prRed(f"{api_key}: {response['output']}"))
 						
-						elif response["result"].lower() == "failure":
+						elif response["result"].lower() == "inexistant":
 							self.console_logger.info(utils.prRed(f"{api_key}: User {cred['username']} does not exist ({response['output']})"))
 
 					else:
