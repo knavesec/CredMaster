@@ -105,6 +105,7 @@ class CredMaster(object):
 
 		self.randomize = args.randomize or config_dict.get("randomize")
 		self.header = args.header or config_dict.get("header")
+		self.xforwardedfor = args.xforwardedfor or config_dict.get("xforwardedfor")
 		self.weekdaywarrior = args.weekday_warrior or config_dict.get("weekday_warrior")
 		self.color = args.color or config_dict.get("color")
 
@@ -263,6 +264,10 @@ class CredMaster(object):
 			val = self.header.split(":")[1].strip()
 			pluginargs["custom-headers"] = {head : val}
 
+		if self.xforwardedfor is not None:
+			self.log_entry(f"Setting static X-Forwarded-For header to: \"{self.xforwardedfor}\"")
+			pluginargs["xforwardedfor"] = self.xforwardedfor 
+			
 		# this is the original URL, NOT the fireproxy one. Don't use this in your sprays!
 		url = pluginargs["url"]
 
@@ -730,6 +735,7 @@ if __name__ == '__main__':
 	adv_args.add_argument('--batch_delay', type=int, default=None, required=False, help='Delay between each thread batch, in minutes')
 	adv_args.add_argument('-r', '--randomize', default=False, required=False, action="store_true", help='Randomize the input list of usernames to spray (will remain the same password)')
 	adv_args.add_argument('--header', default=None, required=False, help='Add a custom header to each request for attribution, specify "X-Header: value"')
+	adv_args.add_argument('--xforwardedfor', default=None, required=False, help='Make the X-Forwarded-For header a static IP instead of RNG')
 	adv_args.add_argument('--weekday_warrior', default=None, required=False, help="If you don't know what this is don't use it, input is timezone UTC offset")
 	adv_args.add_argument('--color', default=False, action="store_true", required=False, help="Output spray results in Green/Yellow/Red colors")
 	adv_args.add_argument('--trim', '--remove', action="store_true", help="Remove users with found credentials from future sprays")

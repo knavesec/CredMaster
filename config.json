@@ -16,6 +16,7 @@
   "passwordsperdelay" : null,
   "randomize" : false,
   "header" : null,
+  "xforwardedfor" : null,
   "weekday_warrior" : null,
   "color" : false,
   "trim" : false,
