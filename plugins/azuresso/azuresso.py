@@ -3,6 +3,11 @@ import utils.utils as utils
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
 
+def extract_error(xmlresponse):
+  code = re.search(r"<psf\:text>(.*)</psf\:text>", xmlresponse)
+  return code.group(1).split(":")[0].strip()
+
+
 def azuresso_authenticate(url, username, password, useragent, pluginargs):
 
     data_response = {
@@ -82,19 +87,20 @@ def azuresso_authenticate(url, username, password, useragent, pluginargs):
 
         xmlresponse = str(r.content)
         creds = username + ":" + password
+        error_code = extract_error(xmlresponse) 
 
         # check our resopnse for error/response codes
         if "AADSTS50034" in xmlresponse:
-            data_response['output'] = f"[-] FAILURE: Username not found - {creds}"
+            data_response['output'] = f"[-] FAILURE ({error_code}): Username not found - {creds}"
             data_response['result'] = "failure"
 
         elif "AADSTS50126" in xmlresponse:
-            data_response['output'] = f"[!] VALID_USERNAME - {creds} (invalid password)"
+            data_response['output'] = f"[!] VALID_USERNAME ({error_code}): {creds} (invalid password)"
             data_response['result'] = "failure"
             data_response['valid_user'] = True
 
         elif "DesktopSsoToken" in xmlresponse:
-            data_response['output'] = f"[+] SUCCESS: {creds}"
+            data_response['output'] = f"[+] SUCCESS ({error_code}): {creds}"
             data_response['result'] = "success"
             data_response['valid_user'] = True
 
@@ -102,22 +108,34 @@ def azuresso_authenticate(url, username, password, useragent, pluginargs):
             if (token):
                 data_response['output'] += f" - GOT TOKEN {token[0]}"
 
+        elif "AADSTS50076" in xmlresponse:
+            # Microsoft MFA response
+            data_response['result'] = "success"
+            data_response['output'] = f"[+] SUCCESS ({error_code}): {creds} - NOTE: The response indicates MFA (Microsoft) is in use"
+            data_response['valid_user'] = True
+
+        elif "AADSTS50079" in xmlresponse:
+            # Microsoft MFA response
+            data_response['result'] = "success"
+            data_response['output'] = f"[+] SUCCESS ({error_code}): {creds} - NOTE: The response indicates MFA (Microsoft) must be onboarded!"
+            data_response['valid_user'] = True
+
         elif "AADSTS50056" in xmlresponse:
-            data_response['output'] = f"[!] VALID_USERNAME - {creds} (no password in AzureAD)"
+            data_response['output'] = f"[!] VALID_USERNAME ({error_code}): {creds} (no password in AzureAD)"
             data_response['result'] = "failure"
             data_response['valid_user'] = True
 
         elif "AADSTS80014" in xmlresponse:
-            data_response['output'] = f"[!] VALID_USERNAME - {creds} (max pass-through authentication time exceeded)"
+            data_response['output'] = f"[!] VALID_USERNAME ({error_code}): {creds} (max pass-through authentication time exceeded)"
             data_response['result'] = "failure"
             data_response['valid_user'] = True
 
         elif "AADSTS50053" in xmlresponse:
-            data_response['output'] = f"[?] WARNING: SMART LOCKOUT DETECTED - Unable to enumerate: {creds}"
+            data_response['output'] = f"[?] WARNING ({error_code}): SMART LOCKOUT DETECTED - Unable to enumerate: {creds}"
             data_response['result'] = "potential"
 
         else:
-            data_response['output'] = f"[?] Unknown Response : {creds}"
+            data_response['output'] = f"[?] UNKNOWN ({error_code}): {creds}"
             data_response['result'] = "failure"
 
 

