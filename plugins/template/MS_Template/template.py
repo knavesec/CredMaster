@@ -81,6 +81,12 @@ def template_authenticate(url, username, password, useragent, pluginargs): # TOD
                 data_response['result'] = "failure"
                 data_response['output'] = f'[-] FAILURE ({error_code}): Tenant for account {username} is not using AzureAD/Office365'
 
+            elif "AADSTS53003" in error:
+                # Access successful but blocked by CAP
+                data_response['result'] = "success"
+                data_response['output'] = f"[+] SUCCESS ({error_code}): {username}:{password} - NOTE: The response indicates token access is blocked by CAP"
+                data_response['valid_user'] = True  
+                
             elif "AADSTS50076" in error:
                 # Microsoft MFA response
                 data_response['result'] = "success"
@@ -103,7 +109,6 @@ def template_authenticate(url, username, password, useragent, pluginargs): # TOD
                 # Locked out account or Smart Lockout in place
                 data_response['result'] = "potential"
                 data_response['output'] = f"[?] WARNING ({error_code}): The account {username} appears to be locked."
-
 
             elif "AADSTS50055" in error:
                 # User password is expired

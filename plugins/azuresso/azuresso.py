@@ -108,6 +108,12 @@ def azuresso_authenticate(url, username, password, useragent, pluginargs):
             if (token):
                 data_response['output'] += f" - GOT TOKEN {token[0]}"
 
+        elif "AADSTS53003" in xmlresponse:
+            # Access successful but blocked by CAP
+            data_response['result'] = "success"
+            data_response['output'] = f"[+] SUCCESS ({error_code}): {creds} - NOTE: The response indicates token access is blocked by CAP"
+            data_response['valid_user'] = True
+
         elif "AADSTS50076" in xmlresponse:
             # Microsoft MFA response
             data_response['result'] = "success"

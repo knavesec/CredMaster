@@ -80,6 +80,12 @@ def msgraph_authenticate(url, username, password,  useragent, pluginargs):
             elif "AADSTS50034" in error:
                 data_response['result'] = "failure"
                 data_response['output'] = f'[-] FAILURE ({error_code}): Tenant for account {username} is not using AzureAD/Office365'
+            
+            elif "AADSTS53003" in error:
+                # Access successful but blocked by CAP
+                data_response['result'] = "success"
+                data_response['output'] = f"[+] SUCCESS ({error_code}): {username}:{password} - NOTE: The response indicates token access is blocked by CAP"
+                data_response['valid_user'] = True  
 
             elif "AADSTS50076" in error:
                 # Microsoft MFA response
