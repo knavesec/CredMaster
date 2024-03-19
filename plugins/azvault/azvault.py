@@ -73,10 +73,16 @@ def azvault_authenticate(url, username, password, useragent, pluginargs):
                 data_response['result'] = "failure"
                 data_response['output'] = f'[-] FAILURE: Tenant for account {username} is not using AzureAD/Office365'
 
-            elif "AADSTS50079" in error or "AADSTS50076" in error:
+            elif "AADSTS50076" in error:
                 # Microsoft MFA response
                 data_response['result'] = "success"
                 data_response['output'] = f"[+] SUCCESS: {username}:{password} - NOTE: The response indicates MFA (Microsoft) is in use"
+                data_response['valid_user'] = True
+
+            elif "AADSTS50079" in error:
+                # Microsoft MFA response
+                data_response['result'] = "success"
+                data_response['output'] = f"[+] SUCCESS: {username}:{password} - NOTE: The response indicates MFA (Microsoft) must be onboarded!"
                 data_response['valid_user'] = True
 
             elif "AADSTS50158" in error:
