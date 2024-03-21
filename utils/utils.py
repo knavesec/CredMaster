@@ -50,7 +50,10 @@ def get_owa_domain(url, uri, useragent):
 
     r = requests.post("{url}{uri}".format(url=url,uri=uri), headers=auth_header, verify=False)
     if r.status_code == 401:
-        ntlm_info = ntlmdecode(r.headers["x-amzn-Remapped-WWW-Authenticate"])
+        ''' [!] Having trouble getting the x-amzn-remapped-www-authenticate header to work with the OWA plugin
+                www-authenticate gets us what we want - not sure of the implications of this
+        '''
+        ntlm_info = ntlmdecode(r.headers["WWW-Authenticate"])
         return ntlm_info["NetBIOS_Domain_Name"]
     else:
         return "NOTFOUND"
