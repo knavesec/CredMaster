@@ -63,7 +63,7 @@ def pingfed_authenticate(url, username, password, useragent, pluginargs):
         resp = sess.post(f"{url}{action}", headers=headers, params=params_data, data=post_data, allow_redirects=False) 
         page = BeautifulSoup(resp.text, features="html.parser")
 
-        if resp.status_code == 302:
+        if "idp_account_id" in resp.text:
             data_response['result'] = "success"
             data_response['output'] = f"[+] SUCCESS: => {username}:{password}"
             data_response['valid_user'] = True
@@ -71,7 +71,7 @@ def pingfed_authenticate(url, username, password, useragent, pluginargs):
         # Check if page has password field
         elif "pf.pass" not in resp.text:
             data_response['result'] = "potential"
-            data_response['output'] = f"[?] UNKNOWN_RESPONSE_CODE: {resp.status_code} => {username}:{password}"
+            data_response['output'] = f"[?] UNKNOWN: {resp.status_code} => {username}:{password}"
 
         else:  # fail
             data_response['result'] = "failure"
