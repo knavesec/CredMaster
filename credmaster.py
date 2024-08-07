@@ -679,7 +679,7 @@ class CredMaster(object):
 		print(f"[{ts}] {entry}")
 
 		if self.outfile is not None:
-			with open(self.outfile + "-credmaster.txt", 'a+') as file:
+			with open(self.outfile + "-credmaster.txt", 'a+', encoding='utf-8') as file:
 				file.write(f"[{ts}] {entry}")
 				file.write("\n")
 				file.close()
@@ -691,7 +691,7 @@ class CredMaster(object):
 
 		self.lock_userenum.acquire()
 
-		with open("credmaster-validusers.txt", 'a+') as file:
+		with open("credmaster-validusers.txt", 'a+', encoding='utf-8') as file:
 			file.write(username)
 			file.write('\n')
 			file.close()
@@ -703,7 +703,7 @@ class CredMaster(object):
 
 		self.lock_success.acquire()
 
-		with open("credmaster-success.txt", 'a+') as file:
+		with open("credmaster-success.txt", 'a+', encoding='utf-8') as file:
 			file.write(username + ":" + password)
 			file.write('\n')
 			file.close()
