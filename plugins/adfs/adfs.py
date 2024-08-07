@@ -51,7 +51,7 @@ def adfs_authenticate(url, username, password, useragent, pluginargs):
 
     try:
 
-        resp = requests.post("{}/adfs/ls/".format(url), headers=headers, params=params_data, data=post_data, allow_redirects=False)
+        resp = requests.post("{}/adfs/ls/".format(url), headers=headers, params=params_data, data=post_data, allow_redirects=False, verify=False, proxies=pluginargs["proxy"])
 
         if resp.status_code == 302:
             data_response['result'] = "success"

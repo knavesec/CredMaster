@@ -27,7 +27,7 @@ def gmailenum_authenticate(url, username, password, useragent, pluginargs):
 
     try:
 
-        resp = requests.get(f"{url}/mail/gxlu",params={"email":username},headers=headers)
+        resp = requests.get(f"{url}/mail/gxlu", params={"email":username}, headers=headers, verify=False, proxies=pluginargs["proxy"])
 
         if "Set-Cookie" in resp.headers.keys():
             data_response['result'] = "success"

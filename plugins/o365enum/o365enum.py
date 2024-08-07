@@ -53,6 +53,8 @@ def o365enum_authenticate(url, username, password, useragent, pluginargs):
         body = '{"Username":"%s"}' % username
 
         sess = requests.session()
+        sess.proxies = pluginargs["proxy"]
+        sess.verify = False
 
         response = sess.post(f"{url}/common/GetCredentialType", headers=headers, data=body)
 

@@ -34,15 +34,15 @@ def httpbrute_authenticate(url, username, password, useragent, pluginargs):
 
         if pluginargs['auth'] == 'basic':
             auth = requests.auth.HTTPBasicAuth(username, password)
-            resp = requests.get(url=full_url, auth=auth, verify=False, timeout=30)
+            resp = requests.get(url=full_url, auth=auth, verify=False, timeout=30, proxies=pluginargs["proxy"])
 
         elif pluginargs['auth'] == 'digest':
             auth = requests.auth.HTTPDigestAuth(username, password)
-            resp = requests.get(url=full_url, auth=auth, verify=False, timeout=30)
+            resp = requests.get(url=full_url, auth=auth, verify=False, timeout=30, proxies=pluginargs["proxy"])
 
         else: # NTLM
             auth = requests_ntlm.HttpNtlmAuth(username, password)
-            resp = requests.get(url=full_url, auth=auth, verify=False, timeout=30)
+            resp = requests.get(url=full_url, auth=auth, verify=False, timeout=30, proxies=pluginargs["proxy"])
 
 
         if resp.status_code == 200:
