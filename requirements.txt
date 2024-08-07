@@ -5,4 +5,4 @@ bs4
 lxml
 datetime
 requests_ntlm
-discordwebhook
+db-sqlite3

@@ -55,7 +55,7 @@ def msol_authenticate(url, username, password, useragent, pluginargs):
     headers = utils.add_custom_headers(pluginargs, headers)
 
     try:
-        resp = requests.post(f"{url}/common/oauth2/token", headers=headers, data=body)
+        resp = requests.post(f"{url}/common/oauth2/token", headers=headers, data=body, verify=False, proxies=pluginargs["proxy"])
 
         if resp.status_code == 200:
             data_response['result'] = "success"
@@ -71,13 +71,13 @@ def msol_authenticate(url, username, password, useragent, pluginargs):
                 data_response['result'] = "failure"
                 data_response['output'] = f"[-] FAILURE ({error_code}): Invalid username or password. Username: {username} could exist"
 
-            elif "AADSTS50128" in error or "AADSTS50059" in error:
-                data_response['result'] = "failure"
-                data_response['output'] = f"[-] FAILURE ({error_code}): Tenant for account {username} is not using AzureAD/Office365"
+            elif any([x in error for x in ["AADSTS50128", "AADSTS50059", "AADSTS50034"]]):
+                data_response['result'] = "inexistant"
+                data_response['output'] = f"[-] INEXISTANT ({error_code}): Tenant for account {username} is not using AzureAD/Office365"
 
-            elif "AADSTS50034" in error:
-                data_response['result'] = "failure"
-                data_response['output'] = f'[-] FAILURE ({error_code}): Tenant for account {username} is not using AzureAD/Office365'
+            elif "AADSTS50056" in error:
+                data_response['result'] = "inexistant"
+                data_response['output'] = f"[-] INEXISTANT ({error_code}): Password does not exist in store for {username}"
 
             elif "AADSTS53003" in error:
                 # Access successful but blocked by CAP

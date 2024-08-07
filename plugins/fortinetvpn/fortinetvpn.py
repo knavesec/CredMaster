@@ -39,7 +39,7 @@ def fortinetvpn_authenticate(url, username, password, useragent, pluginargs):
 
     try:
 
-        resp = requests.post("{}/remote/logincheck".format(url),data=post_params,headers=headers)
+        resp = requests.post("{}/remote/logincheck".format(url),data=post_params, headers=headers, verify=False, proxies=pluginargs["proxy"])
 
         if resp.status_code == 200 and 'redir=' in resp.text and '&portal=' in resp.text:
             data_response['result'] = "success"

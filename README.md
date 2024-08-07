@@ -16,6 +16,13 @@ For detection tips, see the blogpost and detection section.
 3. `pip install -r requirements.txt`
 4. Fill out the config file ([wiki](https://github.com/knavesec/CredMaster/wiki/Config-File)) with desired options, or provide through CLI
 
+## Quick notes on delays
+
+- `delay_user` is the minimum amount of time (in seconds) between two tries for a same user.
+- `delay_domain` is the minimum amount of time (in seconds) between two tries for a same domain.
+- `batch_delay` is the minimum amount of time (in seconds) between two batches (batches' size is defined in `batch_size`).
+- `jitter` is the maximum amount of time between two tries (no matter the user or domain).
+- `jitter_min` is the minimum amount of time between two tries (no matter the user or domain).
 
 ## Benefits & Features ##
 
@@ -63,6 +70,8 @@ The following plugins are currently supported:
   * `--plugin httpbrute`
 * [GMailEnum](https://github.com/knavesec/CredMaster/wiki/GmailEnum) - GSuite/Gmail enumeration
   * `--plugin gmailenum`
+* AWS IAM - AWS IAM enumeration
+  * `--plugin aws`
 
 
 Example Use:

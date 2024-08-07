@@ -12,7 +12,7 @@ def template_authenticate(url, username, password, useragent, pluginargs): # CHA
     # success
     # valid_user
     data_response = {
-        'result' : None,    # Can be "success", "failure" or "potential"
+        'result' : None,    # Can be "success" (credentials are valid), "failure" (credentials are invalid), "potential" (credentials may be valid but not 100% sure) or "inexistant" (user does not exist)
         'error' : False,
         'output' : "",
         'valid_user' : False
@@ -34,7 +34,7 @@ def template_authenticate(url, username, password, useragent, pluginargs): # CHA
 
     try:
 
-        resp = requests.post(f"{url}/uri",headers=headers)
+        resp = requests.post(f"{url}/uri",headers=headers, verify=False, proxies=pluginargs["proxy"])
 
         if Success:
             data_response['result'] = "success"

@@ -2,6 +2,7 @@
   "plugin" : null,
   "userfile" : null,
   "passwordfile" : null,
+  "passwordconfig" : null,
   "userpassfile" : null,
   "useragentfile" : null,
 
@@ -10,16 +11,19 @@
   "region" : null,
   "jitter" : null,
   "jitter_min" : null,
-  "delay" : null,
+  "delay_user" : null,
+  "delay_domain": null,
   "batch_size": null,
   "batch_delay": null,
-  "passwordsperdelay" : null,
-  "randomize" : false,
   "header" : null,
   "xforwardedfor" : null,
   "weekday_warrior" : null,
   "color" : false,
   "trim" : false,
+  "cache_file": null,
+  "proxy": null,
+  "proxy_notify": null,
+  "debug": false,
 
   "slack_webhook" : null,
   "pushover_token" : null,
@@ -33,8 +37,10 @@
   "operator_id" : null,
   "exclude_password" : false,
 
+  "no_fireprox" : false,
   "access_key" : null,
   "secret_access_key" : null,
   "session_token" : null,
-  "profile_name" : null
+  "profile_name" : null,
+  "api_prefix": null
 }

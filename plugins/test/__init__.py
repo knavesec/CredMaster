@@ -4,11 +4,11 @@ requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.
 
 
 def validate(pluginargs, args):
-    pluginargs = {
-        'url' : "https://mail.google.com",
-        'userenum' : True
-    }
-    return True, None, pluginargs
+    if "url" in pluginargs.keys():
+        return True, None, pluginargs
+    else:
+        error = "Missing url argument, specify as --url https://adfs.domain.com"
+        return False, error, None
 
 
 def testconnect(pluginargs, args, api_dict, useragent):
@@ -23,7 +23,7 @@ def testconnect(pluginargs, args, api_dict, useragent):
 
     headers = utils.add_custom_headers(pluginargs, headers)
 
-    resp = requests.get(api_dict['proxy_url'], headers=headers, verify=False, proxies=pluginargs["proxy"])
+    resp = requests.get(api_dict['proxy_url'] + '/check', headers=headers, verify=False, proxies=pluginargs["proxy"])
 
     if resp.status_code == 504:
         output = "Testconnect: Connection failed, endpoint timed out, exiting"

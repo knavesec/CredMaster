@@ -1,9 +1,15 @@
-import requests, json
+import requests, json, sys
 from datetime import datetime
-from discordwebhook import Discord
+try:
+    from discordwebhook import Discord
+except ImportError:
+    _has_discord = False
+else:
+    _has_discord = True
 
 
-def notify_success(username, password, notify_obj):
+
+def notify_success(username, password, notify_obj, proxy_notif):
 
     slack_webhook = notify_obj['slack_webhook']
     discord_webhook = notify_obj['discord_webhook']
@@ -18,25 +24,25 @@ def notify_success(username, password, notify_obj):
     exclude_password = notify_obj['exclude_password']
 
     if slack_webhook is not None:
-        slack_notify(username, password, operator, exclude_password, slack_webhook)
+        slack_notify(username, password, operator, exclude_password, slack_webhook, proxy_notif)
 
     if pushover_token is not None and pushover_user is not None:
-        pushover_notify(username, password, operator, exclude_password, pushover_token, pushover_user)
+        pushover_notify(username, password, operator, exclude_password, pushover_token, pushover_user, proxy_notif)
 
     if ntfy_topic is not None and ntfy_host is not None:
-        ntfy_notify(username, password, operator, exclude_password, ntfy_topic, ntfy_host, ntfy_token)
+        ntfy_notify(username, password, operator, exclude_password, ntfy_topic, ntfy_host, ntfy_token, proxy_notif)
 
     if discord_webhook is not None:
-        discord_notify(username, password, operator, exclude_password, discord_webhook)
+        discord_notify(username, password, operator, exclude_password, discord_webhook, proxy_notif)
 
     if teams_webhook is not None:
-        teams_notify(username, password, operator, exclude_password, teams_webhook)
+        teams_notify(username, password, operator, exclude_password, teams_webhook, proxy_notif)
 
     if keybase_webhook is not None:
-        keybase_notify(username, password, operator, exclude_password, keybase_webhook)
+        keybase_notify(username, password, operator, exclude_password, keybase_webhook, proxy_notif)
 
 
-def notify_update(message, notify_obj):
+def notify_update(message, notify_obj, proxy_notif):
 
     slack_webhook = notify_obj['slack_webhook']
     discord_webhook = notify_obj['discord_webhook']
@@ -50,26 +56,26 @@ def notify_update(message, notify_obj):
     operator = notify_obj['operator_id']
 
     if slack_webhook is not None:
-        slack_update(message, operator, slack_webhook)
+        slack_update(message, operator, slack_webhook, proxy_notif)
 
     if pushover_token is not None and pushover_user is not None:
-        pushover_update(message, operator, pushover_token, pushover_user)
+        pushover_update(message, operator, pushover_token, pushover_user, proxy_notif)
 
     if ntfy_topic is not None and ntfy_host is not None:
-        ntfy_update(message, operator, ntfy_topic, ntfy_host, ntfy_token)
+        ntfy_update(message, operator, ntfy_topic, ntfy_host, ntfy_token, proxy_notif)
 
     if discord_webhook is not None:
-        discord_update(message, operator, discord_webhook)
+        discord_update(message, operator, discord_webhook, proxy_notif)
 
     if teams_webhook is not None:
-        teams_update(message, operator, teams_webhook)
+        teams_update(message, operator, teams_webhook, proxy_notif)
     
     if keybase_webhook is not None:
-        keybase_update(message, operator, keybase_webhook)
+        keybase_update(message, operator, keybase_webhook, proxy_notif)
 
 
 # Function for posting username/password to keybase channel
-def keybase_notify(username, password, operator, exclude_password, webhook):
+def keybase_notify(username, password, operator, exclude_password, webhook, proxy_notif):
 
     now = datetime.now()
     date=now.strftime("%d-%m-%Y")
@@ -96,12 +102,13 @@ def keybase_notify(username, password, operator, exclude_password, webhook):
 
     response = requests.post(
         webhook, data=json.dumps(message),
-        headers={'Content-Type': 'application/json'}
+        headers={'Content-Type': 'application/json'},
+        proxies=proxy_notif
     )
 
 
 # Function for debug messages
-def keybase_update(message, operator, webhook):
+def keybase_update(message, operator, webhook, proxy_notif):
 
     now = datetime.now()
     date=now.strftime("%d-%m-%Y")
@@ -122,13 +129,14 @@ def keybase_update(message, operator, webhook):
     }
     response = requests.post(
         webhook, data=json.dumps(message),
-        headers={'Content-Type': 'application/json'}
+        headers={'Content-Type': 'application/json'},
+        proxies=proxy_notif
     )
 
 
 
 # Function for posting username/password to slack channel
-def slack_notify(username, password, operator, exclude_password, webhook):
+def slack_notify(username, password, operator, exclude_password, webhook, proxy_notif):
 
     now = datetime.now()
     date=now.strftime("%d-%m-%Y")
@@ -155,12 +163,13 @@ def slack_notify(username, password, operator, exclude_password, webhook):
 
     response = requests.post(
         webhook, data=json.dumps(message),
-        headers={'Content-Type': 'application/json'}
+        headers={'Content-Type': 'application/json'},
+        proxies=proxy_notif
     )
 
 
 # Function for debug messages
-def slack_update(message, operator, webhook):
+def slack_update(message, operator, webhook, proxy_notif):
 
     now = datetime.now()
     date=now.strftime("%d-%m-%Y")
@@ -181,12 +190,17 @@ def slack_update(message, operator, webhook):
     }
     response = requests.post(
         webhook, data=json.dumps(message),
-        headers={'Content-Type': 'application/json'}
+        headers={'Content-Type': 'application/json'},
+        proxies=proxy_notif
     )
 
 
 # Function for posting username/password to Discord
-def discord_notify(username, password, operator, exclude_password, webhook):
+def discord_notify(username, password, operator, exclude_password, webhook, proxy_notif):
+
+    if not _has_discord:
+        print("Discord notification will not be sent as you do not have installed the `discordwebhook` python package.", file=sys.stderr)
+        return None
 
     now = datetime.now()
     date=now.strftime("%d-%m-%Y")
@@ -207,12 +221,17 @@ def discord_notify(username, password, operator, exclude_password, webhook):
             f"Date: {date}\n"
             f"Time: {time}```")
 
+    # module "discordwebhook" does not support proxies, no luck here
     discord = Discord(url=webhook)
     discord.post(content=text)
 
 
 # Discord notify message
-def discord_update(message, operator, webhook):
+def discord_update(message, operator, webhook, proxy_notif):
+
+    if not _has_discord:
+        print("Discord notification will not be sent as you do not have installed the `discordwebhook` python package.", file=sys.stderr)
+        return None
 
     now = datetime.now()
     date=now.strftime("%d-%m-%Y")
@@ -233,7 +252,7 @@ def discord_update(message, operator, webhook):
 
 
 # Teams notify function
-def teams_notify(username, password, operator, exclude_password, webhook):
+def teams_notify(username, password, operator, exclude_password, webhook, proxy_notif):
 
     now = datetime.now()
     date=now.strftime("%d-%m-%Y")
@@ -262,10 +281,11 @@ def teams_notify(username, password, operator, exclude_password, webhook):
                 "activitySubtitle": f"{content}"
             }],
         },
+        proxies=proxy_notif
     )
 
 # Teams message notify function
-def teams_update(message, operator, webhook):
+def teams_update(message, operator, webhook, proxy_notif):
 
     now = datetime.now()
     date=now.strftime("%d-%m-%Y")
@@ -290,11 +310,12 @@ def teams_update(message, operator, webhook):
                 "activitySubtitle": f"{content}"
             }],
         },
+        proxies=proxy_notif
     )
 
 
 # Pushover notify of valid creds
-def pushover_notify(username, password, operator, exclude_password, token, user):
+def pushover_notify(username, password, operator, exclude_password, token, user, proxy_notif):
 
     headers = {'Content-Type' : 'application/x-www-form-urlencoded'}
 
@@ -324,11 +345,11 @@ def pushover_notify(username, password, operator, exclude_password, token, user)
         'message' : text
     }
 
-    r = requests.post('https://api.pushover.net/1/messages', headers=headers, data=data)
+    r = requests.post('https://api.pushover.net/1/messages', headers=headers, data=data, proxies=proxy_notif)
 
 
 # Pushover generic update messages
-def pushover_update(message, operator, token, user):
+def pushover_update(message, operator, token, user, proxy_notif):
 
     headers = {'Content-Type' : 'application/x-www-form-urlencoded'}
 
@@ -353,11 +374,11 @@ def pushover_update(message, operator, token, user):
         'message' : text
     }
 
-    r = requests.post('https://api.pushover.net/1/messages', headers=headers, data=data)
+    r = requests.post('https://api.pushover.net/1/messages', headers=headers, data=data, proxies=proxy_notif)
 
 
 # Ntfy notify of valid creds
-def ntfy_notify(username, password, operator, exclude_password, topic, host, token):
+def ntfy_notify(username, password, operator, exclude_password, topic, host, token, proxy_notif):
     now = datetime.now()
     date=now.strftime("%d-%m-%Y")
     time=now.strftime("%H:%M:%S")
@@ -386,11 +407,11 @@ def ntfy_notify(username, password, operator, exclude_password, topic, host, tok
     if token is not None:
         headers["Authorization"] = "Bearer {:s}".format(token)
 
-    r = requests.post("{:s}/{:s}".format(host, topic), headers=headers, data=text)
+    r = requests.post("{:s}/{:s}".format(host, topic), headers=headers, data=text, proxies=proxy_notif)
 
 
 # Ntfy generic update messages
-def ntfy_update(message, operator, topic, host, token):
+def ntfy_update(message, operator, topic, host, token, proxy_notif):
     now = datetime.now()
     date=now.strftime("%d-%m-%Y")
     time=now.strftime("%H:%M:%S")
@@ -414,4 +435,4 @@ def ntfy_update(message, operator, topic, host, token):
     if token is not None:
         headers["Authorization"] = "Bearer {:s}".format(token)
 
-    r = requests.post("{:s}/{:s}".format(host, topic), headers=headers, data=text)
+    r = requests.post("{:s}/{:s}".format(host, topic), headers=headers, data=text, proxies=proxy_notif)

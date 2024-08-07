@@ -1,0 +1,52 @@
+import requests
+import utils.utils as utils
+from urllib.parse import urlparse
+requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
+
+
+def validate(pluginargs, args):
+    if 'url' in pluginargs.keys():
+        if not pluginargs['url'].startswith("https://") and not pluginargs['url'].startswith("http://"):
+            pluginargs['url'] = "https://" + pluginargs['url']
+        if not pluginargs['url'].endswith("/"):
+            pluginargs['url'] = pluginargs['url'] + "/"
+
+        if not urlparse(pluginargs['url']).path or urlparse(pluginargs['url']).path == '/':
+            if 'realm' in pluginargs.keys():
+                if 'failure-string' in pluginargs.keys():
+                    return True, None, pluginargs
+                else:
+                    error = "Missing failure-string argument, specify as --failure-string 'Invalid username or password'"
+                    return False, error, None
+            else:
+                error = "Missing realm argument, specify as --realm 'master'"
+                return False, error, None
+        else:
+            error = "URL for keycloak plugin should only include the base domain (e.g. 'https://corp-auth.com/')"
+            return False, error, pluginargs
+    else:
+        error = "Missing url argument, specify as --url https://corp-auth.com or --url corp-auth.com"
+        return False, error, None
+
+
+def testconnect(pluginargs, args, api_dict, useragent):
+
+    success = True
+    headers = {
+        'User-Agent' : useragent,
+        "X-My-X-Forwarded-For" : utils.generate_ip(),
+        "x-amzn-apigateway-api-id" : utils.generate_id(),
+        "X-My-X-Amzn-Trace-Id" : utils.generate_trace_id(),
+    }
+
+    headers = utils.add_custom_headers(pluginargs, headers)
+
+    resp = requests.get(api_dict['proxy_url'], headers=headers, verify=False, proxies=pluginargs["proxy"])
+
+    if resp.status_code == 504:
+        output = "Testconnect: Connection failed, endpoint timed out, exiting"
+        success = False
+    else:
+        output = "Testconnect: Connection success, continuing"
+
+    return success, output, pluginargs

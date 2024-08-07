@@ -23,7 +23,7 @@ def testconnect(pluginargs, args, api_dict, useragent):
 
     headers = utils.add_custom_headers(pluginargs, headers)
 
-    resp = requests.get(api_dict['proxy_url'] + "/common/GetCredentialType", headers=headers)
+    resp = requests.get(api_dict['proxy_url'] + "/common/GetCredentialType", headers=headers, verify=False, proxies=pluginargs["proxy"])
 
     if resp.status_code == 504:
         output = "Testconnect: Connection failed, endpoint timed out, exiting"

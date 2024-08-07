@@ -57,7 +57,7 @@ def template_authenticate(url, username, password, useragent, pluginargs): # TOD
 
     # TODO: change this as needed for your attack
     try:
-        resp = requests.post(f"{url}/common/oauth2/token", headers=headers, data=body)
+        resp = requests.post(f"{url}/common/oauth2/token", headers=headers, data=body, verify=False, proxies=pluginargs["proxy"])
 
         if resp.status_code == 200:
             data_response['result'] = "success"
