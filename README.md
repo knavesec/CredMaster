@@ -63,6 +63,8 @@ The following plugins are currently supported:
   * `--plugin httpbrute`
 * [GMailEnum](https://github.com/knavesec/CredMaster/wiki/GmailEnum) - GSuite/Gmail enumeration
   * `--plugin gmailenum`
+* [PingFed](https://github.com/knavesec/CredMaster/wiki/PingFed) - Ping Federated Authentication
+  * `--plugin pingfed`
 
 
 Example Use:
@@ -114,6 +116,7 @@ PRs welcome :)
 - Andy Gill ([ZephrFish](https://twitter.com/ZephrFish)) - Colour functions + Tweaks/Notifications, helping on dev rewrite, AzVault module
 - Hugo VINCENT ([@hugow](https://twitter.com/hugow_vincent)) - Batch size / delay
 - Dennis Herrmann ([dhn_](https://twitter.com/dhn_) from [CODE WHITE GmbH](https://twitter.com/codewhitesec)) - Ntfy notifying support
+- Jason Juntunen ([missing0x00](https://twitter.com/missing0x00)) - PingFed plugin
 
 
 Feel free to drop me a line

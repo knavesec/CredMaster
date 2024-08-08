@@ -34,6 +34,6 @@ def testconnect(pluginargs, args, api_dict, useragent):
         output = "Testconnect: Connection failed, endpoint timed out, exiting"
         success = False
     else:
-        output = "Testconnect: Connection success, continuing"
+        output = "Testconnect: Connection success, continuing. WARNING - This plugin is in beta and has not been rigorously tested!"
 
     return success, output, pluginargs
