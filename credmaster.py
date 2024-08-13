@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # from zipfile import *
-import threading, queue, argparse, datetime, json, importlib, random, os, time, sys, timezone
+import threading, queue, argparse, datetime, json, importlib, random, os, time, sys
 from utils.fire import FireProx
 import utils.utils as utils
 import utils.notify as notify
@@ -230,7 +230,7 @@ class CredMaster(object):
 		##
 		pluginargs['thread_count'] = self.thread_count
 
-		self.start_time = datetime.datetime.now(timezone.utc).replace(tzinfo=None)
+		self.start_time = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
 		self.log_entry(f"Execution started at: {self.start_time}")
 
 		# Check with plugin to make sure it has the data that it needs
@@ -322,7 +322,7 @@ class CredMaster(object):
 
 					self.weekdaywarrior = int(self.weekdaywarrior)
 					sleep_time = self.ww_calc_next_spray_delay(self.weekdaywarrior)
-					next_time = datetime.datetime.now(timezone.utc).replace(tzinfo=None) + datetime.timedelta(hours=self.weekdaywarrior) + datetime.timedelta(minutes=sleep_time)
+					next_time = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None) + datetime.timedelta(hours=self.weekdaywarrior) + datetime.timedelta(minutes=sleep_time)
 					self.log_entry(f"Weekday Warrior: sleeping {sleep_time} minutes until {next_time.strftime('%H:%M')} on {spray_days[next_time.weekday()]} in UTC {self.weekdaywarrior}")
 					time.sleep(sleep_time*60)
 
@@ -342,19 +342,19 @@ class CredMaster(object):
 
 				if self.delay is None or len(passwords) == 1 or password == passwords[len(passwords)-1]:
 					if self.userpassfile != None:
-						self.log_entry(f"Completed spray with user-pass file {self.userpassfile} at {datetime.datetime.now(timezone.utc).replace(tzinfo=None)}")
+						self.log_entry(f"Completed spray with user-pass file {self.userpassfile} at {datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)}")
 					elif self.userenum:
-						self.log_entry(f"Completed userenum at {datetime.datetime.now(timezone.utc).replace(tzinfo=None)}")
+						self.log_entry(f"Completed userenum at {datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)}")
 					else:
-						self.log_entry(f"Completed spray with password {password} at {datetime.datetime.now(timezone.utc).replace(tzinfo=None)}")
+						self.log_entry(f"Completed spray with password {password} at {datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)}")
 
 					notify.notify_update(f"Info: Spray complete.", self.notify_obj)
 					continue
 				elif count != self.passwordsperdelay:
-					self.log_entry(f"Completed spray with password {password} at {datetime.datetime.now(timezone.utc).replace(tzinfo=None)}, moving on to next password...")
+					self.log_entry(f"Completed spray with password {password} at {datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)}, moving on to next password...")
 					continue
 				else:
-					self.log_entry(f"Completed spray with password {password} at {datetime.datetime.now(timezone.utc).replace(tzinfo=None)}, sleeping for {self.delay} minutes before next password spray")
+					self.log_entry(f"Completed spray with password {password} at {datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)}, sleeping for {self.delay} minutes before next password spray")
 					self.log_entry(f"Valid credentials discovered: {len(self.results)}")
 					for success in self.results:
 						self.log_entry(f"Valid: {success['username']}:{success['password']}")
@@ -376,7 +376,7 @@ class CredMaster(object):
 				self.log_entry("Second KeyboardInterrupt detected, unable to clean up APIs :( try the --clean option")
 
 		# Capture duration
-		self.end_time = datetime.datetime.now(timezone.utc).replace(tzinfo=None)
+		self.end_time = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
 		self.time_lapse = (self.end_time-self.start_time).total_seconds()
 
 		# Print stats
@@ -629,7 +629,7 @@ class CredMaster(object):
 
 		spray_times = [8,12,14] # launch sprays at 7AM, 11AM and 3PM
 
-		now = datetime.datetime.now(timezone.utc).replace(tzinfo=None) + datetime.timedelta(hours=offset)
+		now = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None) + datetime.timedelta(hours=offset)
 		hour_cur = int(now.strftime("%H"))
 		minutes_cur = int(now.strftime("%M"))
 		day_cur = int(now.weekday())
@@ -675,7 +675,7 @@ class CredMaster(object):
 
 		self.lock.acquire()
 
-		ts = datetime.datetime.now(timezone.utc).replace(tzinfo=None).strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
+		ts = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None).strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
 		print(f"[{ts}] {entry}")
 
 		if self.outfile is not None:
