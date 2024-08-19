@@ -81,6 +81,8 @@ class CredMaster(object):
 		self.userpassfile = args.userpassfile or config_dict.get("userpassfile")
 		self.useragentfile = args.useragentfile or config_dict.get("useragentfile")
 		self.trim = args.trim or config_dict.get("trim")
+		self.stop_validated_user = args.stop_validated_user or config_dict.get("stop_validated_user")
+		self.validated_users = []
 
 		self.outfile = args.outfile or config_dict.get("outfile")
 
@@ -527,6 +529,17 @@ class CredMaster(object):
 						time.sleep(self.batch_delay * 60)
 
 				cred = self.q_spray.get_nowait()
+				if self.stop_validated_user:
+					# keep getting new cred entries until we get one for a unvalidated user
+					while cred["username"] in self.validated_users:
+						if not self.q_spray.empty():
+							cred = self.q_spray.get_nowait()
+						else:
+							break 
+					
+					# queue empty but final cred is for already validated user
+					if cred["username"] in self.validated_users:
+						break
 
 				count += 1
 
@@ -550,6 +563,8 @@ class CredMaster(object):
 
 				if response["valid_user"] or response["result"] == "success":
 					self.log_valid(cred["username"], self.plugin)
+					if self.stop_validated_user:
+						self.validated_users += [cred["username"]]
 
 				if self.color:
 
@@ -739,6 +754,7 @@ if __name__ == '__main__':
 	adv_args.add_argument('--weekday_warrior', default=None, required=False, help="If you don't know what this is don't use it, input is timezone UTC offset")
 	adv_args.add_argument('--color', default=False, action="store_true", required=False, help="Output spray results in Green/Yellow/Red colors")
 	adv_args.add_argument('--trim', '--remove', action="store_true", help="Remove users with found credentials from future sprays")
+	adv_args.add_argument('--stop_validated_user', action="store_true", help="Dont continue to try and guess passwords for users with validated credential pair")
 
 	notify_args = parser.add_argument_group(title='Notification Inputs')
 	notify_args.add_argument('--slack_webhook', type=str, default=None, help='Webhook link for Slack notifications')
@@ -765,5 +781,5 @@ if __name__ == '__main__':
 	fpu_args.add_argument('--api_list', default=False, action="store_true", help='List all fireprox APIs')
 
 	args,pluginargs = parser.parse_known_args()
-
+	 
 	CredMaster(args, pluginargs)
