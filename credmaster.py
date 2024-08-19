@@ -531,14 +531,14 @@ class CredMaster(object):
 				cred = self.q_spray.get_nowait()
 				if self.stop_validated_user:
 					# keep getting new cred entries until we get one for a unvalidated user
-					while cred["username"] in self.validated_users:
+					while cred["username"].lower() in self.validated_users:
 						if not self.q_spray.empty():
 							cred = self.q_spray.get_nowait()
 						else:
 							break 
 					
 					# queue empty but final cred is for already validated user
-					if cred["username"] in self.validated_users:
+					if cred["username"].lower() in self.validated_users:
 						break
 
 				count += 1
@@ -564,7 +564,7 @@ class CredMaster(object):
 				if response["valid_user"] or response["result"] == "success":
 					self.log_valid(cred["username"], self.plugin)
 					if self.stop_validated_user:
-						self.validated_users += [cred["username"]]
+						self.validated_users += [cred["username"].lower()]
 
 				if self.color:
 
