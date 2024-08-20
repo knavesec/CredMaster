@@ -304,10 +304,15 @@ class CredMaster(object):
 					if self.userenum:
 						notify.notify_update("Info: Starting Userenum.", self.notify_obj)
 					else:
-						notify.notify_update(f"Info: Starting Spray.\nPass: {password}", self.notify_obj)
-
+						if self.notify_obj['exclude_password']:
+							notify.notify_update(f"Info: Starting Spray.", self.notify_obj)
+						else:
+							notify.notify_update(f"Info: Starting Spray.\nPass: {password}", self.notify_obj)
 				else:
-					notify.notify_update(f"Info: Spray Continuing.\nPass: {password}", self.notify_obj)
+					if self.notify_obj['exclude_password']:
+						notify.notify_update(f"Info: Spray Continuing.\nPassword #: {time_count}", self.notify_obj)
+					else:
+						notify.notify_update(f"Info: Spray Continuing.\nPass: {password}", self.notify_obj)
 
 				if self.weekdaywarrior is not None:
 					spray_days = {
