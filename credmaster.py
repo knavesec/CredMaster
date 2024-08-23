@@ -328,6 +328,12 @@ class CredMaster(object):
 
 				self.load_credentials(password)
 
+				# Giving an early abort opportunity due to trim-ing out of all discovered usernames
+				if self.q_spray.qsize() < 1:
+					self.log_entry(f"Completing spray early due to all users being validated at {datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)}")
+					notify.notify_update(f"Info: Spray complete.", self.notify_obj)
+					break
+
 				# Start Spray
 				threads = []
 				for api in self.apis:
