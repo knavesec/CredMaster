@@ -773,6 +773,4 @@ if __name__ == '__main__':
 		parser.set_defaults(**dat)
 		args,pluginargs = parser.parse_known_args()
 
-	# Debug print for demo
-	print(f"Current profile: {args.profile_name}")
 	CredMaster(args, pluginargs)
