@@ -39,7 +39,73 @@ class CredMaster(object):
 		self.api_list = args.api_list
 
 		self.pargs = pargs
-		self.parse_all_args(args)
+		# assign variables
+		# TOO MANY MF VARIABLES THIS HAS GOTTEN OUT OF CONTROL
+		# This is fine ;)
+		# No, it's really not :(
+
+		# TODO: either move to fucntion named args, or (*args, **kwargs)
+		# TODO: Make all the self.fobar args match the argparse.args.foo_bar args
+
+		# TODO: Why are we storing the entire args namespace, but also coppying almost all of them to self attrs?
+		self.args = args
+
+		self.plugin = args.plugin
+		self.userfile = args.userfile
+		self.passwordfile = args.passwordfile
+		self.userpassfile = args.userpassfile
+		self.useragentfile = args.useragentfile
+		self.trim = args.trim
+
+		self.outfile = args.outfile
+
+		self.thread_count = args.threads
+		if self.thread_count == None:
+			self.thread_count = 1
+
+		self.region = args.region
+		self.jitter = args.jitter
+		self.jitter_min = args.jitter_min
+		self.delay = args.delay
+		
+		self.batch_size = args.batch_size
+		self.batch_delay = args.batch_delay
+		if self.batch_size != None and self.batch_delay == None:
+			self.batch_delay = 1
+
+
+		self.passwordsperdelay = args.passwordsperdelay
+		if self.passwordsperdelay == None:
+			self.passwordsperdelay = 1
+
+		self.randomize = args.randomize
+		self.header = args.header
+		self.xforwardedfor = args.xforwardedfor
+		self.weekdaywarrior = args.weekday_warrior
+		self.color = args.color
+
+		self.notify_obj = {
+			"slack_webhook" : args.slack_webhook,
+			"pushover_token" : args.pushover_token,
+			"pushover_user" : args.pushover_user,
+			"ntfy_topic" : args.ntfy_topic,
+			"ntfy_host" : args.ntfy_host,
+			"ntfy_token" : args.ntfy_token,
+			"discord_webhook" : args.discord_webhook,
+			"keybase_webhook" : args.keybase_webhook,
+			"teams_webhook" : args.teams_webhook,
+			"operator_id" : args.operator_id,
+			"exclude_password" : args.exclude_password
+		}
+
+		self.access_key = args.access_key
+		self.secret_access_key = args.secret_access_key
+		self.session_token = args.session_token
+		self.profile_name = args.profile_name
+
+		# -----
+		# End self.parse_all_args()
+		# -----
 
 		self.do_input_error_handling()
 
@@ -52,81 +118,6 @@ class CredMaster(object):
 			self.list_apis()
 		else:
 			self.Execute(args)
-
-
-	def parse_all_args(self, args):
-		#
-		# this function will parse both config files and CLI args
-		# If a value is specified in both config and CLI, the CLI value will be preferred
-		# Reason: if someone wants to take a standard config from client to client, they can override a value
-		#
-
-		self.args = args
-
-		if args.config is not None and not os.path.exists(args.config):
-			self.log_entry(f"Config file {args.config} cannot be found")
-			sys.exit()
-
-		# assign variables
-		# TOO MANY MF VARIABLES THIS HAS GOTTEN OUT OF CONTROL
-		# This is fine ;)
-
-		config_dict = {}
-		if args.config != None:
-			config_dict = json.loads(open(args.config).read())
-
-		self.plugin = args.plugin or config_dict.get("plugin")
-		self.userfile = args.userfile or config_dict.get("userfile")
-		self.passwordfile = args.passwordfile or config_dict.get("passwordfile")
-		self.userpassfile = args.userpassfile or config_dict.get("userpassfile")
-		self.useragentfile = args.useragentfile or config_dict.get("useragentfile")
-		self.trim = args.trim or config_dict.get("trim")
-
-		self.outfile = args.outfile or config_dict.get("outfile")
-
-		self.thread_count = args.threads or config_dict.get("threads")
-		if self.thread_count == None:
-			self.thread_count = 1
-
-		self.region = args.region or config_dict.get("region")
-		self.jitter = args.jitter or config_dict.get("jitter")
-		self.jitter_min = args.jitter_min or config_dict.get("jitter_min")
-		self.delay = args.delay or config_dict.get("delay")
-		
-		self.batch_size = args.batch_size or config_dict.get("batch_size")
-		self.batch_delay = args.batch_delay or config_dict.get("batch_delay")
-		if self.batch_size != None and self.batch_delay == None:
-			self.batch_delay = 1
-
-
-		self.passwordsperdelay = args.passwordsperdelay or config_dict.get("passwordsperdelay")
-		if self.passwordsperdelay == None:
-			self.passwordsperdelay = 1
-
-		self.randomize = args.randomize or config_dict.get("randomize")
-		self.header = args.header or config_dict.get("header")
-		self.xforwardedfor = args.xforwardedfor or config_dict.get("xforwardedfor")
-		self.weekdaywarrior = args.weekday_warrior or config_dict.get("weekday_warrior")
-		self.color = args.color or config_dict.get("color")
-
-		self.notify_obj = {
-			"slack_webhook" : args.slack_webhook or config_dict.get("slack_webhook"),
-			"pushover_token" : args.pushover_token or config_dict.get("pushover_token"),
-			"pushover_user" : args.pushover_user or config_dict.get("pushover_user"),
-			"ntfy_topic" : args.ntfy_topic or config_dict.get("ntfy_topic"),
-			"ntfy_host" : args.ntfy_host or config_dict.get("ntfy_host"),
-			"ntfy_token" : args.ntfy_token or config_dict.get("ntfy_token"),
-			"discord_webhook" : args.discord_webhook or config_dict.get("discord_webhook"),
-			"keybase_webhook" : args.keybase_webhook or config_dict.get("keybase_webhook"),
-			"teams_webhook" : args.teams_webhook or config_dict.get("teams_webhook"),
-			"operator_id" : args.operator_id or config_dict.get("operator_id"),
-			"exclude_password" : args.exclude_password or config_dict.get("exclude_password")
-		}
-
-		self.access_key = args.access_key or config_dict.get("access_key")
-		self.secret_access_key = args.secret_access_key or config_dict.get("secret_access_key")
-		self.session_token = args.session_token or config_dict.get("session_token")
-		self.profile_name = args.profile_name or config_dict.get("profile_name")
 
 
 	def do_input_error_handling(self):
@@ -765,5 +756,23 @@ if __name__ == '__main__':
 	fpu_args.add_argument('--api_list', default=False, action="store_true", help='List all fireprox APIs')
 
 	args,pluginargs = parser.parse_known_args()
+	if args.config is not None:
+		# This means we have a --config arg. This block loads it, sets the defaults, then re-parses.
+		# Doing things in this order removes a lot of the spaghetti code for conditional parsing from
+		# file, while preserving the "CLI > Config file > hard-coded defaults" precedance order.
+		if not os.path.exists(args.config):
+			print("Failed to load config. Are you sure it exists where you think it does?")
+			os.exit(11)
+			dat = None
+		with open(args.config, 'r') as f:
+			dat = {k: v for k,v in json.load(f).items() if v is not None}
+		if dat is None or len(dat) == 0:
+			print("Failed to load config. Are you sure it actually has config to use?")
+			os.exit(12)
+            
+		parser.set_defaults(**dat)
+		args,pluginargs = parser.parse_known_args()
 
+	# Debug print for demo
+	print(f"Current profile: {args.profile_name}")
 	CredMaster(args, pluginargs)
