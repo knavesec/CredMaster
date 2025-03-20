@@ -527,6 +527,17 @@ class CredMaster(object):
 						time.sleep(self.batch_delay * 60)
 
 				cred = self.q_spray.get_nowait()
+				if self.trim:
+					# keep getting new cred entries until we get one for a unvalidated user
+					while cred["username"].lower() in [a["username"].lower() for a in self.results]:
+						if not self.q_spray.empty():
+							cred = self.q_spray.get_nowait()
+						else:
+							break 
+
+					# queue empty but final cred is for already validated user
+					if cred["username"].lower() in [a["username"].lower() for a in self.results]:
+						break
 
 				count += 1
 
